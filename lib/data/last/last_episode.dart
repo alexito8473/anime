@@ -1,4 +1,6 @@
-class LastEpisode {
+import 'package:anime/data/interface/last_interface.dart';
+
+class LastEpisode implements LastInterface{
   final String anime;
   final String episode;
   final String id;
@@ -16,5 +18,14 @@ class LastEpisode {
         episode: json['episode'],
         id: json['id'],
         imagePreview: json['imagePreview']);
+  }
+  @override
+  String idAnime(){
+    return "anime/${id.substring(0,id.length-(episode.length+1)).toLowerCase().replaceAll(" ", "-")}";
+  }
+
+  @override
+  String getTitle() {
+    return anime;
   }
 }

@@ -11,8 +11,9 @@ class Anime {
   final String type;
   final List<String> genres;
   final List<Episode> episodes;
+  bool isNotBannerCorrect;
 
-  const Anime(
+  Anime(
       {required this.id,
       required this.title,
       required this.poster,
@@ -22,17 +23,16 @@ class Anime {
       required this.debut,
       required this.type,
       required this.genres,
+      required this.isNotBannerCorrect,
       required this.episodes});
 
-  factory Anime.fromJson(Map<String, dynamic> json) {
+  factory Anime.fromJson(Map<dynamic, dynamic> json) {
     var genresFromJson = json['genres'];
-    List<String> genresList = List<String>.from(genresFromJson);
-
+    List<String>? genresList = List<String>.from(genresFromJson);
     var episodesFromJson = json['episodes'] as List;
-    List<Episode> episodesList = episodesFromJson
+    List<Episode>? episodesList = episodesFromJson
         .map((episodeJson) => Episode.fromJson(episodeJson))
         .toList();
-
     return Anime(
       id: json['id'],
       title: json['title'],
@@ -44,6 +44,22 @@ class Anime {
       type: json['type'],
       genres: genresList,
       episodes: episodesList,
+      isNotBannerCorrect: true,
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'poster': poster,
+      'banner': banner,
+      'synopsis': synopsis,
+      'rating': rating,
+      'debut': debut,
+      'type': type,
+      'genres': genres,
+      'episodes': episodes.map((episode) => episode.toMap()).toList(),
+    };
   }
 }
