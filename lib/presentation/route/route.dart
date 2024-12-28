@@ -1,6 +1,7 @@
 import 'package:anime/data/episode.dart';
 import 'package:anime/presentation/pages/detail_anime_page.dart';
 import 'package:anime/presentation/pages/home_page.dart';
+import 'package:anime/presentation/pages/load_page.dart';
 import 'package:anime/presentation/pages/server_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -11,26 +12,36 @@ final GoRouter router = GoRouter(routes: <RouteBase>[
   GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state) {
-        return const HomePage();
+        return const LoadPage();
       },
       routes: <RouteBase>[
         GoRoute(
-            path: 'animeData',
+            path: 'home',
             pageBuilder: (context, state) {
               return customTransitionPage(
                   state: state,
-                  widget: DetailAnimePage(anime: state.extra as Anime));
+                  widget: const HomePage());
             },
             routes: [
               GoRoute(
-                path: '/servers',
-                pageBuilder: (context, state) {
-                  return customTransitionPage(
-                      state: state,
-                      widget: ServerListPage(episode: state.extra as Episode));
-                },
-              )
-            ])
+                  path: 'animeData',
+                  pageBuilder: (context, state) {
+                    return customTransitionPage(
+                        state: state,
+                        widget: DetailAnimePage(anime: state.extra as Anime));
+                  },
+                  routes: [
+                    GoRoute(
+                      path: 'servers',
+                      pageBuilder: (context, state) {
+                        return customTransitionPage(
+                            state: state,
+                            widget: ServerListPage(
+                                episode: state.extra as Episode));
+                      },
+                    )
+                  ])
+            ]),
       ])
 ]);
 

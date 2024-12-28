@@ -27,13 +27,12 @@ class _ServerListPageState extends State<ServerListPage> {
     return Scaffold(
         appBar: AppBar(
             title: TitleWidget(
-          title: widget.episode.id
-              .replaceAll("-", " ")
-              .substring(0, widget.episode.id.length - 1),
-          maxLines: 2,
-          textStyle: Theme.of(context).textTheme.titleLarge!,
-          tag: widget.episode.id,
-        )),
+                title: widget.episode.id
+                    .replaceAll("-", " ")
+                    .substring(0, widget.episode.id.length - 1),
+                maxLines: 2,
+                textStyle: Theme.of(context).textTheme.titleLarge!,
+                tag: widget.episode.id)),
         body: SingleChildScrollView(
             child: SizedBox(
                 width: size.width,

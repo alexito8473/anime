@@ -5,25 +5,35 @@ class AnimeState {
   final List<LastAnime> lastAnimesAdd;
   final List<LastEpisode> lastEpisodes;
   final List<AiringAnime> listAringAnime;
-  final bool isComplete;
+  final bool isObtainAllData;
   final bool initLoad;
   const AnimeState(
       {required this.lastEpisodes,
-      required this.isComplete,
+      required this.isObtainAllData,
       required this.initLoad,
       required this.listAnimes,
       required this.listAringAnime,
       required this.lastAnimesAdd});
+
+  factory AnimeState.init() {
+    return AnimeState(
+        lastEpisodes: List.empty(growable: true),
+        isObtainAllData: false,
+        initLoad: false,
+        listAnimes: List.empty(growable: true),
+        listAringAnime: List.empty(growable: true),
+        lastAnimesAdd: List.empty(growable: true));
+  }
+
   AnimeState copyWith(
-      {bool? isComplete,
+      {bool? isObtainAllData,
       List<LastAnime>? lastAnimesAdd,
-      AnimeFlv? animeFlv,
       List<LastEpisode>? lastEpisodes,
       List<Anime>? listAnimes,
       List<AiringAnime>? listAringAnime,
       bool? initLoad}) {
     return AnimeState(
-        isComplete: isComplete ?? this.isComplete,
+        isObtainAllData: isObtainAllData ?? this.isObtainAllData,
         lastAnimesAdd: lastAnimesAdd ?? this.lastAnimesAdd,
         listAnimes: listAnimes ?? this.listAnimes,
         lastEpisodes: lastEpisodes ?? this.lastEpisodes,

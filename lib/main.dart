@@ -1,42 +1,17 @@
 import 'package:anime/domain/bloc/anime_bloc.dart';
-import 'package:anime/domain/repository/anime_repository.dart';
-import 'package:anime/presentation/route/route.dart';
-import 'package:animeflv/animeflv.dart';
+import 'package:anime/domain/repository/anime/anime_repository.dart';
+import 'package:anime/presentation/pages/load_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'data/airing_anime.dart';
-import 'data/last/last_anime.dart';
-import 'data/last/last_episode.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  AnimeFlv animeFlv = AnimeFlv();
-  runApp(MyApp(
-      animeFlv: animeFlv,
-      lastEpisodesAdd: (await animeFlv.getLastEpisodes())
-          .map((e) => LastEpisode.fromJson(e))
-          .toList(growable: true),
-      lastAnimesAdd: (await animeFlv.getLastAddedAnimes())
-          .map((e) => LastAnime.fromJson(e))
-          .toList(growable: true),
-      listAringAnime: (await animeFlv.getAiringAnimes())
-          .map((e) => AiringAnime.fromJson(e))
-          .toList(growable: true)));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final AnimeFlv animeFlv;
-  final List<LastEpisode> lastEpisodesAdd;
-  final List<LastAnime> lastAnimesAdd;
-  final List<AiringAnime> listAringAnime;
-  MyApp(
-      {super.key,
-      required this.animeFlv,
-      required this.lastEpisodesAdd,
-      required this.lastAnimesAdd,
-      required this.listAringAnime});
+  MyApp({super.key});
 
   final ThemeData lightAnimeTheme = ThemeData.from(
           useMaterial3: true,
@@ -93,19 +68,15 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
         providers: [
           BlocProvider(
-              create: (context) => AnimeBloc(
-                  animeRepository: AnimeRepository(animeFlv: animeFlv),
-                  lastEpisodes: lastEpisodesAdd,
-                  lastAnimeAdd: lastAnimesAdd,
-                  listAringAnime: listAringAnime))
+              create: (context) =>
+                  AnimeBloc(animeRepository: const AnimeRepository()))
         ],
-        child: MaterialApp.router(
+        child: MaterialApp(
             theme: lightAnimeTheme,
             darkTheme: darkAnimeTheme,
             themeMode: ThemeMode.dark,
             title: 'Anime',
-            routerConfig: router,
-            checkerboardRasterCacheImages: true,
-            builder: (context, child) => child!));
+            home: const LoadPage(),
+            checkerboardRasterCacheImages: true));
   }
 }

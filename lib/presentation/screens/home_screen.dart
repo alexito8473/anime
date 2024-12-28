@@ -12,8 +12,12 @@ class HomeScreen extends StatelessWidget {
     return BlocBuilder<AnimeBloc, AnimeState>(builder: (context, state) {
       return Stack(children: [
         const Positioned.fill(
-            child: CustomScrollView(
-                slivers: [BannerWidget(), ListBannerAnimeAddWidget(),SliverTitle(),ListAiringAnime()])),
+            child: CustomScrollView(slivers: [
+          BannerWidget(),
+          ListBannerAnimeAddWidget(),
+          SliverTitle(),
+          ListAiringAnime()
+        ])),
         if (state.initLoad)
           Positioned.fill(
               child: Container(

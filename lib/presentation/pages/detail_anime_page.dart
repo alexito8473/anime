@@ -1,9 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../data/anime.dart';
 import '../../data/episode.dart';
 import '../widgets/banner/episode_widget.dart';
-import '../widgets/title/title_widget.dart';
+import '../widgets/detail_anime_widget/deatil_widget.dart';
 
 class DetailAnimePage extends StatefulWidget {
   final Anime anime;
@@ -41,7 +40,7 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          DetailAnimePage(anime: widget.anime),
+          AppBarDetailAnime(anime: widget.anime),
           if (widget.anime.synopsis.isNotEmpty)
             SliverToBoxAdapter(
                 child: Padding(

@@ -62,4 +62,9 @@ class Anime {
       'episodes': episodes.map((episode) => episode.toMap()).toList(),
     };
   }
+
+  @override
+  String toString() {
+    return 'Anime{id: $id, title: $title, poster: $poster, banner: $banner, synopsis: $synopsis, rating: $rating, debut: $debut, type: $type, genres: $genres, episodes: $episodes, isNotBannerCorrect: $isNotBannerCorrect}';
+  }
 }
