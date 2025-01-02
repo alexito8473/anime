@@ -3,14 +3,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../data/anime.dart';
+import '../../../data/complete_anime.dart';
 import '../../../data/episode.dart';
 import '../../../domain/bloc/anime_bloc.dart';
 import '../title/title_widget.dart';
 
 class BannerEpisode extends StatelessWidget {
   final Episode episode;
-  final Anime anime;
+  final CompleteAnime anime;
   const BannerEpisode({super.key, required this.episode, required this.anime});
 
   @override
@@ -19,7 +19,10 @@ class BannerEpisode extends StatelessWidget {
     return GestureDetector(
         onTap: () {
           context.read<AnimeBloc>().add(ObtainVideoSever(
-              anime: anime, episode: episode, context: context));
+              anime: anime,
+              episode: episode,
+              context: context,
+              isNavigationReplacement: false));
         },
         child: Card(
             child: Padding(
@@ -64,7 +67,7 @@ class BannerEpisode extends StatelessWidget {
 }
 
 class ListEpisodes extends StatelessWidget {
-  final Anime anime;
+  final CompleteAnime anime;
   final List<Episode> episodes;
   const ListEpisodes({super.key, required this.anime, required this.episodes});
 
@@ -75,8 +78,7 @@ class ListEpisodes extends StatelessWidget {
         sliver: SliverList.builder(
             itemCount: episodes.length,
             itemBuilder: (context, index) {
-              return BannerEpisode(
-                  anime: anime, episode: episodes[index]);
+              return BannerEpisode(anime: anime, episode: episodes[index]);
             }));
   }
 }

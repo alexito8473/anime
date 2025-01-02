@@ -69,7 +69,7 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider(
               create: (context) =>
-                  AnimeBloc(animeRepository: const AnimeRepository()))
+                  AnimeBloc(animeRepository: AnimeRepository()))
         ],
         child: MaterialApp(
             theme: lightAnimeTheme,

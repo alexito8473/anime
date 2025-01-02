@@ -4,11 +4,11 @@ import 'package:anime/presentation/pages/detail_anime_page.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../data/anime.dart';
+import '../../data/complete_anime.dart';
 import '../../data/episode.dart';
-import '../../data/last/last_anime.dart';
+import '../../data/last/anime.dart';
 import '../../data/last/last_episode.dart';
-import '../../presentation/pages/server_list_page.dart';
+import '../../presentation/pages/server_page.dart';
 
 part 'anime_event.dart';
 part 'anime_state.dart';
@@ -16,34 +16,60 @@ part 'anime_state.dart';
 class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
   final AnimeRepository animeRepository;
   AnimeBloc({required this.animeRepository}) : super(AnimeState.init()) {
+    on<SaveAnime>((event, emit) async {
+      if (event.isSave) {
+        state.listAnimeSave.remove(event.anime);
+      } else {
+        state.listAnimeSave.add(event.anime);
+      }
+      animeRepository.saveList(state.listAnimeSave);
+      emit(state.copyWith());
+    });
+
     on<Reset>((event, emit) async {
       emit(state.copyWith(isObtainAllData: false, initLoad: false));
     });
 
-    on<ObtainData>((event, emit) async {
-      state.lastEpisodes.addAll((await animeRepository.getLastEpisodes())
-          .map((e) => LastEpisode.fromJson(e))
-          .toList());
-      state.lastAnimesAdd.addAll((await animeRepository.getLastAddedAnimes())
-          .map((e) => LastAnime.fromJson(e))
-          .toList());
-      state.listAringAnime.addAll((await animeRepository.getAiringAnimes())
-          .map((e) => AiringAnime.fromJson(e))
-          .toList());
-      emit(state.copyWith(isObtainAllData: true));
-    });
+    on<ObtainData>(
+      (event, emit) async {
+        await animeRepository.getLastEpisodes().then((value) {
+          state.lastEpisodes
+              .addAll(value.map((e) => LastEpisode.fromJson(e)).toList());
+        });
+        await animeRepository.getLastAddedAnimes().then((value) {
+          state.lastAnimesAdd
+              .addAll(value.map((e) => Anime.fromJson(e)).toList());
+        });
+        await animeRepository.getAiringAnimes().then((value) {
+          state.listAringAnime
+              .addAll(value.map((e) => AiringAnime.fromJson(e)).toList());
+        });
+        emit(state.copyWith(isObtainAllData: true));
+        try {
+          await animeRepository
+              .fetchAnimeStream(await animeRepository.loadList())
+              .forEach((anime) {
+            state.listAnimeSave.add(anime);
+            emit(state.copyWith());
+          });
+          state.listAnimes.addAll(state.listAnimeSave);
+          emit(state.copyWith());
+        } catch (e) {
+          print('Error en el Stream: $e');
+        }
+      },
+    );
 
     on<ObtainDataAnime>((event, emit) async {
-      Anime? anime;
+      CompleteAnime? anime;
       emit(state.copyWith(initLoad: true));
       anime = await animeRepository.obtainAnimeForTitleAndId(
           state: state, id: event.id, title: event.title);
       state.listAnimes.add(anime!);
       emit(state.copyWith(initLoad: false));
-      print("Aqui llega");
       navigationAnimated(
           context: event.context,
-          navigateWidget: DetailAnimePage(anime: anime));
+          navigateWidget: DetailAnimePage(anime: anime, tag: event.tag));
     });
 
     on<ObtainVideoSever>((event, emit) async {
@@ -72,26 +98,24 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
   void navigationAnimated(
       {required BuildContext context, required Widget navigateWidget}) {
     Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return navigateWidget;
-        },
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          // Controlar la duración de la animación
-          var delayedAnimation = CurvedAnimation(
-              parent: animation,
-              curve: Curves
-                  .easeInBack, // Puedes cambiar la curva a la que prefieras
-              reverseCurve: Curves.linear);
-
-          // Aplicar la animación deseada (Fade en este caso)
-          return FadeTransition(
-            opacity: delayedAnimation,
-            child: child,
-          );
-        },
-      ),
-    );
+        context,
+        PageRouteBuilder(
+            allowSnapshotting: true,
+            barrierColor: Colors.black38,
+            opaque: true,
+            barrierDismissible: true,
+            reverseTransitionDuration: const Duration(milliseconds: 600),
+            transitionDuration: const Duration(milliseconds: 600),
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                navigateWidget,
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                  opacity: CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.decelerate,
+                      reverseCurve: Curves.decelerate),
+                  child: child);
+            }));
   }
 }

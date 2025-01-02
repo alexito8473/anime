@@ -4,44 +4,60 @@ import 'package:anime/data/server.dart';
 import 'package:anime/domain/bloc/anime_bloc.dart';
 import 'package:beautiful_soup_dart/beautiful_soup.dart';
 import 'package:image/image.dart' as img;
-import '../../../data/anime.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../data/complete_anime.dart';
 import 'global.dart';
 import 'package:http/http.dart' as http;
 
 class AnimeRepository {
-  const AnimeRepository();
-  Future<List<ServerInfo>> obtainVideoServerOfEpisode(
-      {required String id}) async {
-    return (await getVideoServers(id))
-        .map((server) => ServerInfo.fromJson(server))
-        .toList();
+  final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
+  AnimeRepository();
+
+  Future<void> saveList(List<CompleteAnime> listAnime) async =>
+      await asyncPrefs.setString(
+          'listSafeAnime', jsonEncode(listAnime.map((e) => e.id).toList()));
+
+  Future<List<String>> loadList() async {
+    final String? jsonString = await asyncPrefs.getString('listSafeAnime');
+    if (jsonString != null) {
+      return List<String>.from(jsonDecode(jsonString));
+    }
+    return [];
   }
 
-  Future<Anime?> obtainAnimeForTitleAndId(
+  Future<List<ServerInfo>> obtainVideoServerOfEpisode(
+          {required String id}) async =>
+      (await getVideoServers(id))
+          .map((server) => ServerInfo.fromJson(server))
+          .toList();
+
+  Future<CompleteAnime?> obtainAnimeForTitleAndId(
       {required AnimeState state,
       required String title,
       required String id}) async {
-    Anime? anime;
-    if ((anime = _checkExitAnimeForLastEpisode(
+    CompleteAnime? anime;
+    if ((anime = checkExitAnimeForLastEpisode(
             title: title, listAnimes: state.listAnimes)) ==
         null) {
-      anime = Anime.fromJson(await getAnimeInfo(id));
-      anime.isNotBannerCorrect = await _checkAnimeBanner(anime: anime);
+      anime = await obtainAnimeForId(id: id);
     }
     return anime;
   }
 
+  Future<CompleteAnime?> obtainAnimeForId({required String id}) async {
+    CompleteAnime? anime;
+    anime = CompleteAnime.fromJson(await _getAnimeInfo(id));
+    anime.isNotBannerCorrect = await _checkAnimeBanner(anime: anime);
+    return anime;
+  }
+
   Future<List> getLastAddedAnimes() async {
-    // get request to base animeflv url
     final res = await http.Client().get(Uri.parse(BASE_URL));
     if (res.statusCode == 200) {
-      // get html and look for last animes list
-      final body = utf8.decode(res.bodyBytes, allowMalformed: true);
-      final soup = BeautifulSoup(body);
       var lastAnimes = [];
       final lastAnimesElements =
-          soup.findAll('', selector: '.ListAnimes article.Anime');
-      // for every anime found we save some data
+          BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+              .findAll('', selector: '.ListAnimes article.Anime');
       for (var anime in lastAnimesElements) {
         final id = anime.a?['href'];
         lastAnimes.add({
@@ -59,35 +75,29 @@ class AnimeRepository {
               anime.find('', selector: 'div.Description p span.Vts')?.string,
         });
       }
-      // return last animes found
       return lastAnimes;
     }
     return [];
   }
 
-  // =================================================================================================================================================
-  // function to get on air animes
   Future<List> getAiringAnimes() async {
-    // get request to base animeflv url
     final res = await http.Client().get(Uri.parse(BASE_URL));
     try {
       if (res.statusCode == 200) {
-        final body = utf8.decode(res.bodyBytes, allowMalformed: true);
-        final soup = BeautifulSoup(body);
         var airingAnimes = [];
-        final airingAnimesElements = soup.findAll('', selector: '.ListSdbr li');
-        // for every anime found we save some data
+        final airingAnimesElements =
+            BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+                .findAll('', selector: '.ListSdbr li');
         for (var anime in airingAnimesElements) {
           final id = anime.a?['href'];
           airingAnimes.add({
             'id': id?.substring(1, id.length),
             'title': anime.a?.string
-                .replaceAll('${anime.find('', selector: '.Type')!.string}', '')
+                .replaceAll(anime.find('', selector: '.Type')!.string, '')
                 .trim(),
             'type': anime.find('', selector: '.Type')?.string,
           });
         }
-        // return list with on air animes
         return airingAnimes;
       }
     } catch (e) {
@@ -97,15 +107,12 @@ class AnimeRepository {
   }
 
   Future<List> search(String searchQuery) async {
-    // get request with the given query
     final res = await http.Client().get(Uri.parse('$SEARCH_URL$searchQuery'));
     if (res.statusCode == 200) {
-      // get the body and look for the animes found
-      final body = utf8.decode(res.bodyBytes, allowMalformed: true);
-      final soup = BeautifulSoup(body);
-      final elements = soup.findAll('article', class_: 'Anime alt B');
+      final elements =
+          BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+              .findAll('article', class_: 'Anime alt B');
       var ret = [];
-      // for each of the animes found we'll save some data
       for (var element in elements) {
         var id =
             element.find('', selector: 'div.Description a.Button')?['href'];
@@ -131,25 +138,19 @@ class AnimeRepository {
           });
         } catch (e) {}
       }
-      // return the list of animes found
       return ret;
     }
     return [];
   }
 
-  // =================================================================================================================================================
-  // function that gives you the servers of the episode with id = given id
   Future<List> getVideoServers(String episodeId) async {
-    // get request with the anime url using the given id
     final res =
         await http.Client().get(Uri.parse('$ANIME_VIDEO_URL$episodeId'));
     if (res.statusCode == 200) {
-      // get html and look for the scripts as animeflv saves the servers in one
-      final body = utf8.decode(res.bodyBytes, allowMalformed: true);
-      final soup = BeautifulSoup(body);
-      final scripts = soup.findAll('script');
+      final scripts =
+          BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+              .findAll('script');
       var servers = [];
-      // for every script found we'll look for the one with the servers
       for (var script in scripts) {
         final content = script.toString();
         if (content.contains('var videos = {')) {
@@ -158,22 +159,14 @@ class AnimeRepository {
           if (data.containsKey('SUB')) servers.add(data['SUB']);
         }
       }
-      // return a list of available servers with their data
       return servers[0];
     }
     return [];
   }
 
-  // =================================================================================================================================================
-  // function to get the info of an anime with its episodes
-  Future<Map> getAnimeInfo(String animeId) async {
-    // call function to get episodes info
+  Future<Map> _getAnimeInfo(String animeId) async {
     final animeEpisodesInfo = await _getAnimeEpisodesInfo(animeId);
-
-    final episodes = animeEpisodesInfo[0]!;
-    final genres = animeEpisodesInfo[1]!;
     final extraInfo = animeEpisodesInfo[2]!;
-
     return {
       'id': animeId,
       'title': extraInfo['title'],
@@ -183,22 +176,27 @@ class AnimeRepository {
       'rating': extraInfo['rating'],
       'debut': extraInfo['debut'],
       'type': extraInfo['type'],
-      'genres': genres,
-      'episodes': List.from(episodes.reversed),
+      'genres': animeEpisodesInfo[1]!,
+      'episodes': List.from(animeEpisodesInfo[0]!.reversed),
     };
   }
 
-  // =================================================================================================================================================
-  // function to get episodesInfo
   Future<List> _getAnimeEpisodesInfo(String animeId) async {
-    // get request with url using given animeId
     final res = await http.Client().get(Uri.parse('$BASE_URL/$animeId'));
+    final soup;
+    final idAnime;
+    final elements;
+    var extraInfo;
+    var genres;
+    var infoIds = [];
+    var episodesData = [];
+    var episodes = [];
+    var contents;
+    var animeInfo;
+    var data;
     if (res.statusCode == 200) {
-      final body = utf8.decode(res.bodyBytes, allowMalformed: true);
-      final soup = BeautifulSoup(body);
-
-      // saving some extra info about the anime that is not about the episodes
-      var extraInfo = {
+      soup = BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true));
+      extraInfo = {
         'title': soup.find('', selector: 'h1.Title')?.string,
         'poster':
             '$BASE_URL${soup.find("", selector: "div.Image figure img")?["src"]}',
@@ -209,66 +207,49 @@ class AnimeRepository {
       };
       extraInfo['banner'] =
           extraInfo['poster']?.replaceAll('covers', 'banners');
-      // getting the genres of the anime
-      var genres = [];
-      final elements = soup.findAll('', selector: '.Nvgnrs a');
+      genres = [];
+      elements = soup.findAll('', selector: '.Nvgnrs a');
       for (var element in elements) {
-        if (element['href']!.contains('='))
+        if (element['href']!.contains('=')) {
           genres.add(element['href']?.split('=')[1]);
+        }
       }
-
-      // fetch the episodes
-      var infoIds = [];
-      var episodesData = [];
-      var episodes = [];
-
-      try {
-        // for every script found in the html
-        for (var script in soup.findAll('script')) {
-          final contents = script.toString();
-          // if the current script is the one with the episodes then we save the episode data
-          if (contents.contains('var anime_info')) {
-            final animeInfo =
-                contents.split('var anime_info = ')[1].split(';')[0];
-            infoIds.add(json.decode(animeInfo));
-          }
-          if (contents.contains('var episodes = [')) {
-            final data = contents.split('var episodes = ')[1].split(';')[0];
-            for (var episodeData in json.decode(data)) {
-              episodesData.add([episodeData[0], episodeData[1]]);
-            }
+      for (var script in soup.findAll('script')) {
+        contents = script.toString();
+        if (contents.contains('var anime_info')) {
+          animeInfo = contents.split('var anime_info = ')[1].split(';')[0];
+          infoIds.add(json.decode(animeInfo));
+        }
+        if (contents.contains('var episodes = [')) {
+          data = contents.split('var episodes = ')[1].split(';')[0];
+          for (var episodeData in json.decode(data)) {
+            episodesData.add([episodeData[0], episodeData[1]]);
           }
         }
-        // now we convert this data to a map with the episode, the episodeId and the preview
-        final animeId = infoIds[0][2];
-        for (var episodeData in episodesData) {
-          episodes.add({
-            'anime': extraInfo['title'],
-            'episode': episodeData[0],
-            'id': '$animeId-${episodeData[0]}',
-            'imagePreview':
-                '$BASE_EPISODE_IMG_URL${infoIds[0][0]}/${episodeData[0]}/th_3.jpg',
-          });
-        }
-      } catch (e) {
-        print("Error:"+e.toString());
       }
-      // we return the episodes and the aditional fetched info
+      idAnime = infoIds[0][2];
+      for (var episodeData in episodesData) {
+        episodes.add({
+          'anime': extraInfo['title'],
+          'episode': episodeData[0],
+          'id': '$idAnime-${episodeData[0]}',
+          'imagePreview':
+              '$BASE_EPISODE_IMG_URL${infoIds[0][0]}/${episodeData[0]}/th_3.jpg',
+        });
+      }
       return [episodes, genres, extraInfo];
     }
     return [];
   }
 
   Future<List> getLastEpisodes() async {
-    // get request to base animeflv url
     final res = await http.Client().get(Uri.parse(BASE_URL));
+    var lastEpisodes = [];
+    final lastEpisodesElements;
     if (res.statusCode == 200) {
-      final body = utf8.decode(res.bodyBytes, allowMalformed: true);
-      final soup = BeautifulSoup(body);
-      var lastEpisodes = [];
-      final lastEpisodesElements =
-          soup.findAll('', selector: '.ListEpisodios li a.fa-play');
-      // for every episode found we save some data
+      lastEpisodesElements =
+          BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+              .findAll('', selector: '.ListEpisodios li a.fa-play');
       for (var episode in lastEpisodesElements) {
         lastEpisodes.add({
           'anime': episode.find('', selector: '.Title')?.string,
@@ -281,18 +262,36 @@ class AnimeRepository {
               '$BASE_URL${episode.find('', selector: '.Image img')?['src']}'
         });
       }
-      // return last episodes found
       return lastEpisodes;
     }
     return [];
   }
 
-  Anime? _checkExitAnimeForLastEpisode(
-      {required String title, required List<Anime> listAnimes}) {
+  CompleteAnime? checkExitAnimeForLastEpisode(
+      {required String title, required List<CompleteAnime> listAnimes}) {
     return listAnimes.where((element) => element.title == title).firstOrNull;
   }
 
-  Future<bool> _checkAnimeBanner({required Anime anime}) async {
+  bool isExitsAnime(
+      {required String title, required List<CompleteAnime> listAnimes}) {
+    return listAnimes.any((element) => element.title == title);
+  }
+
+  Stream<CompleteAnime> fetchAnimeStream(List<String> listSaveAnimeIds) async* {
+    CompleteAnime? anime;
+    for (var idAnime in listSaveAnimeIds) {
+      try {
+        anime = await obtainAnimeForId(id: idAnime);
+        if (anime != null) {
+          yield anime; // Devuelve el resultado parcialmente
+        }
+      } catch (e) {
+        print('Error al obtener anime con ID $idAnime: $e');
+      }
+    }
+  }
+
+  Future<bool> _checkAnimeBanner({required CompleteAnime anime}) async {
     final response = await http.get(Uri.parse(anime.banner));
     if (response.statusCode != 200) return false;
     final image = img.decodeImage(response.bodyBytes);
@@ -309,19 +308,17 @@ class AnimeRepository {
   }
 
   Future<List> downloadLinksByEpisodeId(String id) async {
-    // get request using the provided id
     final res = await http.Client().get(Uri.parse('$ANIME_VIDEO_URL$id'));
+    final rows;
+    var ret;
+    var resZS;
     if (res.statusCode == 200) {
-      // parse html to string and look for the table with the downloads info
-      final body = utf8.decode(res.bodyBytes, allowMalformed: true);
-      final soup = BeautifulSoup(body);
-      final table = soup.find('table', attrs: {'class': 'RTbl'});
-
+      final table =
+          BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+              .find('table', attrs: {'class': 'RTbl'});
       try {
-        // extract the links and save them into ret
-        final rows = parseTable(table);
-        var ret = [];
-
+        rows = parseTable(table);
+        ret = [];
         for (var row in rows) {
           if (row['FORMATO'].string == 'SUB') {
             ret.add({
@@ -333,14 +330,13 @@ class AnimeRepository {
             });
           }
         }
-        // for zippyshare we can get a direct download link so we create it and replace it
         for (var server in ret) {
           if (server['server'] == 'Zippyshare') {
-            final resZS = await http.Client().get(Uri.parse(server['url']));
+            resZS = await http.Client().get(Uri.parse(server['url']));
             if (resZS.statusCode == 200) {
-              final body = utf8.decode(resZS.bodyBytes, allowMalformed: true);
-              final soup = BeautifulSoup(body);
-              final scripts = soup.findAll('script');
+              final scripts = BeautifulSoup(
+                      utf8.decode(resZS.bodyBytes, allowMalformed: true))
+                  .findAll('script');
               for (var script in scripts) {
                 final content = script.toString();
                 if (content.contains('var n = ')) {
@@ -371,7 +367,6 @@ class AnimeRepository {
             }
           }
         }
-        // return a list with the download links and info
         return ret;
       } catch (e) {}
     }

@@ -6,6 +6,7 @@
             android:name="${applicationName}"
             android:usesCleartextTraffic="true"
             android:hardwareAccelerated="true"
+            android:largeHeap="true"
             android:icon="@mipmap/ic_launcher" tools:targetApi="m">
         <activity
                 android:name=".MainActivity"

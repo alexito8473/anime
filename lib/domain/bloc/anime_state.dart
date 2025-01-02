@@ -1,10 +1,11 @@
 part of 'anime_bloc.dart';
 
 class AnimeState {
-  final List<Anime> listAnimes;
-  final List<LastAnime> lastAnimesAdd;
+  final List<CompleteAnime> listAnimes;
+  final List<Anime> lastAnimesAdd;
   final List<LastEpisode> lastEpisodes;
   final List<AiringAnime> listAringAnime;
+  final List<CompleteAnime> listAnimeSave;
   final bool isObtainAllData;
   final bool initLoad;
   const AnimeState(
@@ -13,6 +14,7 @@ class AnimeState {
       required this.initLoad,
       required this.listAnimes,
       required this.listAringAnime,
+      required this.listAnimeSave,
       required this.lastAnimesAdd});
 
   factory AnimeState.init() {
@@ -22,14 +24,16 @@ class AnimeState {
         initLoad: false,
         listAnimes: List.empty(growable: true),
         listAringAnime: List.empty(growable: true),
-        lastAnimesAdd: List.empty(growable: true));
+        lastAnimesAdd: List.empty(growable: true),
+        listAnimeSave: List.empty(growable: true));
   }
 
   AnimeState copyWith(
       {bool? isObtainAllData,
-      List<LastAnime>? lastAnimesAdd,
+      List<Anime>? lastAnimesAdd,
       List<LastEpisode>? lastEpisodes,
-      List<Anime>? listAnimes,
+      List<CompleteAnime>? listAnimes,
+      List<CompleteAnime>? listAnimeVisualize,
       List<AiringAnime>? listAringAnime,
       bool? initLoad}) {
     return AnimeState(
@@ -38,6 +42,7 @@ class AnimeState {
         listAnimes: listAnimes ?? this.listAnimes,
         lastEpisodes: lastEpisodes ?? this.lastEpisodes,
         initLoad: initLoad ?? this.initLoad,
-        listAringAnime: listAringAnime ?? this.listAringAnime);
+        listAringAnime: listAringAnime ?? this.listAringAnime,
+        listAnimeSave: listAnimeVisualize ?? this.listAnimeSave);
   }
 }
