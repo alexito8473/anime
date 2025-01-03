@@ -1,38 +1,38 @@
+import 'package:anime/domain/bloc/anime_bloc.dart';
 import 'package:flutter/material.dart';
-import '../../data/complete_anime.dart';
-import '../../data/episode.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../data/model/complete_anime.dart';
+import '../../data/model/episode.dart';
 import '../screens/detail_anime_screen.dart';
+import '../widgets/load/load_widget.dart';
 
 class DetailAnimePage extends StatefulWidget {
-  final CompleteAnime anime;
+  final String idAnime;
   final String? tag;
-  const DetailAnimePage({super.key, required this.anime, required this.tag});
+  const DetailAnimePage({super.key, required this.idAnime, required this.tag});
   @override
   State<DetailAnimePage> createState() => _DetailAnimePageState();
 }
 
 class _DetailAnimePageState extends State<DetailAnimePage> {
-  late List<Episode> listAnimeFilter;
   final TextEditingController _controller = TextEditingController();
   int _currentPage = 0;
 
   @override
   void initState() {
-    listAnimeFilter = List.from(widget.anime.episodes);
+    _controller.addListener(() {
+      setState(() {});
+    });
     super.initState();
   }
 
-  void onSubmit() {
-    if (_controller.text.isNotEmpty) {
-      setState(() {
-        listAnimeFilter = widget.anime.episodes
-            .where((element) =>
-                element.episode.toString().contains(_controller.text))
-            .toList();
-      });
-    } else {
-      listAnimeFilter = List.from(widget.anime.episodes);
+  List<Episode> filteredList(List<Episode> list, String text) {
+    if (text.isEmpty) {
+      return list;
     }
+    return list
+        .where((element) => element.episode.toString().contains(text))
+        .toList();
   }
 
   void onTap(int index) {
@@ -43,15 +43,19 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
 
   @override
   Widget build(BuildContext context) {
-    return DetailAnimeScreen(
-        size: MediaQuery.sizeOf(context),
-        anime: widget.anime,
-        onTap: onTap,
-        currentPage: _currentPage,
-        listAnimeFilter: listAnimeFilter,
-        obSubmit: onSubmit,
-        textController: _controller,
-        tag: widget.tag);
+    CompleteAnime anime = context
+        .watch<AnimeBloc>()
+        .state
+        .listAnimes
+        .firstWhere((element) => element.id == widget.idAnime);
+    return AnimationLoadPage(
+        child: DetailAnimeScreen(
+            size: MediaQuery.sizeOf(context),
+            anime: anime,
+            onTap: onTap,
+            currentPage: _currentPage,
+            listAnimeFilter: filteredList(anime.episodes, _controller.text),
+            textController: _controller,
+            tag: widget.tag));
   }
 }
-

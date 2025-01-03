@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 
 class SliverAppBarSearch extends StatelessWidget {
   final TextEditingController controller;
-  final Function onSubmit;
+  final Function? onSubmit;
   const SliverAppBarSearch(
-      {super.key, required this.controller, required this.onSubmit});
+      {super.key, required this.controller, this.onSubmit});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class SliverAppBarSearch extends StatelessWidget {
         pinned: true,
         automaticallyImplyLeading: false,
         expandedHeight: size.height * 0.02,
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.transparent,
         flexibleSpace: FlexibleSpaceBar(
             stretchModes: StretchMode.values,
             titlePadding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
@@ -27,14 +27,20 @@ class SliverAppBarSearch extends StatelessWidget {
                 child: TextField(
                     controller: controller,
                     onSubmitted: (value) {
-                      onSubmit();
+                      if (onSubmit != null) {
+                        onSubmit!();
+                      }
                     },
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                         hintText: 'Buscar...',
                         hintStyle: TextStyle(color: Colors.grey[400]),
                         icon: IconButton(
-                            onPressed: () => onSubmit(),
+                            onPressed: () {
+                              if (onSubmit != null) {
+                                onSubmit!();
+                              }
+                            },
                             icon:
                                 const Icon(Icons.search, color: Colors.orange)),
                         border: InputBorder.none,

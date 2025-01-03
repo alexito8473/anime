@@ -1,6 +1,6 @@
-import 'package:anime/data/interface/last_interface.dart';
+import 'package:anime/data/interface/anime_interface.dart';
 
-class LastEpisode implements LastInterface{
+class LastEpisode implements AnimeInterface{
   final String anime;
   final String episode;
   final String id;

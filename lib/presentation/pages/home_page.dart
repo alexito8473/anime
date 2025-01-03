@@ -1,8 +1,12 @@
 import 'package:anime/presentation/screens/explore_screen.dart';
 import 'package:anime/presentation/screens/home_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+
+import '../../domain/bloc/anime_bloc.dart';
+import '../widgets/load/load_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,13 +21,14 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   @override
   void initState() {
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     _controller = TextEditingController();
-    listScreen = [
-      const HomeScreen(),
-      ExploreScreen(controller: _controller),
-      Container(color: Colors.red)
-    ];
+    listScreen = [const HomeScreen(), ExploreScreen(controller: _controller)];
     super.initState();
+  }
+
+  void onSubmit() {
+    context.read<AnimeBloc>().add(SearchAnime(query: _controller.text));
   }
 
   void changeIndex({required int index}) =>
@@ -50,17 +55,17 @@ class _HomePageState extends State<HomePage> {
           tabBackgroundColor: Colors.orange.withAlpha(60),
           padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
           tabs: const [
-            GButton(icon: Icons.account_circle, text: 'Home'),
-            GButton(icon: Icons.account_circle, text: 'Explore'),
-            GButton(icon: Icons.account_circle, text: 'Search')
+            GButton(icon: Icons.tv, text: 'Animes'),
+            GButton(icon: Icons.search, text: 'Explore')
           ]));
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
-    return Scaffold(
-        extendBody: true,
-        body: IndexedStack(index: _currentIndex, children: listScreen),
-        bottomNavigationBar: navigationBottom(size: size));
+    return AnimationLoadPage(
+        child: Scaffold(
+            extendBody: true,
+            body: IndexedStack(index: _currentIndex, children: listScreen),
+            bottomNavigationBar: navigationBottom(size: size)));
   }
 }

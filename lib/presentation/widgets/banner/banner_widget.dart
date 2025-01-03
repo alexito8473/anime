@@ -1,13 +1,15 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:anime/data/airing_anime.dart';
+import 'package:anime/data/typeAnime/type_data.dart';
 import 'package:anime/domain/bloc/anime_bloc.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
-import '../../../data/last/anime.dart';
-import '../../../data/last/last_episode.dart';
+import '../../../data/model/basic_anime.dart';
+import '../../../data/model/anime.dart';
+import '../../../data/model/last_episode.dart';
+import '../animation/hero_animation_widget.dart';
 import '../button/button_widget.dart';
 import '../title/title_widget.dart';
 
@@ -17,45 +19,62 @@ class BannerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
-    return BlocBuilder<AnimeBloc, AnimeState>(
-        builder: (context, state) => SliverToBoxAdapter(
-            child: FadeIn(
-                duration: const Duration(milliseconds: 700),
-                curve: Curves.linear,
-                child: SizedBox(
-                    height: size.height * 0.4,
-                    child: Stack(children: [
-                      Positioned.fill(
-                          child: FlutterCarousel(
-                              items: state.lastEpisodes
-                                  .map((lastEpisode) => BannerCarrouselAnime(
-                                      lastEpisode: lastEpisode))
-                                  .toList(),
-                              options: FlutterCarouselOptions(
-                                  enableInfiniteScroll: true,
-                                  autoPlay: true,
-                                  viewportFraction: 1,
-                                  autoPlayCurve: Curves.linear,
-                                  allowImplicitScrolling: true,
-                                  height: size.height * 0.4,
-                                  showIndicator: true))),
-                      Positioned(
-                          child: SafeArea(
-                              child: Padding(
-                                  padding: EdgeInsets.only(
-                                      left: size.width * 0.05,
-                                      top: size.height * 0.01),
-                                  child: const TitleBannerWidget(
-                                      title: "Últimos episódeos agregados",
-                                      color: Colors.orange,
-                                      shadows: [
-                                        Shadow(
-                                            offset: Offset(2.0,
-                                                3.0), // Desplazamiento en X e Y
-                                            blurRadius: 5.0, // Difuminado
-                                            color: Colors.black)
-                                      ]))))
-                    ])))));
+    double height = MediaQuery.of(context).orientation == Orientation.portrait
+        ? size.height * 0.4
+        : 300;
+
+    return BlocBuilder<AnimeBloc, AnimeState>(builder: (context, state) {
+      if (state.lastEpisodes.isEmpty) {
+        return SliverToBoxAdapter(
+            child: Container(
+                height: size.height * 0.5,
+                padding: EdgeInsets.symmetric(horizontal: size.width * 0.2),
+                constraints: const BoxConstraints(minHeight: 300),
+                child: const Center(
+                    child: LinearProgressIndicator(
+                        backgroundColor: Colors.blueAccent))));
+      }
+
+      return SliverToBoxAdapter(
+          child: FadeIn(
+              duration: const Duration(milliseconds: 700),
+              curve: Curves.linear,
+              child: Container(
+                  height: size.height * 0.4,
+                  constraints: const BoxConstraints(minHeight: 300),
+                  child: Stack(children: [
+                    Positioned.fill(
+                        child: FlutterCarousel(
+                            items: state.lastEpisodes
+                                .map((lastEpisode) => BannerCarrouselAnime(
+                                    lastEpisode: lastEpisode))
+                                .toList(),
+                            options: FlutterCarouselOptions(
+                                enableInfiniteScroll: true,
+                                autoPlay: true,
+                                viewportFraction: 1,
+                                autoPlayCurve: Curves.linear,
+                                allowImplicitScrolling: true,
+                                height: height,
+                                showIndicator: true))),
+                    Positioned(
+                        child: SafeArea(
+                            child: Padding(
+                                padding: EdgeInsets.only(
+                                    left: size.width * 0.05,
+                                    top: size.height * 0.01),
+                                child: const TitleBannerWidget(
+                                    title: "Últimos episódeos agregados",
+                                    color: Colors.orange,
+                                    shadows: [
+                                      Shadow(
+                                          offset: Offset(2.0,
+                                              3.0), // Desplazamiento en X e Y
+                                          blurRadius: 5.0, // Difuminado
+                                          color: Colors.black)
+                                    ]))))
+                  ]))));
+    });
   }
 }
 
@@ -123,8 +142,9 @@ class ListAnimeSaveWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
     return BlocBuilder<AnimeBloc, AnimeState>(builder: (context, state) {
-      if (state.listAnimeSave.isEmpty) {
-        return const SliverToBoxAdapter();
+      bool isInferior = state.countAnimeSave <= 5;
+      if (state.countAnimeSave == 0) {
+        return const SliverToBoxAdapter(child: SizedBox(height: 1, width: 1));
       }
       return SliverToBoxAdapter(
           child: FadeIn(
@@ -139,21 +159,22 @@ class ListAnimeSaveWidget extends StatelessWidget {
                             left: size.width * 0.05,
                             top: size.height * 0.05),
                         child: Wrap(
-                          alignment: WrapAlignment.spaceBetween,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            TitleBannerWidget(
-                                tag: tag,
-                                title: "Ánimes favoritos",
-                                color: Colors.amber),
-                            ButtonNavigateListAnime(
+                            alignment: WrapAlignment.spaceBetween,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              TitleBannerWidget(
+                                  tag: tag,
+                                  title: "Ánimes favoritos",
+                                  color: Colors.amber),
+                              ButtonNavigateListAnime(
                                 color: Colors.orangeAccent,
                                 animes: state.listAnimeSave,
                                 tag: tag,
                                 title: "Ánimes favoritos",
-                                colorTitle: Colors.amber)
-                          ],
-                        )),
+                                colorTitle: Colors.amber,
+                                typeAnime: TypeAnime.SAVE,
+                              )
+                            ])),
                     SingleChildScrollView(
                         padding: EdgeInsets.symmetric(
                             vertical: size.height * 0.05,
@@ -162,10 +183,16 @@ class ListAnimeSaveWidget extends StatelessWidget {
                         child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             spacing: size.width * 0.1,
-                            children: state.listAnimeSave
-                                .map((lastAnime) =>
-                                    BannerAnime(anime: lastAnime, tag: tag))
-                                .toList()))
+                            children: List.generate(
+                                isInferior ? state.countAnimeSave : 5, (index) {
+                              if (index < state.listAnimeSave.length) {
+                                return BannerAnime(
+                                    anime: state.listAnimeSave[index],
+                                    tag: tag);
+                              }
+
+                              return const BannerAnimeReload();
+                            })))
                   ])));
     });
   }
@@ -192,22 +219,22 @@ class ListBannerAnimeAddWidget extends StatelessWidget {
                               left: size.width * 0.05,
                               top: size.height * 0.05),
                           child: Wrap(
-                            alignment: WrapAlignment.spaceBetween,
-                            direction: Axis.horizontal,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              TitleBannerWidget(
-                                  tag: tag,
-                                  title: "Últimos animes agregados",
-                                  color: Colors.blueAccent),
-                              ButtonNavigateListAnime(
-                                  color: Colors.lightBlue,
-                                  animes: state.lastAnimesAdd,
-                                  tag: tag,
-                                  title: "Últimos animes agregados",
-                                  colorTitle: Colors.blueAccent)
-                            ],
-                          )),
+                              alignment: WrapAlignment.spaceBetween,
+                              direction: Axis.horizontal,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                TitleBannerWidget(
+                                    tag: tag,
+                                    title: "Últimos animes agregados",
+                                    color: Colors.blueAccent),
+                                ButtonNavigateListAnime(
+                                    color: Colors.lightBlue,
+                                    animes: state.lastAnimesAdd,
+                                    tag: tag,
+                                    title: "Últimos animes agregados",
+                                    typeAnime: TypeAnime.ADD,
+                                    colorTitle: Colors.blueAccent)
+                              ])),
                       SingleChildScrollView(
                           padding: EdgeInsets.symmetric(
                               vertical: size.height * 0.05,
@@ -229,56 +256,89 @@ class BannerAnime extends StatelessWidget {
   final String? tag;
   const BannerAnime({super.key, required this.anime, required this.tag});
 
-  Widget buildImg() => AspectRatio(
-      aspectRatio: 3 / 4,
-      child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: CachedNetworkImage(
-              imageUrl: anime.poster,
-              fit: BoxFit.contain,
-              filterQuality: FilterQuality.high)));
-
-  Widget buildText() => Text("Rating : ${anime.rating}");
-
   void onTap({required BuildContext context}) =>
       context.read<AnimeBloc>().add(ObtainDataAnime(
           tag: tag,
           context: context,
           id: anime.idAnime(),
           title: anime.getTitle()));
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
+    Orientation orientation = MediaQuery.of(context).orientation;
     return GestureDetector(
         onTap: () => onTap(context: context),
         child: SizedBox(
-            width: size.width * 0.3,
-            child: Column(
-                spacing: size.height * 0.005,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  tag != null
-                      ? Hero(
-                          tag: tag.toString() + anime.poster, child: buildImg())
-                      : buildImg(),
-                  TitleWidget(
-                      title: anime.title,
-                      maxLines: 3,
-                      textStyle: Theme.of(context).textTheme.titleSmall!,
-                      tag: tag),
-                  tag != null
-                      ? Hero(
-                          tag: tag.toString() + anime.rating + anime.title,
-                          child: Material(
-                              color: Colors.transparent, child: buildText()))
-                      : buildText()
-                ])));
+          width: orientation == Orientation.portrait
+              ? size.width * 0.3
+              : size.width * 0.15,
+          child: Column(
+              spacing: size.height * 0.005,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                HeroAnimationWidget(
+                    tag: tag,
+                    heroTag: anime.poster,
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: CachedNetworkImage(
+                            imageUrl: anime.poster,
+                            fit: BoxFit.contain,
+                            filterQuality: FilterQuality.high))),
+                TitleWidget(
+                    title: anime.title,
+                    maxLines: 3,
+                    textStyle: Theme.of(context).textTheme.titleSmall!,
+                    tag: tag),
+                HeroAnimationWidget(
+                    tag: tag,
+                    heroTag: anime.rating + anime.title,
+                    child: Text("Rating : ${anime.rating}"))
+              ]),
+        ));
+  }
+}
+class BannerAnimeReload extends StatelessWidget {
+  const BannerAnimeReload({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.sizeOf(context);
+    Orientation orientation = MediaQuery.of(context).orientation;
+    return  SizedBox(
+          width: orientation == Orientation.portrait
+              ? size.width * 0.3
+              : size.width * 0.15,
+          child: Column(
+              spacing: size.height * 0.005,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                    width: orientation==Orientation.portrait ? size.width * 0.3 : size.width * 0.1,
+                    height: 180,
+                    decoration: BoxDecoration(
+                        color: Colors.grey.withAlpha(30),
+                        borderRadius: BorderRadius.circular(20)),
+                    child: const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ))),
+                TitleWidget(
+                    title: " ",
+                    maxLines: 3,
+                    textStyle: Theme.of(context).textTheme.titleSmall!,
+                    tag: null),
+                const Text("Rating : ")
+              ]),
+        );
   }
 }
 
 class BannerAiringAnime extends StatelessWidget {
-  final AiringAnime aringAnime;
+  final BasicAnime aringAnime;
   final Size size;
 
   const BannerAiringAnime(

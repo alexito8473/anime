@@ -1,4 +1,5 @@
-import 'package:anime/data/server.dart';
+
+import 'package:anime/data/model/server.dart';
 
 class Episode {
   final int episode;

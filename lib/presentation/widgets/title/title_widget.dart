@@ -2,6 +2,8 @@ import 'package:animate_do/animate_do.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
+import '../animation/hero_animation_widget.dart';
+
 class TitleBannerWidget extends StatelessWidget {
   final String title;
   final String? tag;
@@ -17,16 +19,15 @@ class TitleBannerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TitleWidget(
-      tag: tag,
-      maxLines: 1,
-      title: title,
-      isAutoSize: false,
-      textStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
-          fontSize: 18,
-          shadows: shadows,
-          fontWeight: FontWeight.bold,
-          color: color),
-    );
+        tag: tag,
+        maxLines: 1,
+        title: title,
+        isAutoSize: false,
+        textStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
+            fontSize: 18,
+            shadows: shadows,
+            fontWeight: FontWeight.bold,
+            color: color));
   }
 }
 
@@ -41,20 +42,24 @@ class TitleWidget extends StatelessWidget {
       required this.title,
       required this.maxLines,
       required this.textStyle,
-      required this.tag,this.isAutoSize=true});
+      required this.tag,
+      this.isAutoSize = true});
 
   Widget buildAutoSizeText() {
-    if(isAutoSize){
-      return AutoSizeText(title, style: textStyle, maxLines: maxLines) ;
+    if (isAutoSize) {
+      return AutoSizeText(title, style: textStyle, maxLines: maxLines);
     }
-    return Text(title, style: textStyle, maxLines: maxLines,softWrap: true,overflow: TextOverflow.ellipsis) ;
+    return Text(title,
+        style: textStyle,
+        maxLines: maxLines,
+        softWrap: true,
+        overflow: TextOverflow.ellipsis);
   }
 
   @override
   Widget build(BuildContext context) {
-    return tag == null
-        ? buildAutoSizeText()
-        : Hero(tag: tag! + title, child: buildAutoSizeText());
+    return HeroAnimationWidget(
+        heroTag: title, tag: tag, child: buildAutoSizeText());
   }
 }
 
@@ -71,9 +76,11 @@ class SubTilesAnime extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        constraints: const BoxConstraints(minHeight: 40),
+        constraints: const BoxConstraints(minHeight: 50),
         height: size.height * 0.07,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+
+        child:
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title,
               style: Theme.of(context)
                   .textTheme

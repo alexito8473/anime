@@ -1,6 +1,5 @@
+import 'anime.dart';
 import 'episode.dart';
-import 'last/anime.dart';
-
 class CompleteAnime extends Anime {
   final String debut;
   final List<String> genres;

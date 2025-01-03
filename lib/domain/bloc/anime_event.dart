@@ -14,6 +14,10 @@ class ObtainDataAnime extends AnimeEvent {
       required this.tag});
 }
 
+class SearchAnime extends AnimeEvent {
+  final String query;
+  SearchAnime({required this.query});
+}
 class Reset extends AnimeEvent {}
 
 class SaveAnime extends AnimeEvent {

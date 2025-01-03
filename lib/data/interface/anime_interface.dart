@@ -1,4 +1,4 @@
-abstract class LastInterface {
+abstract class AnimeInterface {
   String idAnime();
   String getTitle();
 }

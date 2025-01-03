@@ -1,11 +1,12 @@
 import 'dart:convert';
 
-import 'package:anime/data/server.dart';
+
 import 'package:anime/domain/bloc/anime_bloc.dart';
 import 'package:beautiful_soup_dart/beautiful_soup.dart';
 import 'package:image/image.dart' as img;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../data/complete_anime.dart';
+import 'package:anime/data/model/complete_anime.dart';
+import 'package:anime/data/model/server.dart';
 import 'global.dart';
 import 'package:http/http.dart' as http;
 
@@ -269,7 +270,7 @@ class AnimeRepository {
 
   CompleteAnime? checkExitAnimeForLastEpisode(
       {required String title, required List<CompleteAnime> listAnimes}) {
-    return listAnimes.where((element) => element.title == title).firstOrNull;
+    return listAnimes.where((CompleteAnime element) => element.title == title).firstOrNull;
   }
 
   bool isExitsAnime(
