@@ -25,11 +25,12 @@ class AnimationLoadPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AnimeBloc, AnimeState>(builder: (context, state) {
-      return Stack(fit: StackFit.expand, children: [
+    bool initLoad = context.watch<AnimeBloc>().state.initLoad;
+    return Stack(
+      children: [
         Positioned.fill(child: child),
-        if (state.initLoad) const Positioned.fill(child: LoadWidget())
-      ]);
-    });
+        if (initLoad) const Positioned.fill(child: LoadWidget()),
+      ],
+    );
   }
 }

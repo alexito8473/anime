@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../widgets/sliver/sliver_widget.dart';
 import '../widgets/title/title_widget.dart';
 
 class ListAnimeScreen extends StatelessWidget {
   final String? tag;
   final String title;
   final Color colorTitle;
-  final Widget floatingChild;
+  final TextEditingController controller;
   final int count;
   final Function(BuildContext context, int index) itemBuilder;
   const ListAnimeScreen(
@@ -16,26 +17,30 @@ class ListAnimeScreen extends StatelessWidget {
       required this.colorTitle,
       required this.itemBuilder,
       required this.count,
-      required this.floatingChild});
+      required this.controller});
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
     return Scaffold(
-        floatingActionButton: floatingChild,
         body: CustomScrollView(slivers: [
-          SliverAppBar(
-              title:
-                  TitleBannerWidget(title: title, color: colorTitle, tag: tag)),
-          SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-              sliver: SliverGrid.builder(
-                  itemCount: count,
-                  itemBuilder: (context, index) => itemBuilder(context, index),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                      crossAxisSpacing: 20,
-                      maxCrossAxisExtent: 150,
-                      mainAxisExtent: 300))),
-        ]));
+      SliverAppBar(
+          snap: true,
+          floating: true,
+          title: TitleBannerWidget(title: title, color: colorTitle, tag: tag)),
+      SliverAppBarSearch(
+          controller: controller,
+          snapFloatingPinned: false,
+          isFlexibleSpaceBar: false),
+      SliverPadding(
+          padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+          sliver: SliverGrid.builder(
+              itemCount: count,
+              itemBuilder: (context, index) => itemBuilder(context, index),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  crossAxisSpacing: 20,
+                  maxCrossAxisExtent: 150,
+                  mainAxisExtent: 300))),
+    ]));
   }
 }

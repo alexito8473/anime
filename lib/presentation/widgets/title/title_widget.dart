@@ -1,4 +1,3 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
@@ -99,14 +98,11 @@ class SliverTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
     return SliverToBoxAdapter(
-        child: FadeIn(
-            duration: const Duration(milliseconds: 700),
-            curve: Curves.linear,
-            child: Padding(
+        child: Padding(
                 padding: EdgeInsets.symmetric(
                     horizontal: size.width * 0.05,
                     vertical: size.height * 0.05),
                 child: const TitleBannerWidget(
-                    title: "Animes en emisión", color: Colors.green))));
+                    title: "Animes en emisión", color: Colors.green)));
   }
 }

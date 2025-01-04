@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:math';
 
 import 'package:anime/domain/bloc/anime_bloc.dart';
 import 'package:beautiful_soup_dart/beautiful_soup.dart';
@@ -7,6 +7,7 @@ import 'package:image/image.dart' as img;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:anime/data/model/complete_anime.dart';
 import 'package:anime/data/model/server.dart';
+import '../../../data/typeAnime/type_version_anime.dart';
 import 'global.dart';
 import 'package:http/http.dart' as http;
 
@@ -40,15 +41,19 @@ class AnimeRepository {
     if ((anime = checkExitAnimeForLastEpisode(
             title: title, listAnimes: state.listAnimes)) ==
         null) {
-      anime = await obtainAnimeForId(id: id);
+      anime = await obtainAnimeForId(id: id, checkBanner: true);
     }
     return anime;
   }
 
-  Future<CompleteAnime?> obtainAnimeForId({required String id}) async {
+  Future<CompleteAnime?> obtainAnimeForId(
+      {required String id, required bool checkBanner}) async {
     CompleteAnime? anime;
+
     anime = CompleteAnime.fromJson(await _getAnimeInfo(id));
-    anime.isNotBannerCorrect = await _checkAnimeBanner(anime: anime);
+    if (checkBanner) {
+      anime.isNotBannerCorrect = await _checkAnimeBanner(anime: anime);
+    }
     return anime;
   }
 
@@ -109,6 +114,47 @@ class AnimeRepository {
 
   Future<List> search(String searchQuery) async {
     final res = await http.Client().get(Uri.parse('$SEARCH_URL$searchQuery'));
+    if (res.statusCode == 200) {
+      final elements =
+          BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+              .findAll('article', class_: 'Anime alt B');
+      var ret = [];
+      for (var element in elements) {
+        var id =
+            element.find('', selector: 'div.Description a.Button')?['href'];
+        try {
+          ret.add({
+            'id': id?.substring(1, id.length),
+            'title': element.find('', selector: 'a h3')?.string,
+            'poster': element.find('', selector: '.Image figure img')?['src'],
+            'banner': element
+                .find('', selector: '.Image figure img')?['src']
+                ?.replaceAll('covers', 'banners')
+                .trim(),
+            'type': element
+                .find('', selector: 'div.Description p span.Type')
+                ?.string,
+            'synopsis': element
+                .findAll('', selector: 'div.Description p')[1]
+                .string
+                .trim(),
+            'rating': element
+                .find('', selector: 'div.Description p span.Vts')
+                ?.string,
+          });
+        } catch (e) {}
+      }
+      return ret;
+    }
+    return [];
+  }
+
+  Future<List> searchByType(
+      {required TypeVersionAnime type, required int page}) async {
+    final res = await http.Client()
+        .get(Uri.parse("$SEARCH_URL_FOR_TYPE${type.value}&page=$page"));
+    print(type.toStringToLowerCase());
+    print(res.statusCode == 200);
     if (res.statusCode == 200) {
       final elements =
           BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
@@ -244,33 +290,38 @@ class AnimeRepository {
   }
 
   Future<List> getLastEpisodes() async {
-    final res = await http.Client().get(Uri.parse(BASE_URL));
-    var lastEpisodes = [];
-    final lastEpisodesElements;
-    if (res.statusCode == 200) {
-      lastEpisodesElements =
-          BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
-              .findAll('', selector: '.ListEpisodios li a.fa-play');
-      for (var episode in lastEpisodesElements) {
-        lastEpisodes.add({
-          'anime': episode.find('', selector: '.Title')?.string,
-          'episode': episode
-              .find('', selector: '.Capi')
-              ?.string
-              .replaceAll('Episodio ', ''),
-          'id': episode['href']?.split('ver/')[1],
-          'imagePreview':
-              '$BASE_URL${episode.find('', selector: '.Image img')?['src']}'
-        });
+    try {
+      final res = await http.Client().get(Uri.parse(BASE_URL));
+      var lastEpisodes = [];
+      final lastEpisodesElements;
+      if (res.statusCode == 200) {
+        lastEpisodesElements =
+            BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+                .findAll('', selector: '.ListEpisodios li a.fa-play');
+        for (var episode in lastEpisodesElements) {
+          lastEpisodes.add({
+            'anime': episode.find('', selector: '.Title')?.string,
+            'episode': episode
+                .find('', selector: '.Capi')
+                ?.string
+                .replaceAll('Episodio ', ''),
+            'id': episode['href']?.split('ver/')[1],
+            'imagePreview':
+                '$BASE_URL${episode.find('', selector: '.Image img')?['src']}'
+          });
+        }
+        return lastEpisodes;
       }
-      return lastEpisodes;
-    }
+      return [];
+    } catch (e) {}
     return [];
   }
 
   CompleteAnime? checkExitAnimeForLastEpisode(
       {required String title, required List<CompleteAnime> listAnimes}) {
-    return listAnimes.where((CompleteAnime element) => element.title == title).firstOrNull;
+    return listAnimes
+        .where((CompleteAnime element) => element.title == title)
+        .firstOrNull;
   }
 
   bool isExitsAnime(
@@ -278,34 +329,36 @@ class AnimeRepository {
     return listAnimes.any((element) => element.title == title);
   }
 
-  Stream<CompleteAnime> fetchAnimeStream(List<String> listSaveAnimeIds) async* {
-    CompleteAnime? anime;
-    for (var idAnime in listSaveAnimeIds) {
-      try {
-        anime = await obtainAnimeForId(id: idAnime);
-        if (anime != null) {
-          yield anime; // Devuelve el resultado parcialmente
-        }
-      } catch (e) {
-        print('Error al obtener anime con ID $idAnime: $e');
-      }
-    }
-  }
-
   Future<bool> _checkAnimeBanner({required CompleteAnime anime}) async {
-    final response = await http.get(Uri.parse(anime.banner));
-    if (response.statusCode != 200) return false;
-    final image = img.decodeImage(response.bodyBytes);
-    if (image == null) return false;
-    final referencePixel = image.getPixel(0, 0);
-    for (int y = 0; y < image.height; y++) {
-      for (int x = 0; x < image.width; x++) {
+    try {
+      final response = await http.get(Uri.parse(anime.banner));
+
+      if (response.statusCode != 200) return false;
+
+      final image = img.decodeImage(response.bodyBytes);
+      if (image == null) return false;
+
+      // Obtener un píxel de referencia en (0,0)
+      final referencePixel = image.getPixel(0, 0);
+      final random = Random();
+
+      // Número de muestras aleatorias (ajústalo según la precisión deseada)
+      const int sampleCount = 100;
+
+      for (int i = 0; i < sampleCount; i++) {
+        final x = random.nextInt(image.width);
+        final y = random.nextInt(image.height);
+
         if (image.getPixel(x, y) != referencePixel) {
-          return false; // Si un píxel es diferente, no es monocromática
+          return false; // Si un píxel aleatorio difiere, no es monocromática
         }
       }
+
+      return true; // Si todas las muestras coinciden, la imagen es monocromática
+    } catch (e) {
+      print('Error al verificar el banner: $e');
+      return false;
     }
-    return true;
   }
 
   Future<List> downloadLinksByEpisodeId(String id) async {

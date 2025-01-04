@@ -69,6 +69,7 @@ class _ListAnimePageState extends State<ListAnimePage> {
             children: [
               Expanded(
                   child: Container(
+                    height: size.height* 0.05,
                 padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
                 decoration: BoxDecoration(
                     color: const Color(0xFF1C2833),
@@ -92,10 +93,12 @@ class _ListAnimePageState extends State<ListAnimePage> {
                     });
                   },
                   child: Container(
+                    constraints: BoxConstraints(minHeight: 60,maxWidth: 80,minWidth: 80,maxHeight: 60),
                       width: size.width * 0.12,
-                      height: size.width * 0.12,
+                      height: size.height* 0.05,
                       padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
+
                           color: const Color(0xFF1C2833),
                           border: Border.all(color: Colors.white.withAlpha(40)),
                           borderRadius: BorderRadius.circular(10)),
@@ -125,6 +128,6 @@ class _ListAnimePageState extends State<ListAnimePage> {
             count: isAdd||isOpen
                 ? listAnime.length
                 :  context.watch<AnimeBloc>().state.countAnimeSave,
-            floatingChild: floatingChild(size: size)));
+            controller: controller));
   }
 }

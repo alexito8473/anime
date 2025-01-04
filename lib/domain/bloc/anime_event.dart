@@ -18,6 +18,7 @@ class SearchAnime extends AnimeEvent {
   final String query;
   SearchAnime({required this.query});
 }
+
 class Reset extends AnimeEvent {}
 
 class SaveAnime extends AnimeEvent {
@@ -31,6 +32,14 @@ class ObtainData extends AnimeEvent {
   ObtainData({required this.context});
 }
 
+
+
+class ObtainDataType extends AnimeEvent {
+  final BuildContext context;
+  final TypeVersionAnime type;
+  ObtainDataType(this.type, {required this.context});
+}
+
 class ObtainVideoSever extends AnimeEvent {
   final Episode episode;
   final CompleteAnime anime;
@@ -41,4 +50,8 @@ class ObtainVideoSever extends AnimeEvent {
       required this.episode,
       required this.context,
       required this.isNavigationReplacement});
+}
+
+class ObtainDataRebuild extends ObtainData {
+  ObtainDataRebuild({required super.context});
 }

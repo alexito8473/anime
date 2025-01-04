@@ -25,6 +25,7 @@ List parseTable(Bs4Element? table) {
 }
 
 const SEARCH_URL = 'https://animeflv.net/browse?q=';
+const SEARCH_URL_FOR_TYPE = 'https://www3.animeflv.net/browse?type%5B%5D=';
 const BASE_URL = 'https://animeflv.net';
 const BROWSE_URL = 'https://animeflv.net/browse?';
 const ANIME_VIDEO_URL = 'https://animeflv.net/ver/';

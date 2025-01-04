@@ -34,6 +34,11 @@ class Anime extends BasicAnime implements AnimeInterface {
   }
 
   @override
+  String toString() {
+    return 'Anime{poster: $poster, banner: $banner, synopsis: $synopsis, rating: $rating}';
+  }
+
+  @override
   String getTitle() {
     return title;
   }

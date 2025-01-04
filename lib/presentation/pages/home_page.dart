@@ -1,71 +1,92 @@
+import 'package:anime/domain/bloc/anime_bloc.dart';
+import 'package:anime/presentation/pages/explore_page.dart';
 import 'package:anime/presentation/screens/explore_screen.dart';
 import 'package:anime/presentation/screens/home_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
-
-import '../../domain/bloc/anime_bloc.dart';
+import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
+import '../screens/movie_screen.dart';
 import '../widgets/load/load_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  late final TextEditingController _controller;
-  late final List<Widget> listScreen;
-  int _currentIndex = 0;
+  final TextEditingController _controllerTextEditing = TextEditingController();
+
+  int _currentIndex = 2;
   @override
   void initState() {
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-    _controller = TextEditingController();
-    listScreen = [const HomeScreen(), ExploreScreen(controller: _controller)];
     super.initState();
   }
 
-  void onSubmit() {
-    context.read<AnimeBloc>().add(SearchAnime(query: _controller.text));
+  void changeIndex({required int index}) {
+    setState(() => _currentIndex = index);
   }
 
-  void changeIndex({required int index}) =>
-      setState(() => _currentIndex = index);
-
-  Widget navigationBottom({required Size size}) => Container(
-      margin: EdgeInsets.symmetric(
-          vertical: size.height * 0.02, horizontal: size.width * 0.05),
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-          color: Colors.grey.shade900,
-          border: Border.all(color: Colors.white.withAlpha(40)),
-          borderRadius: BorderRadius.circular(20)),
-      child: GNav(
-          onTabChange: (index) => changeIndex(index: index),
-          tabBorderRadius: 15,
-          tabActiveBorder: Border.all(color: Colors.white10, width: 1),
-          curve: Curves.easeInCubic,
-          duration: const Duration(milliseconds: 100),
-          gap: 10,
-          color: Colors.grey[800],
-          activeColor: Colors.orange,
-          iconSize: 24,
-          tabBackgroundColor: Colors.orange.withAlpha(60),
-          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-          tabs: const [
-            GButton(icon: Icons.tv, text: 'Animes'),
-            GButton(icon: Icons.search, text: 'Explore')
-          ]));
+  void navigateToSearch() {
+    Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const ExplorePage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            var offsetAnimation = animation.drive(
+                Tween(begin: const Offset(-1.0, 0.0), end: Offset.zero)
+                    .chain(CurveTween(curve: Curves.linear)));
+            return SlideTransition(position: offsetAnimation, child: child);
+          },
+        ));
+  }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
-    return AnimationLoadPage(
-        child: Scaffold(
-            extendBody: true,
-            body: IndexedStack(index: _currentIndex, children: listScreen),
-            bottomNavigationBar: navigationBottom(size: size)));
+    return BlocBuilder<AnimeBloc, AnimeState>(
+      builder: (context, state) {
+        return AnimationLoadPage(
+            child: Scaffold(
+                floatingActionButton: _currentIndex == 2
+                    ? FloatingActionButton(
+                        onPressed: () => navigateToSearch(),
+                        child: const Icon(Icons.search),
+                      )
+                    : null,
+                extendBody: true,
+                body: IndexedStack(index: _currentIndex, children: [
+                  ListTypeScreen(pageMovieAnime: state.pageMovieAnime),
+                  ListTypeScreen(pageMovieAnime: state.pageSpecialAnime),
+                  const HomeScreen(),
+                  ListTypeScreen(pageMovieAnime: state.pageOvaAnime),
+                  ListTypeScreen(pageMovieAnime: state.pageTVAnime)
+                ]),
+                bottomNavigationBar: SnakeNavigationBar.color(
+                    currentIndex: _currentIndex,
+                    backgroundColor: Colors.grey.shade900,
+                    snakeShape: SnakeShape.indicator,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    padding: EdgeInsets.only(
+                        left: size.width * 0.05,
+                        right: size.width * 0.05,
+                        bottom: size.height * 0.008),
+                    onTap: (index) => changeIndex(index: index),
+                    items: const [
+                      BottomNavigationBarItem(icon: Icon(Icons.movie),label: "Película"),
+                      BottomNavigationBarItem(icon: Icon(Icons.star)),
+                      BottomNavigationBarItem(icon: Icon(Icons.home)),
+                      BottomNavigationBarItem(icon: Icon(Icons.album)),
+                      BottomNavigationBarItem(icon: Icon(Icons.tv)),
+                    ],
+                    selectedLabelStyle: const TextStyle(fontSize: 14),
+                    unselectedLabelStyle: const TextStyle(fontSize: 10))));
+      },
+    );
   }
 }

@@ -3,12 +3,15 @@ import 'package:anime/data/model/anime.dart';
 import 'package:anime/data/model/complete_anime.dart';
 import 'package:anime/data/model/last_episode.dart';
 import 'package:anime/data/model/episode.dart';
+import 'package:anime/data/typeAnime/type_version_anime.dart';
 import 'package:anime/domain/repository/anime/anime_repository.dart';
 import 'package:anime/presentation/pages/detail_anime_page.dart';
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../data/model/list_type_anime_page.dart';
 import '../../presentation/pages/server_page.dart';
 
 part 'anime_event.dart';
@@ -24,53 +27,73 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
         state.listAnimeSave.add(event.anime);
       }
       animeRepository.saveList(state.listAnimeSave);
-      emit(state.copyWith());
+      emit(state.copyWith(countAnimeSave: state.listAnimeSave.length));
     });
 
     on<Reset>((event, emit) async {
       emit(state.copyWith(isObtainAllData: false, initLoad: false));
     });
+    on<ObtainData>((event, emit) async {
+      List<String> animeSave;
+      emit(state.copyWith(isObtainAllData: false, initLoad: true));
+      state.listAnimes.clear();
+      state.lastEpisodes.clear();
+      state.lastAnimesAdd.clear();
+      state.listAringAnime.clear();
+      state.listAnimeSave.clear();
+      try {
+        final results = await Future.wait([
+          animeRepository.getLastEpisodes(),
+          animeRepository.getLastAddedAnimes(),
+          animeRepository.getAiringAnimes(),
+          animeRepository.loadList(),
+          animeRepository.searchByType(
+              type: TypeVersionAnime.OVA, page: state.pageOvaAnime.page),
+          animeRepository.searchByType(
+              type: TypeVersionAnime.MOVIE, page: state.pageMovieAnime.page),
+          animeRepository.searchByType(
+              type: TypeVersionAnime.TV, page: state.pageTVAnime.page),
+          animeRepository.searchByType(
+              type: TypeVersionAnime.SPECIAL, page: state.pageSpecialAnime.page)
+        ]);
 
-    on<ObtainData>(
-      (event, emit) async {
-        List<LastEpisode> newLastEpisodes = List.empty(growable: true);
-        List<Anime> newLastAnimesAdd = List.empty(growable: true);
-        List<BasicAnime> newListAringAnime = List.empty(growable: true);
-        List<String> animeSave;
-        emit(state.copyWith(isObtainAllData: false, initLoad: true));
-        await animeRepository.getLastEpisodes().then((value) => newLastEpisodes
-            .addAll(value.map((e) => LastEpisode.fromJson(e)).toList()));
-        await animeRepository.getLastAddedAnimes().then((value) =>
-            newLastAnimesAdd
-                .addAll(value.map((e) => Anime.fromJson(e)).toList()));
-        await animeRepository.getAiringAnimes().then((value) =>
-            newListAringAnime
-                .addAll(value.map((e) => BasicAnime.fromJson(e)).toList()));
-        animeSave = await animeRepository.loadList();
-        state.listAnimes.clear();
-        state.lastEpisodes.clear();
-        state.lastAnimesAdd.clear();
-        state.listAringAnime.clear();
-        state.listAnimeSave.clear();
-        state.lastEpisodes.addAll(List.from(newLastEpisodes));
-        state.lastAnimesAdd.addAll(List.from(newLastAnimesAdd));
-        state.listAringAnime.addAll(List.from(newListAringAnime));
+        state.lastEpisodes
+            .addAll(results[0].map((e) => LastEpisode.fromJson(e)).toList());
+        state.lastAnimesAdd
+            .addAll(results[1].map((e) => Anime.fromJson(e)).toList());
+        state.listAringAnime
+            .addAll(results[2].map((e) => BasicAnime.fromJson(e)).toList());
+        animeSave = results[3] as List<String>;
+        state.pageOvaAnime.listAnime
+            .addAll(results[4].map((e) => Anime.fromJson(e)).toList());
+        state.pageMovieAnime.listAnime
+            .addAll(results[5].map((e) => Anime.fromJson(e)).toList());
+        state.pageTVAnime.listAnime
+            .addAll(results[6].map((e) => Anime.fromJson(e)).toList());
+        state.pageSpecialAnime.listAnime
+            .addAll(results[7].map((e) => Anime.fromJson(e)).toList());
         emit(state.copyWith(
             isObtainAllData: true,
             initLoad: false,
             countAnimeSave: animeSave.length));
-        try {
-          await animeRepository.fetchAnimeStream(animeSave).forEach((anime) {
-            state.listAnimeSave.add(anime);
-            emit(state.copyWith());
-          });
-          state.listAnimes.addAll(state.listAnimeSave);
-          emit(state.copyWith());
-        } catch (e) {
-          print('Error en el Stream: $e');
-        }
-      },
-    );
+
+        // Esperar a que todas las solicitudes se completen
+        await Future.wait(animeSave.map((id) async {
+          try {
+            final anime = await animeRepository.obtainAnimeForId(
+                id: id, checkBanner: false);
+            if (anime != null) {
+              state.listAnimeSave.add(anime);
+            }
+          } catch (e) {
+            print("Error al obtener anime con ID $id: $e");
+          }
+        }).toList());
+      } catch (e) {
+        print("Error en el proceso de carga masiva de animes: $e");
+      }
+      emit(state.copyWith(isObtainAllData: true, initLoad: false));
+    }, transformer: restartable());
 
     on<ObtainDataAnime>((event, emit) async {
       CompleteAnime? anime;
@@ -87,9 +110,9 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
     on<SearchAnime>((event, emit) async {
       List<Anime> listAnime;
       emit(state.copyWith(initLoad: true));
-      listAnime = (await animeRepository.search(event.query)).map((e) {
-        return Anime.fromJson(e);
-      }).toList();
+      listAnime = (await animeRepository.search(event.query))
+          .map((e) => Anime.fromJson(e))
+          .toList();
       state.listSearchAnime.clear();
       state.listSearchAnime.addAll(listAnime);
       emit(state.copyWith(initLoad: false));
@@ -109,17 +132,17 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
       emit(state.copyWith(initLoad: false));
 
       navigationAnimated(
-        isReplacement: event.isNavigationReplacement,
+          isReplacement: event.isNavigationReplacement,
           context: event.context,
           navigateWidget: ServerListPage(
-              idAnime: event.anime.id,
-              idEpisode: event.episode.id));
+              idAnime: event.anime.id, idEpisode: event.episode.id));
     });
   }
   void navigationAnimated(
-      {required BuildContext context, required Widget navigateWidget, bool isReplacement = false}) {
-
-    if(isReplacement){
+      {required BuildContext context,
+      required Widget navigateWidget,
+      bool isReplacement = false}) {
+    if (isReplacement) {
       Navigator.pushReplacement(
           context,
           PageRouteBuilder(

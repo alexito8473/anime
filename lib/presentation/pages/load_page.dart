@@ -21,12 +21,20 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
   late Animation<double> _zoomAnimation;
   late Animation<double> _darkAnimation;
   late Animation<double> _volumeAnimation;
+
   final Duration durationAnimation = const Duration(seconds: 3);
+  bool isComplete = false;
 
   @override
   void initState() {
     super.initState();
-    List<String> listVideo = [
+    _initializeVideo();
+    _initializeAnimations();
+    context.read<AnimeBloc>().add(ObtainData(context: context));
+  }
+
+  void _initializeVideo() {
+    final List<String> listVideo = [
       'assets/video/video1.mp4',
       'assets/video/video2.mp4',
       'assets/video/video3.mp4',
@@ -35,30 +43,38 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
       'assets/video/video6.mp4'
     ];
     _controller = VideoPlayerController.asset(
-        listVideo[Random().nextInt(listVideo.length)])
-      ..initialize().then((_) {
-        setState(() {});
-        _controller.setLooping(true);
-        _controller.setVolume(0.05);
-        _controller.play();
+      listVideo[Random().nextInt(listVideo.length)],
+    )..initialize().then((_) {
+        _controller
+          ..setLooping(true)
+          ..setVolume(0.05)
+          ..play();
+        setState(() {}); // Reconstruir solo después de inicializar el video
       });
+  }
+
+  void _initializeAnimations() {
     _zoomAnimationController =
         AnimationController(vsync: this, duration: durationAnimation);
     _zoomAnimation = Tween<double>(begin: 1.5, end: 5.0).animate(
-        CurvedAnimation(
-            parent: _zoomAnimationController, curve: Curves.linear));
+      CurvedAnimation(parent: _zoomAnimationController, curve: Curves.linear),
+    );
+
     _darkAnimationController =
         AnimationController(vsync: this, duration: durationAnimation);
-    _darkAnimation = Tween<double>(begin: 0.0, end: 1).animate(CurvedAnimation(
-        parent: _darkAnimationController, curve: Curves.linear));
+    _darkAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _darkAnimationController, curve: Curves.linear),
+    );
+
     _volumeAnimationController =
         AnimationController(vsync: this, duration: durationAnimation);
     _volumeAnimation = Tween<double>(begin: 0.05, end: 0.0).animate(
-        CurvedAnimation(
-            parent: _volumeAnimationController, curve: Curves.linear));
-    _volumeAnimation
-        .addListener(() => _controller.setVolume(_volumeAnimation.value));
-    context.read<AnimeBloc>().add(ObtainData(context: context));
+      CurvedAnimation(parent: _volumeAnimationController, curve: Curves.linear),
+    );
+
+    _volumeAnimationController.addListener(() {
+      _controller.setVolume(_volumeAnimation.value);
+    });
   }
 
   @override
@@ -70,50 +86,55 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<void> action() async {
+  Future<void> _action() async {
     await Future.wait([
       _zoomAnimationController.forward(),
       _darkAnimationController.forward(),
-      _volumeAnimationController.forward()
+      _volumeAnimationController.forward(),
     ]);
   }
 
-  void navigation() => Navigator.pushAndRemoveUntil(
+  void _navigateToHome() {
+    Navigator.pushAndRemoveUntil(
       context,
       PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 800),
+          transitionDuration: const Duration(milliseconds: 400),
           pageBuilder: (context, animation, secondaryAnimation) =>
               const HomePage(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>
               FadeTransition(opacity: animation, child: child)),
-      (route) => false);
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AnimeBloc, AnimeState>(
         listener: (context, state) async {
-          if (state.isObtainAllData) {
-            await action().whenComplete(() => navigation());
+          if (state.isObtainAllData && !isComplete) {
+            isComplete = true;
+            await _action().whenComplete(() => _navigateToHome());
           }
         },
-        child: Scaffold(
-            backgroundColor: Colors.black,
-            body: Stack(children: [
-              Center(
-                  child: AnimatedBuilder(
-                      animation: _zoomAnimation,
-                      builder: (context, child) {
-                        return Transform.scale(
-                            scale: _zoomAnimation.value,
-                            child: AspectRatio(
-                                aspectRatio: _controller.value.aspectRatio,
-                                child: VideoPlayer(_controller)));
-                      })),
-              AnimatedBuilder(
-                  animation: _darkAnimation,
+        child: Stack(children: [
+          Center(
+              child: AnimatedBuilder(
+                  animation: _zoomAnimation,
                   builder: (context, child) {
-                    return Container(
-                        color: Colors.black.withOpacity(_darkAnimation.value));
-                  })
-            ])));
+                    return Transform.scale(
+                        scale: _zoomAnimation.value,
+                        child: AspectRatio(
+                            aspectRatio: _controller.value.isInitialized
+                                ? _controller.value.aspectRatio
+                                : 16 / 9,
+                            child: VideoPlayer(_controller)));
+                  })),
+          AnimatedBuilder(
+              animation: _darkAnimation,
+              builder: (context, child) {
+                return Container(
+                    color: Colors.black.withOpacity(_darkAnimation.value));
+              })
+        ]));
   }
 }

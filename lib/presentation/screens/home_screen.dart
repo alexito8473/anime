@@ -1,3 +1,4 @@
+import 'package:anime/data/typeAnime/type_data.dart';
 import 'package:anime/domain/bloc/anime_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,18 +9,38 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-        onRefresh: () {
-          context.read<AnimeBloc>().add(ObtainData(context: context));
-          return Future.value();
-        },
-        child: const CustomScrollView(
-            slivers: [
-              BannerWidget(),
-              ListBannerAnimeAddWidget(),
-              ListAnimeSaveWidget(),
-              SliverTitle(),
-              ListAiringAnime()
+    MediaQueryData mediaQueryData = MediaQuery.of(context);
+    return BlocBuilder<AnimeBloc, AnimeState>(
+      builder: (context, state) {
+        return RefreshIndicator(
+            onRefresh: () {
+              context.read<AnimeBloc>().add(ObtainData(context: context));
+              return Future.value();
+            },
+            child: CustomScrollView(slivers: [
+              BannerWidget(
+                  lastEpisodes: state.lastEpisodes,
+                  size: mediaQueryData.size,
+                  orientation: mediaQueryData.orientation),
+              ListBannerAnime(
+                  listAnime: state.lastAnimesAdd,
+                  size: mediaQueryData.size,
+                  tag: 'agregados',
+                  title: 'Últimos animes agregados',
+                  typeAnime: TypeAnime.ADD,
+                  colorTitle: Colors.blueAccent),
+              if(state.listAnimeSave.isNotEmpty)
+              ListBannerAnime(
+                  listAnime: state.listAnimeSave,
+                  size: mediaQueryData.size,
+                  tag: 'favoritos',
+                  title: 'Ánimes favoritos',
+                  typeAnime: TypeAnime.SAVE,
+                  colorTitle: Colors.orangeAccent),
+              const SliverTitle(),
+              const ListAiringAnime()
             ]));
+      },
+    );
   }
 }

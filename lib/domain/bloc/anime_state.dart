@@ -7,6 +7,11 @@ class AnimeState {
   final List<BasicAnime> listAringAnime;
   final List<CompleteAnime> listAnimeSave;
   final List<Anime> listSearchAnime;
+  final List<Anime> listFilmAnime;
+  final ListTypeAnimePage pageMovieAnime;
+  final ListTypeAnimePage pageOvaAnime;
+  final ListTypeAnimePage pageTVAnime;
+  final ListTypeAnimePage pageSpecialAnime;
   final int countAnimeSave;
   final bool isObtainAllData;
   final bool initLoad;
@@ -19,6 +24,11 @@ class AnimeState {
       required this.listAringAnime,
       required this.listAnimeSave,
       required this.lastAnimesAdd,
+      required this.listFilmAnime,
+      required this.pageOvaAnime,
+      required this.pageSpecialAnime,
+      required this.pageTVAnime,
+      required this.pageMovieAnime,
       required this.countAnimeSave});
 
   factory AnimeState.init() {
@@ -31,7 +41,12 @@ class AnimeState {
         listAringAnime: List.empty(growable: true),
         lastAnimesAdd: List.empty(growable: true),
         listAnimeSave: List.empty(growable: true),
-        listSearchAnime: List.empty(growable: true));
+        listSearchAnime: List.empty(growable: true),
+        listFilmAnime: List.empty(growable: true),
+        pageMovieAnime: ListTypeAnimePage.init(),
+        pageOvaAnime: ListTypeAnimePage.init(),
+        pageSpecialAnime: ListTypeAnimePage.init(),
+        pageTVAnime: ListTypeAnimePage.init());
   }
 
   AnimeState copyWith(
@@ -42,6 +57,11 @@ class AnimeState {
       List<CompleteAnime>? listAnimeSave,
       List<BasicAnime>? listAringAnime,
       List<Anime>? listSearchAnime,
+      List<Anime>? listFilmAnime,
+      ListTypeAnimePage? pageSpecialAnime,
+      ListTypeAnimePage? pageOvaAnime,
+      ListTypeAnimePage? pageTVAnime,
+      ListTypeAnimePage? pageMovieAnime,
       int? countAnimeSave,
       bool? initLoad}) {
     return AnimeState(
@@ -53,6 +73,11 @@ class AnimeState {
         listAringAnime: listAringAnime ?? this.listAringAnime,
         listAnimeSave: listAnimeSave ?? this.listAnimeSave,
         countAnimeSave: countAnimeSave ?? this.countAnimeSave,
-        listSearchAnime: listSearchAnime ?? this.listSearchAnime);
+        listSearchAnime: listSearchAnime ?? this.listSearchAnime,
+        listFilmAnime: listFilmAnime ?? this.listFilmAnime,
+        pageOvaAnime: pageOvaAnime ?? this.pageOvaAnime,
+        pageSpecialAnime: pageSpecialAnime ?? this.pageSpecialAnime,
+        pageTVAnime: pageTVAnime ?? this.pageTVAnime,
+        pageMovieAnime: pageMovieAnime ?? this.pageMovieAnime);
   }
 }
