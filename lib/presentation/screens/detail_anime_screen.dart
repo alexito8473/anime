@@ -77,18 +77,3 @@ class DetailAnimeScreen extends StatelessWidget {
     );
   }
 }
-/*
- DefaultTabController(
-              length: 2,
-              child: Column(
-                children: [
-                  const TabBar(
-                    tabs: [
-                      Tab(icon: Icon(Icons.home), text: 'Inicio'),
-                      Tab(icon: Icon(Icons.person), text: 'Perfil')
-                    ],
-                  ),
-
-                ],
-              )),
- */

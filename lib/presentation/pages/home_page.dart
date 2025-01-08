@@ -1,6 +1,6 @@
 import 'package:anime/domain/bloc/anime_bloc.dart';
 import 'package:anime/presentation/pages/explore_page.dart';
-import 'package:anime/presentation/screens/explore_screen.dart';
+
 import 'package:anime/presentation/screens/home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,9 +17,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController _controllerTextEditing = TextEditingController();
+  final List<GlobalKey> _targetKeyList = [
+    GlobalKey(),
+    GlobalKey(),
+    GlobalKey(),
+    GlobalKey(),
+    GlobalKey()
+  ];
 
   int _currentIndex = 2;
+
   @override
   void initState() {
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
@@ -27,22 +34,31 @@ class _HomePageState extends State<HomePage> {
   }
 
   void changeIndex({required int index}) {
-    setState(() => _currentIndex = index);
+    if (_currentIndex == index) {
+      moveScroll(_targetKeyList[index]);
+    } else {
+      setState(() => _currentIndex = index);
+    }
+  }
+
+  void moveScroll(GlobalKey globalKey) {
+    Scrollable.ensureVisible(globalKey.currentContext!,
+        duration: const Duration(milliseconds: 500), curve: Curves.linear);
   }
 
   void navigateToSearch() {
     Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              const ExplorePage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            var offsetAnimation = animation.drive(
-                Tween(begin: const Offset(-1.0, 0.0), end: Offset.zero)
-                    .chain(CurveTween(curve: Curves.linear)));
-            return SlideTransition(position: offsetAnimation, child: child);
-          },
-        ));
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const ExplorePage(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              var offsetAnimation = animation.drive(
+                  Tween(begin: const Offset(-1.0, 0.0), end: Offset.zero)
+                      .chain(CurveTween(curve: Curves.linear)));
+              return SlideTransition(position: offsetAnimation, child: child);
+            }));
   }
 
   @override
@@ -60,11 +76,24 @@ class _HomePageState extends State<HomePage> {
                     : null,
                 extendBody: true,
                 body: IndexedStack(index: _currentIndex, children: [
-                  ListTypeScreen(pageMovieAnime: state.pageMovieAnime),
-                  ListTypeScreen(pageMovieAnime: state.pageSpecialAnime),
-                  const HomeScreen(),
-                  ListTypeScreen(pageMovieAnime: state.pageOvaAnime),
-                  ListTypeScreen(pageMovieAnime: state.pageTVAnime)
+                  ListTypeScreen(
+                      pageAnime: state.pageMovieAnime,
+                      targetKey: _targetKeyList[0]),
+                  ListTypeScreen(
+                      pageAnime: state.pageSpecialAnime,
+                      targetKey: _targetKeyList[1]),
+                  HomeScreen(
+                      lastEpisodes: state.lastEpisodes,
+                      lastAnimesAdd: state.lastAnimesAdd,
+                      listAnimeSave: state.listAnimeSave,
+                      listAringAnime: state.listAringAnime,
+                      targetKey: _targetKeyList[2]),
+                  ListTypeScreen(
+                      pageAnime: state.pageOvaAnime,
+                      targetKey: _targetKeyList[3]),
+                  ListTypeScreen(
+                      pageAnime: state.pageTVAnime,
+                      targetKey: _targetKeyList[4])
                 ]),
                 bottomNavigationBar: SnakeNavigationBar.color(
                     currentIndex: _currentIndex,
@@ -78,7 +107,7 @@ class _HomePageState extends State<HomePage> {
                         bottom: size.height * 0.008),
                     onTap: (index) => changeIndex(index: index),
                     items: const [
-                      BottomNavigationBarItem(icon: Icon(Icons.movie),label: "Película"),
+                      BottomNavigationBarItem(icon: Icon(Icons.movie)),
                       BottomNavigationBarItem(icon: Icon(Icons.star)),
                       BottomNavigationBarItem(icon: Icon(Icons.home)),
                       BottomNavigationBarItem(icon: Icon(Icons.album)),

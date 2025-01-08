@@ -43,19 +43,21 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
 
   @override
   Widget build(BuildContext context) {
-    CompleteAnime anime = context
-        .watch<AnimeBloc>()
-        .state
-        .listAnimes
-        .firstWhere((element) => element.id == widget.idAnime);
-    return AnimationLoadPage(
-        child: DetailAnimeScreen(
-            size: MediaQuery.sizeOf(context),
-            anime: anime,
-            onTap: onTap,
-            currentPage: _currentPage,
-            listAnimeFilter: filteredList(anime.episodes, _controller.text),
-            textController: _controller,
-            tag: widget.tag));
+    return BlocBuilder<AnimeBloc, AnimeState>(
+      builder: (context, state) {
+        CompleteAnime anime = state.listAnimes
+            .firstWhere((element) => element.id == widget.idAnime);
+
+        return AnimationLoadPage(
+            child: DetailAnimeScreen(
+                size: MediaQuery.sizeOf(context),
+                anime: anime,
+                onTap: onTap,
+                currentPage: _currentPage,
+                listAnimeFilter: filteredList(anime.episodes, _controller.text),
+                textController: _controller,
+                tag: widget.tag));
+      },
+    );
   }
 }

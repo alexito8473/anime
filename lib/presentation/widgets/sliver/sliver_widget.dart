@@ -1,20 +1,18 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import '../../../data/model/anime.dart';
-import '../banner/banner_widget.dart';
 
 class SliverAppBarSearch extends StatelessWidget {
   final TextEditingController controller;
   final Function? onSubmit;
   final bool snapFloatingPinned;
   final bool isFlexibleSpaceBar;
+  final bool canIcon;
   const SliverAppBarSearch(
       {super.key,
       required this.controller,
       this.onSubmit,
       this.snapFloatingPinned = true,
-      this.isFlexibleSpaceBar = true});
+      this.isFlexibleSpaceBar = true,
+      this.canIcon = true});
 
   Widget textField(Size size) {
     return Container(
@@ -35,15 +33,18 @@ class SliverAppBarSearch extends StatelessWidget {
             decoration: InputDecoration(
                 hintText: 'Buscar...',
                 hintStyle: TextStyle(color: Colors.grey[400]),
-                icon: IconButton(
-                    onPressed: () {
-                      if (onSubmit != null) {
-                        onSubmit!();
-                      }
-                    },
-                    icon: const Icon(Icons.search, color: Colors.orange)),
+                icon: canIcon
+                    ? IconButton(
+                        onPressed: () {
+                          if (onSubmit != null) {
+                            onSubmit!();
+                          }
+                        },
+                        icon: const Icon(Icons.search, color: Colors.orange))
+                    : null,
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 10))));
+                contentPadding: EdgeInsets.symmetric(
+                    vertical: 10, horizontal: canIcon ? 0 : size.width*0.05))));
   }
 
   @override
@@ -65,5 +66,3 @@ class SliverAppBarSearch extends StatelessWidget {
             : textField(size));
   }
 }
-
-

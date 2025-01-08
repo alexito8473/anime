@@ -22,7 +22,8 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
   AnimeBloc({required this.animeRepository}) : super(AnimeState.init()) {
     on<SaveAnime>((event, emit) async {
       if (event.isSave) {
-        state.listAnimeSave.remove(event.anime);
+        state.listAnimeSave
+            .removeWhere((element) => element.id == event.anime.id);
       } else {
         state.listAnimeSave.add(event.anime);
       }
@@ -47,14 +48,11 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
           animeRepository.getLastAddedAnimes(),
           animeRepository.getAiringAnimes(),
           animeRepository.loadList(),
+          animeRepository.searchByType(listTypeAnimePage: state.pageOvaAnime),
+          animeRepository.searchByType(listTypeAnimePage: state.pageMovieAnime),
+          animeRepository.searchByType(listTypeAnimePage: state.pageTVAnime),
           animeRepository.searchByType(
-              type: TypeVersionAnime.OVA, page: state.pageOvaAnime.page),
-          animeRepository.searchByType(
-              type: TypeVersionAnime.MOVIE, page: state.pageMovieAnime.page),
-          animeRepository.searchByType(
-              type: TypeVersionAnime.TV, page: state.pageTVAnime.page),
-          animeRepository.searchByType(
-              type: TypeVersionAnime.SPECIAL, page: state.pageSpecialAnime.page)
+              listTypeAnimePage: state.pageSpecialAnime),
         ]);
 
         state.lastEpisodes

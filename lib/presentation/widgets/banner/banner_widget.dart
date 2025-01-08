@@ -309,17 +309,19 @@ class BannerAiringAnime extends StatelessWidget {
 }
 
 class ListAiringAnime extends StatelessWidget {
-  const ListAiringAnime({super.key});
+  final List<BasicAnime> listAringAnime;
+  final Size size;
+  const ListAiringAnime({super.key, required this.listAringAnime, required this.size});
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
-    return BlocBuilder<AnimeBloc, AnimeState>(
-        builder: (context, state) => SliverPadding(
-            padding: EdgeInsets.only(
-                left: size.width * 0.05, right: size.width * 0.05),
-            sliver: SliverList.builder(
-                itemBuilder: (context, index) => BannerAiringAnime(
-                    size: size, aringAnime: state.listAringAnime[index]),
-                itemCount: state.listAringAnime.length)));
+    return SliverPadding(
+        padding: EdgeInsets.only(
+            left: size.width * 0.05,
+            right: size.width * 0.05,
+            bottom: size.height * 0.1),
+        sliver: SliverList.builder(
+            itemBuilder: (context, index) => BannerAiringAnime(
+                size: size, aringAnime: listAringAnime[index]),
+            itemCount: listAringAnime.length));
   }
 }

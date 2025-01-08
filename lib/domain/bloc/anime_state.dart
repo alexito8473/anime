@@ -43,10 +43,11 @@ class AnimeState {
         listAnimeSave: List.empty(growable: true),
         listSearchAnime: List.empty(growable: true),
         listFilmAnime: List.empty(growable: true),
-        pageMovieAnime: ListTypeAnimePage.init(),
-        pageOvaAnime: ListTypeAnimePage.init(),
-        pageSpecialAnime: ListTypeAnimePage.init(),
-        pageTVAnime: ListTypeAnimePage.init());
+        pageMovieAnime: ListTypeAnimePage.init(type: TypeVersionAnime.MOVIE),
+        pageOvaAnime: ListTypeAnimePage.init(type: TypeVersionAnime.OVA),
+        pageSpecialAnime:
+            ListTypeAnimePage.init(type: TypeVersionAnime.SPECIAL),
+        pageTVAnime: ListTypeAnimePage.init(type: TypeVersionAnime.TV));
   }
 
   AnimeState copyWith(

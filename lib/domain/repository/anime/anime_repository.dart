@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:anime/constans.dart';
+import 'package:anime/data/model/list_type_anime_page.dart';
 import 'package:anime/domain/bloc/anime_bloc.dart';
 import 'package:beautiful_soup_dart/beautiful_soup.dart';
 import 'package:image/image.dart' as img;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:anime/data/model/complete_anime.dart';
 import 'package:anime/data/model/server.dart';
-import '../../../data/typeAnime/type_version_anime.dart';
-import 'global.dart';
+import '../../../utils/parse_table.dart';
 import 'package:http/http.dart' as http;
 
 class AnimeRepository {
@@ -58,7 +59,7 @@ class AnimeRepository {
   }
 
   Future<List> getLastAddedAnimes() async {
-    final res = await http.Client().get(Uri.parse(BASE_URL));
+    final res = await http.Client().get(Uri.parse(Constants.baseUrl));
     if (res.statusCode == 200) {
       var lastAnimes = [];
       final lastAnimesElements =
@@ -70,9 +71,9 @@ class AnimeRepository {
           'id': id?.substring(1, id.length),
           'title': anime.find('', selector: 'a h3')?.string,
           'poster':
-              '$BASE_URL${anime.find('', selector: '.Image figure img')?['src']}',
+              '${Constants.baseUrl}${anime.find('', selector: '.Image figure img')?['src']}',
           'banner':
-              '$BASE_URL${anime.find('', selector: '.Image figure img')?['src']?.replaceAll('covers', 'banners').trim()}',
+              '${Constants.baseUrl}${anime.find('', selector: '.Image figure img')?['src']?.replaceAll('covers', 'banners').trim()}',
           'type':
               anime.find('', selector: 'div.Description p span.Type')?.string,
           'synopsis':
@@ -87,7 +88,7 @@ class AnimeRepository {
   }
 
   Future<List> getAiringAnimes() async {
-    final res = await http.Client().get(Uri.parse(BASE_URL));
+    final res = await http.Client().get(Uri.parse(Constants.baseUrl));
     try {
       if (res.statusCode == 200) {
         var airingAnimes = [];
@@ -113,7 +114,8 @@ class AnimeRepository {
   }
 
   Future<List> search(String searchQuery) async {
-    final res = await http.Client().get(Uri.parse('$SEARCH_URL$searchQuery'));
+    final res = await http.Client()
+        .get(Uri.parse('${Constants.searchUrl}$searchQuery'));
     if (res.statusCode == 200) {
       final elements =
           BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
@@ -150,11 +152,9 @@ class AnimeRepository {
   }
 
   Future<List> searchByType(
-      {required TypeVersionAnime type, required int page}) async {
-    final res = await http.Client()
-        .get(Uri.parse("$SEARCH_URL_FOR_TYPE${type.value}&page=$page"));
-    print(type.toStringToLowerCase());
-    print(res.statusCode == 200);
+      {required ListTypeAnimePage listTypeAnimePage}) async {
+    final res = await http.Client().get(Uri.parse(
+        "${Constants.searchUrlForType}${listTypeAnimePage.typeVersionAnime.value}&page=${listTypeAnimePage.page}"));
     if (res.statusCode == 200) {
       final elements =
           BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
@@ -191,8 +191,8 @@ class AnimeRepository {
   }
 
   Future<List> getVideoServers(String episodeId) async {
-    final res =
-        await http.Client().get(Uri.parse('$ANIME_VIDEO_URL$episodeId'));
+    final res = await http.Client()
+        .get(Uri.parse('${Constants.animeVideoUrl}$episodeId'));
     if (res.statusCode == 200) {
       final scripts =
           BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
@@ -229,7 +229,8 @@ class AnimeRepository {
   }
 
   Future<List> _getAnimeEpisodesInfo(String animeId) async {
-    final res = await http.Client().get(Uri.parse('$BASE_URL/$animeId'));
+    final res =
+        await http.Client().get(Uri.parse('${Constants.baseUrl}/$animeId'));
     final soup;
     final idAnime;
     final elements;
@@ -246,7 +247,7 @@ class AnimeRepository {
       extraInfo = {
         'title': soup.find('', selector: 'h1.Title')?.string,
         'poster':
-            '$BASE_URL${soup.find("", selector: "div.Image figure img")?["src"]}',
+            '${Constants.baseUrl}${soup.find("", selector: "div.Image figure img")?["src"]}',
         'synopsis': soup.find('', selector: 'div.Description p')?.string.trim(),
         'rating': soup.find('', selector: 'span#votes_prmd')?.string,
         'debut': soup.find('', selector: 'p.AnmStts')?.string,
@@ -281,7 +282,7 @@ class AnimeRepository {
           'episode': episodeData[0],
           'id': '$idAnime-${episodeData[0]}',
           'imagePreview':
-              '$BASE_EPISODE_IMG_URL${infoIds[0][0]}/${episodeData[0]}/th_3.jpg',
+              '${Constants.baseEpisodeImgUrl}${infoIds[0][0]}/${episodeData[0]}/th_3.jpg',
         });
       }
       return [episodes, genres, extraInfo];
@@ -291,9 +292,9 @@ class AnimeRepository {
 
   Future<List> getLastEpisodes() async {
     try {
-      final res = await http.Client().get(Uri.parse(BASE_URL));
+      final res = await http.Client().get(Uri.parse(Constants.baseUrl));
       var lastEpisodes = [];
-      final lastEpisodesElements;
+      final List<Bs4Element> lastEpisodesElements;
       if (res.statusCode == 200) {
         lastEpisodesElements =
             BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
@@ -307,7 +308,7 @@ class AnimeRepository {
                 .replaceAll('Episodio ', ''),
             'id': episode['href']?.split('ver/')[1],
             'imagePreview':
-                '$BASE_URL${episode.find('', selector: '.Image img')?['src']}'
+                '${Constants.baseUrl}${episode.find('', selector: '.Image img')?['src']}'
           });
         }
         return lastEpisodes;
@@ -362,10 +363,11 @@ class AnimeRepository {
   }
 
   Future<List> downloadLinksByEpisodeId(String id) async {
-    final res = await http.Client().get(Uri.parse('$ANIME_VIDEO_URL$id'));
-    final rows;
-    var ret;
-    var resZS;
+    final res =
+        await http.Client().get(Uri.parse('${Constants.animeVideoUrl}$id'));
+    final List rows;
+    List ret;
+    http.Response resZS;
     if (res.statusCode == 200) {
       final table =
           BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))

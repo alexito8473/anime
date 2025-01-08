@@ -23,11 +23,11 @@ class AppBarDetailAnime extends StatelessWidget {
 
   Widget buildContent({required Size size, required BuildContext context}) {
     return SizedBox(
-        height: size.height * 0.27,
         child: Column(
             spacing: size.height * 0.005,
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
+            verticalDirection: VerticalDirection.down,
             children: [
               TitleWidget(
                   title: anime.title,
@@ -65,6 +65,7 @@ class AppBarDetailAnime extends StatelessWidget {
     Size size = MediaQuery.sizeOf(context);
     Orientation orientation = MediaQuery.of(context).orientation;
     bool isSave = isSaveAnime(context: context);
+    print(isSave);
     return SliverAppBar(
         leading: IconButton(
             onPressed: () {
@@ -119,6 +120,7 @@ class AppBarDetailAnime extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisSize: MainAxisSize.max,
+                      verticalDirection: VerticalDirection.down,
                       children: [
                         HeroAnimationWidget(
                             tag: tag,
