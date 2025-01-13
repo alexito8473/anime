@@ -12,6 +12,7 @@ class AnimeState {
   final ListTypeAnimePage pageOvaAnime;
   final ListTypeAnimePage pageTVAnime;
   final ListTypeAnimePage pageSpecialAnime;
+  final List<String> listEpisodesView;
   final int countAnimeSave;
   final bool isObtainAllData;
   final bool initLoad;
@@ -29,7 +30,8 @@ class AnimeState {
       required this.pageSpecialAnime,
       required this.pageTVAnime,
       required this.pageMovieAnime,
-      required this.countAnimeSave});
+      required this.countAnimeSave,
+      required this.listEpisodesView});
 
   factory AnimeState.init() {
     return AnimeState(
@@ -47,7 +49,8 @@ class AnimeState {
         pageOvaAnime: ListTypeAnimePage.init(type: TypeVersionAnime.OVA),
         pageSpecialAnime:
             ListTypeAnimePage.init(type: TypeVersionAnime.SPECIAL),
-        pageTVAnime: ListTypeAnimePage.init(type: TypeVersionAnime.TV));
+        pageTVAnime: ListTypeAnimePage.init(type: TypeVersionAnime.TV),
+        listEpisodesView: List.empty(growable: true));
   }
 
   AnimeState copyWith(
@@ -63,6 +66,7 @@ class AnimeState {
       ListTypeAnimePage? pageOvaAnime,
       ListTypeAnimePage? pageTVAnime,
       ListTypeAnimePage? pageMovieAnime,
+      List<String>? listEpisodesView,
       int? countAnimeSave,
       bool? initLoad}) {
     return AnimeState(
@@ -79,6 +83,7 @@ class AnimeState {
         pageOvaAnime: pageOvaAnime ?? this.pageOvaAnime,
         pageSpecialAnime: pageSpecialAnime ?? this.pageSpecialAnime,
         pageTVAnime: pageTVAnime ?? this.pageTVAnime,
-        pageMovieAnime: pageMovieAnime ?? this.pageMovieAnime);
+        pageMovieAnime: pageMovieAnime ?? this.pageMovieAnime,
+        listEpisodesView: listEpisodesView ?? this.listEpisodesView);
   }
 }

@@ -8,7 +8,6 @@ import 'package:anime/domain/repository/anime/anime_repository.dart';
 import 'package:anime/presentation/pages/detail_anime_page.dart';
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../data/model/list_type_anime_page.dart';
@@ -27,13 +26,25 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
       } else {
         state.listAnimeSave.add(event.anime);
       }
-      animeRepository.saveList(state.listAnimeSave);
+      await animeRepository.saveList(state.listAnimeSave);
       emit(state.copyWith(countAnimeSave: state.listAnimeSave.length));
+    });
+
+    on<SaveEpisode>((event, emit) async {
+      if (event.isSave) {
+        state.listEpisodesView
+            .removeWhere((element) => element == event.episode.id);
+      } else {
+        state.listEpisodesView.add(event.episode.id);
+      }
+      await animeRepository.saveEpisode(state.listEpisodesView);
+      emit(state.copyWith());
     });
 
     on<Reset>((event, emit) async {
       emit(state.copyWith(isObtainAllData: false, initLoad: false));
     });
+
     on<ObtainData>((event, emit) async {
       List<String> animeSave;
       emit(state.copyWith(isObtainAllData: false, initLoad: true));
@@ -53,6 +64,7 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
           animeRepository.searchByType(listTypeAnimePage: state.pageTVAnime),
           animeRepository.searchByType(
               listTypeAnimePage: state.pageSpecialAnime),
+          animeRepository.loadEpisode(),
         ]);
 
         state.lastEpisodes
@@ -70,6 +82,8 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
             .addAll(results[6].map((e) => Anime.fromJson(e)).toList());
         state.pageSpecialAnime.listAnime
             .addAll(results[7].map((e) => Anime.fromJson(e)).toList());
+        state.listEpisodesView.addAll(results[8] as List<String>);
+
         emit(state.copyWith(
             isObtainAllData: true,
             initLoad: false,
@@ -100,9 +114,11 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
           state: state, id: event.id, title: event.title);
       state.listAnimes.add(anime!);
       emit(state.copyWith(initLoad: false));
-      navigationAnimated(
-          context: event.context,
-          navigateWidget: DetailAnimePage(tag: event.tag, idAnime: anime.id));
+      if (event.context.mounted) {
+        navigationAnimated(
+            context: event.context,
+            navigateWidget: DetailAnimePage(tag: event.tag, idAnime: anime.id));
+      }
     });
 
     on<SearchAnime>((event, emit) async {
@@ -129,11 +145,13 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
       }
       emit(state.copyWith(initLoad: false));
 
-      navigationAnimated(
-          isReplacement: event.isNavigationReplacement,
-          context: event.context,
-          navigateWidget: ServerListPage(
-              idAnime: event.anime.id, idEpisode: event.episode.id));
+      if (event.context.mounted) {
+        navigationAnimated(
+            isReplacement: event.isNavigationReplacement,
+            context: event.context,
+            navigateWidget: ServerListPage(
+                idAnime: event.anime.id, idEpisode: event.episode.id));
+      }
     });
   }
   void navigationAnimated(

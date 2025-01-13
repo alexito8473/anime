@@ -1,4 +1,5 @@
 import 'package:anime/presentation/widgets/sliver/sliver_widget.dart';
+import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart';
 import '../../data/model/list_type_anime_page.dart';
 import '../widgets/banner/banner_widget.dart';
@@ -7,16 +8,22 @@ class ListTypeScreen extends StatelessWidget {
   final GlobalKey? targetKey;
   final ListTypeAnimePage pageAnime;
 
-  const ListTypeScreen(
-      {super.key, required this.pageAnime, this.targetKey});
+  const ListTypeScreen({super.key, required this.pageAnime, this.targetKey});
 
   final String tag = "typeScreen";
+
+  Future<void> task() {
+    return Future.value();
+  }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
-    return NotificationListener<ScrollEndNotification>(
-        onNotification: (notification) {
+    return CustomMaterialIndicator.adaptive(
+        onRefresh: task, // Your refresh logic
+        backgroundColor: Colors.white,
+        autoRebuild: true,
+        notificationPredicate: (notification) {
           final metrics = notification.metrics;
           if (metrics.pixels >= metrics.maxScrollExtent) {
             print("ahora ahora");
@@ -24,6 +31,8 @@ class ListTypeScreen extends StatelessWidget {
           }
           return false;
         },
+        leadingScrollIndicatorVisible: false,
+        trailingScrollIndicatorVisible: false,
         child: CustomScrollView(slivers: [
           SliverAppBar(
               key: targetKey,
@@ -58,10 +67,11 @@ class ListTypeScreen extends StatelessWidget {
                   itemCount: pageAnime.listAnime.length,
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                       mainAxisExtent: 300,
-                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 20,
                       maxCrossAxisExtent: 150),
-                  itemBuilder: (context, index) => BannerAnime(
-                      anime: pageAnime.listAnime[index], tag: tag)))
+                  itemBuilder: (context, index) =>
+                      BannerAnime(anime: pageAnime.listAnime[index], tag: tag)))
         ]));
   }
 }

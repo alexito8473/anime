@@ -10,6 +10,7 @@ import '../../../data/model/anime.dart';
 import '../../../data/model/last_episode.dart';
 import '../animation/hero_animation_widget.dart';
 import '../button/button_widget.dart';
+import '../load/load_widget.dart';
 import '../title/title_widget.dart';
 
 class BannerWidget extends StatelessWidget {
@@ -204,34 +205,63 @@ class BannerAnime extends StatelessWidget {
     return GestureDetector(
         onTap: () => onTap(context: context),
         child: SizedBox(
-          width: orientation == Orientation.portrait
-              ? size.width * 0.3
-              : size.width * 0.15,
-          child: Column(
-              spacing: size.height * 0.005,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                HeroAnimationWidget(
-                    tag: tag,
-                    heroTag: anime.poster,
-                    child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: CachedNetworkImage(
-                            imageUrl: anime.poster,
-                            fit: BoxFit.contain,
-                            filterQuality: FilterQuality.high))),
-                TitleWidget(
-                    title: anime.title,
-                    maxLines: 3,
-                    textStyle: Theme.of(context).textTheme.titleSmall!,
-                    tag: tag),
-                HeroAnimationWidget(
-                    tag: tag,
-                    heroTag: anime.rating + anime.title,
-                    child: Text("Rating : ${anime.rating}"))
-              ]),
-        ));
+            width: orientation == Orientation.portrait
+                ? size.width * 0.4
+                : size.width * 0.15,
+            child: Column(
+                spacing: size.height * 0.005,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 180,
+                    child: Stack(
+                      children: [
+                        Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: HeroAnimationWidget(
+                                tag: tag,
+                                heroTag: anime.poster,
+                                child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: CachedNetworkImage(
+                                        imageUrl: anime.poster,
+                                        fit: BoxFit.cover,
+                                        progressIndicatorBuilder:
+                                            (context, url, progress) {
+                                          return
+                                              const LoadWidget();
+                                        },
+                                        filterQuality: FilterQuality.high)))),
+                        Positioned(
+                            top: 15,
+                            left: 8,
+                            child: HeroAnimationWidget(
+                                tag: tag,
+                                heroTag: anime.rating + anime.title,
+                                child: Container(
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: Text(anime.rating,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge
+                                          ?.copyWith(color: Colors.yellow)),
+                                )))
+                      ],
+                    ),
+                  ),
+                  TitleWidget(
+                      title: anime.title,
+                      maxLines: 3,
+                      textStyle: Theme.of(context).textTheme.titleSmall!,
+                      tag: tag)
+                ])));
   }
 }
 
@@ -311,7 +341,8 @@ class BannerAiringAnime extends StatelessWidget {
 class ListAiringAnime extends StatelessWidget {
   final List<BasicAnime> listAringAnime;
   final Size size;
-  const ListAiringAnime({super.key, required this.listAringAnime, required this.size});
+  const ListAiringAnime(
+      {super.key, required this.listAringAnime, required this.size});
   @override
   Widget build(BuildContext context) {
     return SliverPadding(

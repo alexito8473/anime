@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../widgets/sliver/sliver_widget.dart';
 import '../widgets/title/title_widget.dart';
@@ -39,8 +38,9 @@ class ListAnimeScreen extends StatelessWidget {
               itemBuilder: (context, index) => itemBuilder(context, index),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   crossAxisSpacing: 20,
+                  mainAxisSpacing: 20,
                   maxCrossAxisExtent: 150,
-                  mainAxisExtent: 300))),
+                  mainAxisExtent: 300)))
     ]));
   }
 }

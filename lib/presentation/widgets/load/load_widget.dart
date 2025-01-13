@@ -4,11 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/bloc/anime_bloc.dart';
 
 class LoadWidget extends StatelessWidget {
-  const LoadWidget({super.key});
+  final double? height;
+  const LoadWidget({super.key, this.height});
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: height,
         color: Colors.black54,
         child: const Center(
             child: CircularProgressIndicator(

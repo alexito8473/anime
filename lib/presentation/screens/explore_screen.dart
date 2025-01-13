@@ -20,9 +20,8 @@ class ExploreScreen extends StatelessWidget {
     return Scaffold(
       body: CustomScrollView(slivers: [
         SliverAppBar(
-          backgroundColor: Colors.grey.shade900,
-          title: AutoSizeText("Buscador de anime"),
-        ),
+            backgroundColor: Colors.grey.shade900,
+            title: const AutoSizeText("Buscador de anime")),
         SliverPadding(
             padding: EdgeInsets.only(top: size.height * 0.01),
             sliver: SliverAppBarSearch(

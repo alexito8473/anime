@@ -68,14 +68,20 @@ class _ServerListPageState extends State<ServerListPage> {
         .listAnimes
         .firstWhere((element) => element.id == widget.idAnime);
     Episode episode =
-    anime.episodes.firstWhere((element) => element.id == widget.idEpisode);
+        anime.episodes.firstWhere((element) => element.id == widget.idEpisode);
     context.read<AnimeBloc>().add(ObtainVideoSever(
         context: context,
         anime: anime,
-        episode: anime.episodes[episode.episode-2],
+        episode: anime.episodes[episode.episode - 2],
         isNavigationReplacement: true));
-
   }
+
+  void onTapSaveEpisode(bool isSave, Episode episode) {
+    context
+        .read<AnimeBloc>()
+        .add(SaveEpisode(episode: episode, isSave: isSave));
+  }
+
   void onTapRight() {
     CompleteAnime anime = context
         .read<AnimeBloc>()
@@ -94,23 +100,22 @@ class _ServerListPageState extends State<ServerListPage> {
   @override
   Widget build(BuildContext context) {
     return AnimationLoadPage(
-      child: BlocBuilder<AnimeBloc, AnimeState>(
-        builder: (context, state) {
-          CompleteAnime anime = state.listAnimes
-              .firstWhere((element) => element.id == widget.idAnime);
-          Episode episode = anime.episodes
-              .firstWhere((element) => element.id == widget.idEpisode);
-          return ServerScreen(
-              episode: episode,
-              currentPage: _currentPage,
-              onTap: onTap,
-              inAppWebViewSettings: inAppWebViewSettings,
-              onWebViewCreated: onWebViewCreated,
-              anime: anime,
-              onTapLeft: onTapLeft,
-              onTapRight: onTapRight);
-        },
-      ),
-    );
+        child: BlocBuilder<AnimeBloc, AnimeState>(builder: (context, state) {
+      CompleteAnime anime = state.listAnimes
+          .firstWhere((element) => element.id == widget.idAnime);
+      Episode episode = anime.episodes
+          .firstWhere((element) => element.id == widget.idEpisode);
+      return ServerScreen(
+          episode: episode,
+          currentPage: _currentPage,
+          onTap: onTap,
+          inAppWebViewSettings: inAppWebViewSettings,
+          onWebViewCreated: onWebViewCreated,
+          anime: anime,
+          onTapLeft: onTapLeft,
+          onTapRight: onTapRight,
+          onTapSaveEpisode: onTapSaveEpisode,
+          isSave: state.listEpisodesView.contains(episode.id));
+    }));
   }
 }

@@ -21,19 +21,6 @@ class SearchAnime extends AnimeEvent {
 
 class Reset extends AnimeEvent {}
 
-class SaveAnime extends AnimeEvent {
-  final CompleteAnime anime;
-  final bool isSave;
-  SaveAnime({required this.anime, required this.isSave});
-}
-
-class ObtainData extends AnimeEvent {
-  final BuildContext context;
-  ObtainData({required this.context});
-}
-
-
-
 class ObtainDataType extends AnimeEvent {
   final BuildContext context;
   final TypeVersionAnime type;
@@ -50,6 +37,28 @@ class ObtainVideoSever extends AnimeEvent {
       required this.episode,
       required this.context,
       required this.isNavigationReplacement});
+}
+
+class Save extends AnimeEvent {
+  final bool isSave;
+  Save({required this.isSave});
+}
+
+class SaveAnime extends Save {
+  final CompleteAnime anime;
+
+  SaveAnime({required this.anime, required super.isSave});
+}
+
+class SaveEpisode extends Save {
+  final Episode episode;
+
+  SaveEpisode({required this.episode, required super.isSave});
+}
+
+class ObtainData extends AnimeEvent {
+  final BuildContext context;
+  ObtainData({required this.context});
 }
 
 class ObtainDataRebuild extends ObtainData {

@@ -59,55 +59,6 @@ class _ListAnimePageState extends State<ListAnimePage> {
         .toList();
   }
 
-  Widget floatingChild({required Size size}) {
-    return AnimatedContainer(
-        duration: const Duration(milliseconds: 800),
-        width: isOpen ? size.width * 0.8 : size.width * 0.13,
-        child: Row(
-            spacing: size.width * 0.01,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Expanded(
-                  child: Container(
-                    height: size.height* 0.05,
-                padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-                decoration: BoxDecoration(
-                    color: const Color(0xFF1C2833),
-                    border: Border.all(color: Colors.white.withAlpha(40)),
-                    borderRadius: BorderRadius.circular(10)),
-                child: TextField(
-                    controller: controller,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                        hintText: 'Buscar...',
-                        hintStyle: TextStyle(color: Colors.grey[400]),
-                        border: InputBorder.none,
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 10))),
-              )),
-              GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isOpen ? controller.clear() : controller.text = '';
-                      isOpen = !isOpen;
-                    });
-                  },
-                  child: Container(
-                    constraints: BoxConstraints(minHeight: 60,maxWidth: 80,minWidth: 80,maxHeight: 60),
-                      width: size.width * 0.12,
-                      height: size.height* 0.05,
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-
-                          color: const Color(0xFF1C2833),
-                          border: Border.all(color: Colors.white.withAlpha(40)),
-                          borderRadius: BorderRadius.circular(10)),
-                      child: isOpen
-                          ? const Icon(Icons.search_off)
-                          : const Icon(Icons.search))),
-            ]));
-  }
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
@@ -125,9 +76,9 @@ class _ListAnimePageState extends State<ListAnimePage> {
             colorTitle: widget.colorTitle,
             itemBuilder: itemBuilder(
                 listAnime: listAnime, size: size, isPortrait: isPortrait),
-            count: isAdd||isOpen
+            count: isAdd || isOpen
                 ? listAnime.length
-                :  context.watch<AnimeBloc>().state.countAnimeSave,
+                : context.watch<AnimeBloc>().state.countAnimeSave,
             controller: controller));
   }
 }

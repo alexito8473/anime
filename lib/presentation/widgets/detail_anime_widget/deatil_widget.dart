@@ -1,4 +1,5 @@
 import 'package:anime/domain/bloc/anime_bloc.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +66,6 @@ class AppBarDetailAnime extends StatelessWidget {
     Size size = MediaQuery.sizeOf(context);
     Orientation orientation = MediaQuery.of(context).orientation;
     bool isSave = isSaveAnime(context: context);
-    print(isSave);
     return SliverAppBar(
         leading: IconButton(
             onPressed: () {
@@ -163,7 +163,7 @@ class SynopsysWidget extends StatelessWidget {
                       .textTheme
                       .titleLarge
                       ?.copyWith(color: Colors.blue)),
-              Text(title)
+              AutoSizeText(title,style: Theme.of(context).textTheme.labelLarge,)
             ]));
   }
 }

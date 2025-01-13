@@ -2,12 +2,11 @@ import 'package:anime/domain/bloc/anime_bloc.dart';
 import 'package:anime/presentation/pages/explore_page.dart';
 
 import 'package:anime/presentation/screens/home_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
-import '../screens/movie_screen.dart';
+import '../screens/type_anime_screen.dart';
 import '../widgets/load/load_widget.dart';
 
 class HomePage extends StatefulWidget {

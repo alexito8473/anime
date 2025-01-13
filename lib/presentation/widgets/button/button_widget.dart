@@ -1,6 +1,5 @@
 import 'package:anime/data/typeAnime/type_data.dart';
 import 'package:anime/presentation/pages/list_anime_page.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../data/model/anime.dart';
@@ -18,7 +17,8 @@ class ButtonNavigateListAnime extends StatelessWidget {
       required this.animes,
       required this.tag,
       required this.title,
-      required this.colorTitle, required this.typeAnime});
+      required this.colorTitle,
+      required this.typeAnime});
 
   void navigateListAnime({required BuildContext context}) {
     Navigator.push(

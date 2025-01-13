@@ -1,4 +1,5 @@
 import 'package:anime/data/model/complete_anime.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -14,6 +15,8 @@ class ServerScreen extends StatelessWidget {
   final Function onWebViewCreated;
   final Function onTapLeft;
   final Function onTapRight;
+  final Function onTapSaveEpisode;
+  final bool isSave;
   const ServerScreen(
       {super.key,
       required this.episode,
@@ -23,45 +26,71 @@ class ServerScreen extends StatelessWidget {
       required this.onWebViewCreated,
       required this.anime,
       required this.onTapLeft,
-      required this.onTapRight});
+      required this.onTapRight,
+      required this.onTapSaveEpisode,
+      required this.isSave});
   Widget navigatorButton(
-      {required Size size, required bool isLeft, required Function onTap, required BuildContext context}) {
+      {required Size size,
+      required bool isLeft,
+      required Function onTap,
+      required BuildContext context}) {
     return GestureDetector(
-      onTap: () {
-        onTap();
-      },
-      child: Container(
-        width: size.width * 0.1,
-        height: 40,
-        decoration: BoxDecoration(
-          color: Colors.grey.shade900,
-          border: Border.all(color: Colors.white.withAlpha(40)),
-          borderRadius: !isLeft
-              ? const BorderRadius.only(
-                  topRight: Radius.circular(100),
-                  bottomRight: Radius.circular(100))
-              : const BorderRadius.only(
-                  topLeft: Radius.circular(100),
-                  bottomLeft: Radius.circular(100)),
-        ),
-        child: isLeft
-            ? const Icon(Icons.arrow_back_sharp)
-            : const Icon(Icons.arrow_forward_sharp),
-      ),
-    );
+        onTap: () {
+          onTap();
+        },
+        child: Container(
+          width: size.width * 0.1,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade900,
+            border: Border.all(color: Colors.white.withAlpha(40)),
+            borderRadius: !isLeft
+                ? const BorderRadius.only(
+                    topRight: Radius.circular(100),
+                    bottomRight: Radius.circular(100))
+                : const BorderRadius.only(
+                    topLeft: Radius.circular(100),
+                    bottomLeft: Radius.circular(100)),
+          ),
+          child: isLeft
+              ? const Icon(Icons.arrow_back_sharp)
+              : const Icon(Icons.arrow_forward_sharp),
+        ));
   }
 
   Widget navigationButton({required Size size, required BuildContext context}) {
     return Padding(
-        padding: EdgeInsets.only(left: size.width * 0.05),
+        padding: EdgeInsets.only(bottom: size.height * 0.05),
         child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             spacing: 10,
             children: [
               if (episode.episode > 1)
-                navigatorButton(size: size, isLeft: true, onTap: onTapLeft, context: context),
+                navigatorButton(
+                    size: size,
+                    isLeft: true,
+                    onTap: onTapLeft,
+                    context: context),
+              GestureDetector(
+                  onTap: () => onTapSaveEpisode(isSave, episode),
+                  child: Container(
+                      width: 100,
+                      height: 40,
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                          color: Colors.grey.shade900,
+                          border:
+                              Border.all(color: Colors.white.withAlpha(40))),
+                      child: isSave
+                          ? const Text("Visto")
+                          : const Text("No visto"))),
               if (anime.episodes.length - 1 > episode.episode)
-                navigatorButton(size: size, isLeft: false, onTap: onTapRight, context: context)
+                navigatorButton(
+                    size: size,
+                    isLeft: false,
+                    onTap: onTapRight,
+                    context: context)
             ]));
   }
 
@@ -70,60 +99,66 @@ class ServerScreen extends StatelessWidget {
     Size size = MediaQuery.sizeOf(context);
     return Scaffold(
         appBar: AppBar(
+            actions: [
+              IconButton(
+                  onPressed: () => onTapSaveEpisode(isSave, episode),
+                  isSelected: isSave,
+                  style:
+                      const ButtonStyle(elevation: WidgetStatePropertyAll(200)),
+                  selectedIcon: const Icon(CupertinoIcons.heart_fill,
+                      color: Colors.orange),
+                  icon: const Icon(CupertinoIcons.heart, color: Colors.white))
+            ],
             title: TitleWidget(
                 title: episode.id.replaceAll("-", " "),
-                maxLines: 3,
-                textStyle: Theme.of(context).textTheme.titleLarge!,
+                maxLines: 2,
+                textStyle: Theme.of(context).textTheme.titleMedium!,
                 tag: episode.id)),
         body: SingleChildScrollView(
-            child: SizedBox(
-                width: size.width,
-                height: size.height * .8,
-                child: Column(children: [
-                  SafeArea(
-                      child: BottomNavigationBar(
-                          iconSize: 0,
-                          currentIndex: currentPage,
-                          onTap: (value) {
-                            onTap(value, episode);
+            child: Column(children: [
+          SafeArea(
+              child: BottomNavigationBar(
+                  iconSize: 0,
+                  currentIndex: currentPage,
+                  onTap: (value) {
+                    onTap(value, episode);
+                  },
+                  showSelectedLabels: true,
+                  showUnselectedLabels: true,
+                  items: (episode.servers
+                      .map((server) => BottomNavigationBarItem(
+                          icon: const Icon(Icons.add), label: server.title))
+                      .toList()))),
+          SizedBox(
+              height: size.height * 0.7,
+              child: episode.servers[currentPage].code == null
+                  ? const CircularProgressIndicator()
+                  : Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: size.width * 0.05,
+                          vertical: size.height * 0.05),
+                      child: InAppWebView(
+                          initialSettings: inAppWebViewSettings,
+                          shouldOverrideUrlLoading:
+                              (controller, navigationAction) async {
+                            if (navigationAction.request.url
+                                .toString()
+                                .contains("hlsflast.com")) {
+                              return NavigationActionPolicy.ALLOW;
+                            }
+                            if (episode.servers[currentPage].code!.contains(
+                                navigationAction.request.url.toString())) {
+                              return NavigationActionPolicy
+                                  .ALLOW; // Bloquea la carga del enlace
+                            }
+                            return NavigationActionPolicy.CANCEL;
                           },
-                          showSelectedLabels: true,
-                          showUnselectedLabels: true,
-                          items: (episode.servers
-                              .map((server) => BottomNavigationBarItem(
-                                  icon: const Icon(Icons.add),
-                                  label: server.title))
-                              .toList()))),
-                  Expanded(
-                      child: episode.servers[currentPage].code == null
-                          ? const CircularProgressIndicator()
-                          : Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: size.width * 0.05,
-                                  vertical: size.height * 0.05),
-                              child: InAppWebView(
-                                  initialSettings: inAppWebViewSettings,
-                                  shouldOverrideUrlLoading:
-                                      (controller, navigationAction) async {
-                                    if (navigationAction.request.url
-                                        .toString()
-                                        .contains("hlsflast.com")) {
-                                      return NavigationActionPolicy.ALLOW;
-                                    }
-                                    if (episode.servers[currentPage].code!
-                                        .contains(navigationAction.request.url
-                                            .toString())) {
-                                      return NavigationActionPolicy
-                                          .ALLOW; // Bloquea la carga del enlace
-                                    }
-                                    return NavigationActionPolicy.CANCEL;
-                                  },
-                                  onWebViewCreated: (controller) =>
-                                      onWebViewCreated(controller),
-                                  initialUrlRequest: URLRequest(
-                                      url: WebUri(episode
-                                          .servers[currentPage].code!))))),
-                  navigationButton(size: size, context: context)
-                ]))));
+                          onWebViewCreated: (controller) =>
+                              onWebViewCreated(controller),
+                          initialUrlRequest: URLRequest(
+                              url: WebUri(
+                                  episode.servers[currentPage].code!))))),
+          navigationButton(size: size, context: context)
+        ])));
   }
 }

@@ -22,7 +22,7 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
   late Animation<double> _darkAnimation;
   late Animation<double> _volumeAnimation;
 
-  final Duration durationAnimation = const Duration(seconds: 3);
+  final Duration durationAnimation = const Duration(seconds: 1);
   bool isComplete = false;
 
   @override
@@ -57,24 +57,23 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
     _zoomAnimationController =
         AnimationController(vsync: this, duration: durationAnimation);
     _zoomAnimation = Tween<double>(begin: 1.5, end: 5.0).animate(
-      CurvedAnimation(parent: _zoomAnimationController, curve: Curves.linear),
-    );
+        CurvedAnimation(
+            parent: _zoomAnimationController, curve: Curves.linear));
 
     _darkAnimationController =
         AnimationController(vsync: this, duration: durationAnimation);
     _darkAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _darkAnimationController, curve: Curves.linear),
-    );
+        CurvedAnimation(
+            parent: _darkAnimationController, curve: Curves.linear));
 
     _volumeAnimationController =
         AnimationController(vsync: this, duration: durationAnimation);
     _volumeAnimation = Tween<double>(begin: 0.05, end: 0.0).animate(
-      CurvedAnimation(parent: _volumeAnimationController, curve: Curves.linear),
-    );
+        CurvedAnimation(
+            parent: _volumeAnimationController, curve: Curves.linear));
 
-    _volumeAnimationController.addListener(() {
-      _controller.setVolume(_volumeAnimation.value);
-    });
+    _volumeAnimationController
+        .addListener(() => _controller.setVolume(_volumeAnimation.value));
   }
 
   @override
@@ -96,15 +95,15 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
 
   void _navigateToHome() {
     Navigator.pushAndRemoveUntil(
-      context,
-      PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 400),
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              const HomePage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-              FadeTransition(opacity: animation, child: child)),
-      (route) => false,
-    );
+        context,
+        PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 400),
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const HomePage(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) =>
+                    FadeTransition(opacity: animation, child: child)),
+        (route) => false);
   }
 
   @override

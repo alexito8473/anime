@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:anime/data/model/episode.dart';
@@ -11,12 +12,21 @@ import '../title/title_widget.dart';
 class BannerEpisode extends StatelessWidget {
   final Episode episode;
   final CompleteAnime anime;
-  const BannerEpisode({super.key, required this.episode, required this.anime});
+  final Orientation orientation;
+  final Size size;
+  final Function onTapSaveEpisode;
+  const BannerEpisode(
+      {super.key,
+      required this.episode,
+      required this.anime,
+      required this.orientation,
+      required this.size,
+      required this.onTapSaveEpisode});
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
-    Orientation orientation = MediaQuery.of(context).orientation;
+    bool isSave =
+        context.watch<AnimeBloc>().state.listEpisodesView.contains(episode.id);
     return GestureDetector(
         onTap: () {
           context.read<AnimeBloc>().add(ObtainVideoSever(
@@ -64,8 +74,23 @@ class BannerEpisode extends StatelessWidget {
                             if (episode.part != null)
                               AutoSizeText(" Part : ${episode.part}")
                           ],
-                        )
-                      ]))
+                        ),
+                      ])),
+                  IconButton(
+                      onPressed: () => onTapSaveEpisode(isSave, episode),
+                      style: ButtonStyle(foregroundColor:
+                          MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.selected)) {
+                          return Colors
+                              .white; // Color blanco cuando está seleccionado
+                        }
+                        return Colors.white.withOpacity(
+                            0.5); // Blanco transparente cuando no está seleccionado
+                      })),
+                      isSelected: isSave,
+                      icon: const Icon(CupertinoIcons.eye_slash_fill),
+                      selectedIcon: const Icon(CupertinoIcons.eye_solid))
                 ]))));
   }
 }
@@ -74,14 +99,17 @@ class ListEpisodes extends StatelessWidget {
   final CompleteAnime anime;
   final List<Episode> episodes;
   final TextEditingController textController;
+  final Function onTapSaveEpisode;
   const ListEpisodes(
       {super.key,
       required this.anime,
       required this.episodes,
-      required this.textController});
+      required this.textController,
+      required this.onTapSaveEpisode});
 
   @override
   Widget build(BuildContext context) {
+    MediaQueryData data = MediaQuery.of(context);
     return CustomScrollView(
       slivers: [
         SliverAppBarSearch(controller: textController),
@@ -90,7 +118,13 @@ class ListEpisodes extends StatelessWidget {
             sliver: SliverList.builder(
                 itemCount: episodes.length,
                 itemBuilder: (context, index) {
-                  return BannerEpisode(anime: anime, episode: episodes[index]);
+                  return BannerEpisode(
+                    anime: anime,
+                    episode: episodes[index],
+                    orientation: data.orientation,
+                    size: data.size,
+                    onTapSaveEpisode: onTapSaveEpisode,
+                  );
                 }))
       ],
     );

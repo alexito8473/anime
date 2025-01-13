@@ -14,14 +14,27 @@ import 'package:http/http.dart' as http;
 
 class AnimeRepository {
   final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
-  AnimeRepository();
 
   Future<void> saveList(List<CompleteAnime> listAnime) async =>
-      await asyncPrefs.setString(
-          'listSafeAnime', jsonEncode(listAnime.map((e) => e.id).toList()));
+      await asyncPrefs.setString(Constants.keySharedPreferencesListAnime,
+          jsonEncode(listAnime.map((e) => e.id).toList()));
+
+  Future<void> saveEpisode(List<String> listEpisode) async =>
+      await asyncPrefs.setString(Constants.keySharedPreferencesListEpisode,
+          jsonEncode(listEpisode.toList()));
 
   Future<List<String>> loadList() async {
-    final String? jsonString = await asyncPrefs.getString('listSafeAnime');
+    final String? jsonString =
+        await asyncPrefs.getString(Constants.keySharedPreferencesListAnime);
+    if (jsonString != null) {
+      return List<String>.from(jsonDecode(jsonString));
+    }
+    return [];
+  }
+
+  Future<List<String>> loadEpisode() async {
+    final String? jsonString =
+        await asyncPrefs.getString(Constants.keySharedPreferencesListEpisode);
     if (jsonString != null) {
       return List<String>.from(jsonDecode(jsonString));
     }
@@ -107,9 +120,7 @@ class AnimeRepository {
         }
         return airingAnimes;
       }
-    } catch (e) {
-      print(e);
-    }
+    } catch (e) {}
     return [];
   }
 
@@ -231,7 +242,7 @@ class AnimeRepository {
   Future<List> _getAnimeEpisodesInfo(String animeId) async {
     final res =
         await http.Client().get(Uri.parse('${Constants.baseUrl}/$animeId'));
-    final soup;
+    BeautifulSoup soup;
     final idAnime;
     final elements;
     var extraInfo;
