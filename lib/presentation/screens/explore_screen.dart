@@ -7,17 +7,19 @@ import '../widgets/sliver/sliver_widget.dart';
 class ExploreScreen extends StatelessWidget {
   final TextEditingController controller;
   final Function onSubmit;
+  final Function onPressed;
   final List<Anime> listAnime;
   const ExploreScreen(
       {super.key,
       required this.controller,
       required this.onSubmit,
-      required this.listAnime});
+      required this.listAnime, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
+      floatingActionButton: FloatingActionButton(onPressed: () => onPressed(size)),
       body: CustomScrollView(slivers: [
         SliverAppBar(
             backgroundColor: Colors.grey.shade900,

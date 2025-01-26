@@ -42,4 +42,7 @@ class Anime extends BasicAnime implements AnimeInterface {
   String getTitle() {
     return title;
   }
+  static List<Anime> listDynamicToListAnime(List<dynamic> listDynamic){
+    return listDynamic.map((e) => Anime.fromJson(e)).toList();
+  }
 }

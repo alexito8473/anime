@@ -13,6 +13,7 @@ class DetailAnimeScreen extends StatelessWidget {
   final TextEditingController textController;
   final String? tag;
   final Function onTapSaveEpisode;
+  final Widget action;
   const DetailAnimeScreen(
       {super.key,
       required this.anime,
@@ -22,7 +23,8 @@ class DetailAnimeScreen extends StatelessWidget {
       required this.listAnimeFilter,
       required this.textController,
       required this.tag,
-      required this.onTapSaveEpisode});
+      required this.onTapSaveEpisode,
+      required this.action});
 
   @override
   Widget build(BuildContext context) {
@@ -64,8 +66,9 @@ class DetailAnimeScreen extends StatelessWidget {
                                 anime: anime,
                                 episodes: listAnimeFilter,
                                 textController: textController,
+                                action: action,
                                 onTapSaveEpisode: onTapSaveEpisode),
-                            SynopsysWidget(title: anime.synopsis),
+                            SynopsysWidget(title: anime.synopsis)
                           ]))
                         ]))))));
   }

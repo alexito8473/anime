@@ -15,9 +15,21 @@ class ListTypeAnimePage {
 
   factory ListTypeAnimePage.init({required TypeVersionAnime type}) {
     return ListTypeAnimePage(
-        page: 0,
+        page: 1,
         listAnime: List.empty(growable: true),
         isObtainAllData: false,
         typeVersionAnime: type);
+  }
+
+  ListTypeAnimePage copyWith(
+      {int? page,
+      List<Anime>? listAnime,
+      bool? isObtainAllData,
+      TypeVersionAnime? typeVersionAnime}) {
+    return ListTypeAnimePage(
+        isObtainAllData: isObtainAllData ?? this.isObtainAllData,
+        page: page ?? this.page,
+        listAnime: listAnime ?? this.listAnime,
+        typeVersionAnime: typeVersionAnime ?? this.typeVersionAnime);
   }
 }

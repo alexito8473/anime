@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_player/video_player.dart';
 
+
 class LoadPage extends StatefulWidget {
   const LoadPage({super.key});
 
@@ -14,26 +15,34 @@ class LoadPage extends StatefulWidget {
 }
 
 class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
-  late VideoPlayerController _controller;
   late AnimationController _zoomAnimationController;
   late AnimationController _darkAnimationController;
   late AnimationController _volumeAnimationController;
   late Animation<double> _zoomAnimation;
   late Animation<double> _darkAnimation;
   late Animation<double> _volumeAnimation;
-
+  final List<String> listVideo = [
+    'assets/video/video1.mp4',
+    'assets/video/video2.mp4',
+    'assets/video/video3.mp4',
+    'assets/video/video4.mp4',
+    'assets/video/video5.mp4',
+    'assets/video/video6.mp4'
+  ];
   final Duration durationAnimation = const Duration(seconds: 1);
-  bool isComplete = false;
 
+  bool isComplete = false;
+  late VideoPlayerController _controller;
   @override
   void initState() {
-    super.initState();
     _initializeVideo();
     _initializeAnimations();
     context.read<AnimeBloc>().add(ObtainData(context: context));
+    super.initState();
   }
 
-  void _initializeVideo() {
+  void _initializeVideo() async {
+
     final List<String> listVideo = [
       'assets/video/video1.mp4',
       'assets/video/video2.mp4',
@@ -45,12 +54,12 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
     _controller = VideoPlayerController.asset(
       listVideo[Random().nextInt(listVideo.length)],
     )..initialize().then((_) {
-        _controller
-          ..setLooping(true)
-          ..setVolume(0.05)
-          ..play();
-        setState(() {}); // Reconstruir solo después de inicializar el video
-      });
+      _controller
+        ..setLooping(true)
+        ..setVolume(0.01)
+        ..play();
+      setState(() {}); // Reconstruir solo después de inicializar el video
+    });
   }
 
   void _initializeAnimations() {
@@ -59,19 +68,16 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
     _zoomAnimation = Tween<double>(begin: 1.5, end: 5.0).animate(
         CurvedAnimation(
             parent: _zoomAnimationController, curve: Curves.linear));
-
     _darkAnimationController =
         AnimationController(vsync: this, duration: durationAnimation);
     _darkAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
         CurvedAnimation(
             parent: _darkAnimationController, curve: Curves.linear));
-
     _volumeAnimationController =
         AnimationController(vsync: this, duration: durationAnimation);
-    _volumeAnimation = Tween<double>(begin: 0.05, end: 0.0).animate(
+    _volumeAnimation = Tween<double>(begin: 0.01, end: 0.0).animate(
         CurvedAnimation(
             parent: _volumeAnimationController, curve: Curves.linear));
-
     _volumeAnimationController
         .addListener(() => _controller.setVolume(_volumeAnimation.value));
   }
@@ -89,7 +95,7 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
     await Future.wait([
       _zoomAnimationController.forward(),
       _darkAnimationController.forward(),
-      _volumeAnimationController.forward(),
+      _volumeAnimationController.forward()
     ]);
   }
 
@@ -119,15 +125,11 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
           Center(
               child: AnimatedBuilder(
                   animation: _zoomAnimation,
-                  builder: (context, child) {
-                    return Transform.scale(
-                        scale: _zoomAnimation.value,
-                        child: AspectRatio(
-                            aspectRatio: _controller.value.isInitialized
-                                ? _controller.value.aspectRatio
-                                : 16 / 9,
-                            child: VideoPlayer(_controller)));
-                  })),
+                  builder: (context, child) => Transform.scale(
+                      scale: _zoomAnimation.value,
+                      child: AspectRatio(
+                          aspectRatio: _controller.value.aspectRatio,
+                          child: VideoPlayer(_controller))))),
           AnimatedBuilder(
               animation: _darkAnimation,
               builder: (context, child) {

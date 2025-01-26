@@ -36,26 +36,56 @@ class BannerEpisode extends StatelessWidget {
               isNavigationReplacement: false));
         },
         child: Card(
+            margin: EdgeInsets.symmetric(
+                horizontal: size.width * 0.05, vertical: size.height * 0.01),
+            color: Colors.grey.shade900.withAlpha(100),
             child: Padding(
                 padding: EdgeInsets.symmetric(
-                    horizontal: size.width * 0.1, vertical: size.height * 0.01),
+                    horizontal: size.width * 0.05,
+                    vertical: size.height * 0.01),
                 child: Row(spacing: size.width * 0.05, children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(20),
-                    child: SizedBox(
-                        width: size.width * 0.2,
-                        height: orientation == Orientation.portrait
-                            ? size.height * 0.1
-                            : size.height * 0.3,
+                    child: Container(
+                        constraints:
+                            const BoxConstraints(minWidth: 100, maxHeight: 100),
+                        width: size.width * 0.1,
+                        height: size.height * 0.2,
                         child: CachedNetworkImage(
                             imageUrl: episode.imagePreview,
                             fit: BoxFit.cover,
+                            filterQuality: FilterQuality.none,
+                            progressIndicatorBuilder:
+                                (context, url, progress) => Container(
+                                    width: size.width * 0.1,
+                                    height: size.width * 0.1,
+                                    color: Colors.grey.withAlpha(10),
+                                    child: Center(
+                                        child: CircularProgressIndicator(
+                                            value: progress.progress,
+                                            color: Colors.orange))),
                             errorWidget: (context, url, error) =>
                                 CachedNetworkImage(
                                     imageUrl: anime.poster,
                                     fit: BoxFit.cover,
+                                    colorBlendMode: BlendMode.darken,
+                                    color: Colors.black12,
+                                    filterQuality: FilterQuality.none,
+                                    progressIndicatorBuilder:
+                                        (context, url, progress) => Container(
+                                            width: size.width * 0.1,
+                                            height: size.width * 0.1,
+                                            color: Colors.grey.withAlpha(10),
+                                            child: Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                        value:
+                                                            progress.progress,
+                                                        color: Colors.orange))),
                                     errorWidget: (context, url, error) =>
-                                        const CircularProgressIndicator()))),
+                                        Container(
+                                          color: Colors.red,
+                                        )))),
                   ),
                   Expanded(
                       child: Column(
@@ -100,19 +130,23 @@ class ListEpisodes extends StatelessWidget {
   final List<Episode> episodes;
   final TextEditingController textController;
   final Function onTapSaveEpisode;
+  final Widget? action;
   const ListEpisodes(
       {super.key,
       required this.anime,
       required this.episodes,
       required this.textController,
-      required this.onTapSaveEpisode});
+      required this.onTapSaveEpisode, this.action});
 
   @override
   Widget build(BuildContext context) {
     MediaQueryData data = MediaQuery.of(context);
     return CustomScrollView(
       slivers: [
-        SliverAppBarSearch(controller: textController),
+        SliverAppBarSearch(
+          controller: textController,
+          action: action
+        ),
         SliverPadding(
             padding: const EdgeInsets.only(top: 20),
             sliver: SliverList.builder(

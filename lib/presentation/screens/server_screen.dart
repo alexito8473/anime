@@ -39,23 +39,22 @@ class ServerScreen extends StatelessWidget {
           onTap();
         },
         child: Container(
-          width: size.width * 0.1,
-          height: 40,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade900,
-            border: Border.all(color: Colors.white.withAlpha(40)),
-            borderRadius: !isLeft
-                ? const BorderRadius.only(
-                    topRight: Radius.circular(100),
-                    bottomRight: Radius.circular(100))
-                : const BorderRadius.only(
-                    topLeft: Radius.circular(100),
-                    bottomLeft: Radius.circular(100)),
-          ),
-          child: isLeft
-              ? const Icon(Icons.arrow_back_sharp)
-              : const Icon(Icons.arrow_forward_sharp),
-        ));
+            width: size.width * 0.1,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade900,
+              border: Border.all(color: Colors.white.withAlpha(40)),
+              borderRadius: !isLeft
+                  ? const BorderRadius.only(
+                      topRight: Radius.circular(100),
+                      bottomRight: Radius.circular(100))
+                  : const BorderRadius.only(
+                      topLeft: Radius.circular(100),
+                      bottomLeft: Radius.circular(100)),
+            ),
+            child: isLeft
+                ? const Icon(Icons.arrow_back_sharp)
+                : const Icon(Icons.arrow_forward_sharp)));
   }
 
   Widget navigationButton({required Size size, required BuildContext context}) {
@@ -99,6 +98,7 @@ class ServerScreen extends StatelessWidget {
     Size size = MediaQuery.sizeOf(context);
     return Scaffold(
         appBar: AppBar(
+           toolbarHeight: 100,
             actions: [
               IconButton(
                   onPressed: () => onTapSaveEpisode(isSave, episode),
@@ -110,8 +110,8 @@ class ServerScreen extends StatelessWidget {
                   icon: const Icon(CupertinoIcons.heart, color: Colors.white))
             ],
             title: TitleWidget(
-                title: episode.id.replaceAll("-", " "),
-                maxLines: 2,
+                title:"${anime.title} - Episodeo: ${episode.episode}",
+                maxLines: 3,
                 textStyle: Theme.of(context).textTheme.titleMedium!,
                 tag: episode.id)),
         body: SingleChildScrollView(

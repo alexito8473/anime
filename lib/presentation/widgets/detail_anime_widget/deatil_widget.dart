@@ -26,39 +26,36 @@ class AppBarDetailAnime extends StatelessWidget {
     return SizedBox(
         child: Column(
             spacing: size.height * 0.005,
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             verticalDirection: VerticalDirection.down,
             children: [
-              TitleWidget(
-                  title: anime.title,
-                  maxLines: 3,
-                  textStyle: Theme.of(context).textTheme.titleLarge!,
-                  tag: tag),
-              Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  runAlignment: WrapAlignment.spaceBetween,
-                  alignment: WrapAlignment.spaceBetween,
-                  direction: Axis.horizontal,
-                  spacing: 10,
-                  children: [
-                    SubTilesAnime(
-                        title: "Debut", subtitle: anime.debut, size: size),
-                    SubTilesAnime(
-                        title: "Type", subtitle: anime.type, size: size),
-                    HeroAnimationWidget(
-                        tag: tag,
-                        heroTag: anime.rating + anime.title,
-                        child: SubTilesAnime(
-                            title: "Rating",
-                            subtitle: anime.rating,
-                            size: size)),
-                    SubTilesAnime(
-                        title: "Genres",
-                        subtitle: anime.genres.join(", ").toUpperCase(),
-                        size: size)
-                  ]),
-            ]));
+          TitleWidget(
+              title: anime.title,
+              maxLines: 3,
+              textStyle: Theme.of(context).textTheme.titleLarge!,
+              tag: tag),
+          Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runAlignment: WrapAlignment.spaceBetween,
+              alignment: WrapAlignment.spaceBetween,
+              direction: Axis.horizontal,
+              spacing: 10,
+              children: [
+                SubTilesAnime(
+                    title: "Debut", subtitle: anime.debut, size: size),
+                SubTilesAnime(title: "Type", subtitle: anime.type, size: size),
+                HeroAnimationWidget(
+                    tag: tag,
+                    heroTag: anime.rating + anime.title,
+                    child: SubTilesAnime(
+                        title: "Rating", subtitle: anime.rating, size: size)),
+                SubTilesAnime(
+                    title: "Genres",
+                    subtitle: anime.genres.join(", ").toUpperCase(),
+                    size: size)
+              ]),
+        ]));
   }
 
   @override
@@ -71,10 +68,7 @@ class AppBarDetailAnime extends StatelessWidget {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(
-              CupertinoIcons.back,
-              color: Colors.white,
-            )),
+            icon: const Icon(CupertinoIcons.back, color: Colors.white)),
         actions: [
           IconButton(
               onPressed: () => onPressed(context: context, isSave: isSave),
@@ -84,24 +78,24 @@ class AppBarDetailAnime extends StatelessWidget {
                   const Icon(CupertinoIcons.heart_fill, color: Colors.orange),
               icon: const Icon(CupertinoIcons.heart, color: Colors.white))
         ],
-        collapsedHeight: orientation == Orientation.portrait
-            ? size.height * 0.25
-            : size.height * 0.4,
-        expandedHeight: orientation == Orientation.portrait
-            ? size.height * 0.4
-            : size.height * 0.5,
+        collapsedHeight: size.height * 0.4,
+        expandedHeight: size.height * 0.4,
         flexibleSpace: Stack(children: [
           Positioned.fill(
               child: ShaderMask(
                   shaderCallback: (Rect bounds) {
                     return const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.black12, Colors.black87, Colors.black],
-                    ).createShader(bounds);
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black54,
+                          Colors.black54,
+                          Colors.black
+                        ]).createShader(bounds);
                   },
                   blendMode: BlendMode.darken,
                   child: CachedNetworkImage(
+                      alignment: Alignment.topCenter,
                       imageUrl: anime.isNotBannerCorrect
                           ? anime.poster
                           : anime.banner,
@@ -112,13 +106,14 @@ class AppBarDetailAnime extends StatelessWidget {
                   height: size.height * 0.4,
                   width: size.width,
                   padding: EdgeInsets.only(
+                      top: size.height * 0.1,
                       bottom: size.height * 0.02,
                       right: size.width * .05,
                       left: size.width * .05),
                   child: Row(
                       spacing: size.width * .05,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.max,
                       verticalDirection: VerticalDirection.down,
                       children: [
@@ -135,12 +130,8 @@ class AppBarDetailAnime extends StatelessWidget {
                                       ? size.height * 0.27
                                       : size.height * 0.5,
                                 ))),
-                        if (orientation == Orientation.portrait)
-                          Expanded(
-                              child:
-                                  buildContent(context: context, size: size)),
-                        if (orientation == Orientation.landscape)
-                          buildContent(context: context, size: size)
+                        Expanded(
+                            child: buildContent(context: context, size: size))
                       ])))
         ]));
   }
@@ -152,7 +143,7 @@ class SynopsysWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
             spacing: 10,
@@ -163,7 +154,7 @@ class SynopsysWidget extends StatelessWidget {
                       .textTheme
                       .titleLarge
                       ?.copyWith(color: Colors.blue)),
-              AutoSizeText(title,style: Theme.of(context).textTheme.labelLarge,)
+              AutoSizeText(title, style: Theme.of(context).textTheme.labelLarge)
             ]));
   }
 }

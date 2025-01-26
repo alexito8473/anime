@@ -7,21 +7,20 @@ enum TypeVersionAnime {
   SPECIAL('special');
 
   final String value;
-
+  const TypeVersionAnime(this.value);
   String getImage() {
     switch (this) {
       case TypeVersionAnime.TV:
-        return Constants.urlAssetImagePageSerie;
+        return Constants.urlAssetImagePageTV;
       case TypeVersionAnime.OVA:
-        return Constants.urlAssetImagePageSerie;
+        return Constants.urlAssetImagePageOva;
       case TypeVersionAnime.MOVIE:
-        return Constants.urlAssetImagePageSpecial;
+        return Constants.urlAssetImagePageSerie;
       case TypeVersionAnime.SPECIAL:
         return Constants.urlAssetImagePageSpecial;
     }
   }
 
-  const TypeVersionAnime(this.value);
   String getTitle() {
     switch (this) {
       case TypeVersionAnime.TV:

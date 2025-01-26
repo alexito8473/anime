@@ -43,7 +43,10 @@ class Save extends AnimeEvent {
   final bool isSave;
   Save({required this.isSave});
 }
-
+class UpdatePage extends AnimeEvent {
+  final TypeVersionAnime typeVersionAnime;
+  UpdatePage({required this.typeVersionAnime});
+}
 class SaveAnime extends Save {
   final CompleteAnime anime;
 

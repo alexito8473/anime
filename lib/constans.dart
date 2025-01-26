@@ -25,6 +25,8 @@ class Constants {
   static const String urlAssetImagePageSpecial =
       "assets/image/image_special.jpg";
   static const String urlAssetImagePageSerie = "assets/image/image_serie.jpg";
+  static const String urlAssetImagePageTV = "assets/image/image_tv.jpg";
+  static const String urlAssetImagePageOva = "assets/image/image_ova.jpg";
   static const String keySharedPreferencesListAnime = "listSafeAnime";
   static const String keySharedPreferencesListEpisode = "listSafeEpisode";
 }

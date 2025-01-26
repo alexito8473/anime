@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:anime/data/typeAnime/type_data.dart';
 import 'package:anime/domain/bloc/anime_bloc.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
@@ -40,7 +43,6 @@ class BannerWidget extends StatelessWidget {
 
     return SliverToBoxAdapter(
         child: Container(
-            height: size.height * 0.4,
             constraints: const BoxConstraints(minHeight: 300),
             child: Stack(children: [
               Positioned.fill(
@@ -151,38 +153,49 @@ class ListBannerAnime extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Padding(
-          padding: EdgeInsets.only(
-              right: size.width * 0.05,
-              left: size.width * 0.05,
-              top: size.height * 0.05),
-          child: Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              direction: Axis.horizontal,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                TitleBannerWidget(tag: tag, title: title, color: colorTitle),
-                ButtonNavigateListAnime(
-                    color: colorTitle,
-                    animes: listAnime,
-                    tag: tag,
-                    title: title,
-                    typeAnime: typeAnime,
-                    colorTitle: colorTitle)
-              ])),
-      SingleChildScrollView(
-          padding: EdgeInsets.symmetric(
-              vertical: size.height * 0.05, horizontal: size.width * 0.05),
-          scrollDirection: Axis.horizontal,
-          child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: size.width * 0.05,
-              children: listAnime
-                  .map((lastAnime) => BannerAnime(anime: lastAnime, tag: tag))
-                  .toList()))
-    ]));
+        child: Column(
+            spacing: 20,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+          Padding(
+              padding: EdgeInsets.only(
+                  right: size.width * 0.05,
+                  left: size.width * 0.05,
+                  top: size.height * 0.05),
+              child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  direction: Axis.horizontal,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    TitleBannerWidget(
+                        tag: tag, title: title, color: colorTitle),
+                    ButtonNavigateListAnime(
+                        color: colorTitle,
+                        animes: listAnime,
+                        tag: tag,
+                        title: title,
+                        typeAnime: typeAnime,
+                        colorTitle: colorTitle)
+                  ])),
+          if (Platform.isWindows || Platform.isMacOS)
+            SizedBox(
+                width: size.width,
+                height: 300,
+                child: DragCarousel(listAnime: listAnime, tag: tag)),
+          if (Platform.isAndroid || Platform.isIOS)
+            SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                    vertical: size.height * 0.05,
+                    horizontal: size.width * 0.05),
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: size.width * 0.05,
+                    children: listAnime
+                        .map((lastAnime) =>
+                            BannerAnime(anime: lastAnime, tag: tag))
+                        .toList()))
+        ]));
   }
 }
 
@@ -204,7 +217,8 @@ class BannerAnime extends StatelessWidget {
     Orientation orientation = MediaQuery.of(context).orientation;
     return GestureDetector(
         onTap: () => onTap(context: context),
-        child: SizedBox(
+        child: Container(
+          constraints: const BoxConstraints(minWidth: 150),
             width: orientation == Orientation.portrait
                 ? size.width * 0.4
                 : size.width * 0.15,
@@ -214,9 +228,8 @@ class BannerAnime extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                    height: 180,
-                    child: Stack(
-                      children: [
+                      height: 180,
+                      child: Stack(children: [
                         Positioned(
                             top: 0,
                             left: 0,
@@ -232,8 +245,7 @@ class BannerAnime extends StatelessWidget {
                                         fit: BoxFit.cover,
                                         progressIndicatorBuilder:
                                             (context, url, progress) {
-                                          return
-                                              const LoadWidget();
+                                          return const LoadWidget();
                                         },
                                         filterQuality: FilterQuality.high)))),
                         Positioned(
@@ -253,9 +265,7 @@ class BannerAnime extends StatelessWidget {
                                           .labelLarge
                                           ?.copyWith(color: Colors.yellow)),
                                 )))
-                      ],
-                    ),
-                  ),
+                      ])),
                   TitleWidget(
                       title: anime.title,
                       maxLines: 3,
@@ -354,5 +364,76 @@ class ListAiringAnime extends StatelessWidget {
             itemBuilder: (context, index) => BannerAiringAnime(
                 size: size, aringAnime: listAringAnime[index]),
             itemCount: listAringAnime.length));
+  }
+}
+
+class DragCarousel extends StatefulWidget {
+  final List<Anime> listAnime;
+  final String? tag;
+  const DragCarousel({super.key, required this.listAnime, required this.tag});
+
+  @override
+  _DragCarouselState createState() => _DragCarouselState();
+}
+
+class _DragCarouselState extends State<DragCarousel> {
+  final ScrollController _scrollController = ScrollController();
+  Offset? _dragStartOffset;
+  double _initialScrollOffset = 0.0;
+  double _lastDragDelta = 0.0;
+  @override
+  Widget build(BuildContext context) {
+    Size size=MediaQuery.sizeOf(context);
+    return Listener(
+        onPointerDown: (event) {
+          // Guarda la posición inicial del clic y el desplazamiento actual del scroll
+          _dragStartOffset = event.position;
+          _initialScrollOffset = _scrollController.offset;
+          _lastDragDelta = 0.0; // Resetea el delta al iniciar el arrastre
+        },
+        onPointerMove: (event) {
+          if (_dragStartOffset != null) {
+            final dragDelta = event.position.dx - _dragStartOffset!.dx;
+            _lastDragDelta = dragDelta; // Guarda el último delta registrado
+
+            // Actualiza la posición del scroll en tiempo real
+            _scrollController.jumpTo((_initialScrollOffset - dragDelta).clamp(
+              0.0,
+              _scrollController.position.maxScrollExtent,
+            ));
+          }
+        },
+        onPointerUp: (event) {
+          if (_lastDragDelta.abs() > 5) {
+            final direction =
+                _lastDragDelta > 0 ? -1 : 1; // Determina la dirección
+            final extraScroll =
+                direction * 100; // Define cuánto más desplazarse
+
+            _scrollController.animateTo(
+              (_scrollController.offset + extraScroll).clamp(
+                0.0,
+                _scrollController.position.maxScrollExtent,
+              ),
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.linear,
+            );
+          }
+          // Reinicia el estado
+          _dragStartOffset = null;
+          _lastDragDelta = 0.0;
+        },
+        child: ListView.separated(
+            padding: EdgeInsets.symmetric(horizontal: size.width*0.05),
+            controller: _scrollController,
+            scrollDirection: Axis.horizontal,
+            itemCount: widget.listAnime.length,
+            separatorBuilder: (context, index) {
+              return Container(width: 50);
+            },
+            itemBuilder: (context, index) {
+              return BannerAnime(
+                  anime: widget.listAnime[index], tag: widget.tag);
+            }));
   }
 }

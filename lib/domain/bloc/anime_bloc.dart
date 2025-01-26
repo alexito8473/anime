@@ -27,6 +27,7 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
         state.listAnimeSave.add(event.anime);
       }
       await animeRepository.saveList(state.listAnimeSave);
+      state.listAnimeSave.sort((a, b) => a.title.compareTo(b.title));
       emit(state.copyWith(countAnimeSave: state.listAnimeSave.length));
     });
 
@@ -53,6 +54,10 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
       state.lastAnimesAdd.clear();
       state.listAringAnime.clear();
       state.listAnimeSave.clear();
+      state.pageMovieAnime.listAnime.clear();
+      state.pageOvaAnime.listAnime.clear();
+      state.pageSpecialAnime.listAnime.clear();
+      state.pageTVAnime.listAnime.clear();
       try {
         final results = await Future.wait([
           animeRepository.getLastEpisodes(),
@@ -66,7 +71,6 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
               listTypeAnimePage: state.pageSpecialAnime),
           animeRepository.loadEpisode(),
         ]);
-
         state.lastEpisodes
             .addAll(results[0].map((e) => LastEpisode.fromJson(e)).toList());
         state.lastAnimesAdd
@@ -75,18 +79,26 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
             .addAll(results[2].map((e) => BasicAnime.fromJson(e)).toList());
         animeSave = results[3] as List<String>;
         state.pageOvaAnime.listAnime
-            .addAll(results[4].map((e) => Anime.fromJson(e)).toList());
+            .addAll(Anime.listDynamicToListAnime(results[4]));
         state.pageMovieAnime.listAnime
-            .addAll(results[5].map((e) => Anime.fromJson(e)).toList());
+            .addAll(Anime.listDynamicToListAnime(results[5]));
         state.pageTVAnime.listAnime
-            .addAll(results[6].map((e) => Anime.fromJson(e)).toList());
+            .addAll(Anime.listDynamicToListAnime(results[6]));
         state.pageSpecialAnime.listAnime
-            .addAll(results[7].map((e) => Anime.fromJson(e)).toList());
+            .addAll(Anime.listDynamicToListAnime(results[7]));
         state.listEpisodesView.addAll(results[8] as List<String>);
 
         emit(state.copyWith(
             isObtainAllData: true,
             initLoad: false,
+            pageMovieAnime: state.pageMovieAnime
+                .copyWith(page: state.pageMovieAnime.page + 1),
+            pageTVAnime:
+                state.pageTVAnime.copyWith(page: state.pageTVAnime.page + 1),
+            pageSpecialAnime: state.pageSpecialAnime
+                .copyWith(page: state.pageSpecialAnime.page + 1),
+            pageOvaAnime:
+                state.pageOvaAnime.copyWith(page: state.pageOvaAnime.page + 1),
             countAnimeSave: animeSave.length));
 
         // Esperar a que todas las solicitudes se completen
@@ -96,6 +108,7 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
                 id: id, checkBanner: false);
             if (anime != null) {
               state.listAnimeSave.add(anime);
+              state.listAnimeSave.sort((a, b) => a.title.compareTo(b.title));
             }
           } catch (e) {
             print("Error al obtener anime con ID $id: $e");
@@ -104,6 +117,7 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
       } catch (e) {
         print("Error en el proceso de carga masiva de animes: $e");
       }
+
       emit(state.copyWith(isObtainAllData: true, initLoad: false));
     }, transformer: restartable());
 
@@ -120,7 +134,61 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
             navigateWidget: DetailAnimePage(tag: event.tag, idAnime: anime.id));
       }
     });
+    on<UpdatePage>((event, emit) async {
+      List<dynamic> listPageAnime;
+      if (returnPageForType(type: event.typeVersionAnime).isObtainAllData) {
+        return;
+      }
+      print("PAGE" +
+          returnPageForType(type: event.typeVersionAnime).page.toString());
+      emit(state.copyWith(initLoad: true));
+      listPageAnime = await animeRepository.searchByType(
+          listTypeAnimePage: returnPageForType(type: event.typeVersionAnime));
+      if (listPageAnime.isEmpty) {
+        switch (event.typeVersionAnime) {
+          case TypeVersionAnime.TV:
+            emit(state.copyWith(
+                pageTVAnime:
+                    state.pageTVAnime.copyWith(isObtainAllData: true)));
+          case TypeVersionAnime.OVA:
+            emit(state.copyWith(
+                pageOvaAnime:
+                    state.pageOvaAnime.copyWith(isObtainAllData: true)));
+          case TypeVersionAnime.MOVIE:
+            emit(state.copyWith(
+                pageMovieAnime:
+                    state.pageMovieAnime.copyWith(isObtainAllData: true)));
+          case TypeVersionAnime.SPECIAL:
+            emit(state.copyWith(
+                pageSpecialAnime:
+                    state.pageSpecialAnime.copyWith(isObtainAllData: true)));
+        }
+      } else {
+        returnPageForType(type: event.typeVersionAnime)
+            .listAnime
+            .addAll(Anime.listDynamicToListAnime(listPageAnime));
+        switch (event.typeVersionAnime) {
+          case TypeVersionAnime.TV:
+            emit(state.copyWith(
+                pageTVAnime: state.pageTVAnime
+                    .copyWith(page: state.pageTVAnime.page + 1)));
+          case TypeVersionAnime.OVA:
+            emit(state.copyWith(
+                pageOvaAnime: state.pageOvaAnime
+                    .copyWith(page: state.pageOvaAnime.page + 1)));
+          case TypeVersionAnime.MOVIE:
+            emit(state.copyWith(
+                pageMovieAnime: state.pageMovieAnime
+                    .copyWith(page: state.pageMovieAnime.page + 1)));
+          case TypeVersionAnime.SPECIAL:
+            emit(state.copyWith(
+                pageSpecialAnime: state.pageSpecialAnime
+                    .copyWith(page: state.pageSpecialAnime.page + 1)));
+        }
+      }
 
+      emit(state.copyWith(initLoad: false));
+    }, transformer: restartable());
     on<SearchAnime>((event, emit) async {
       List<Anime> listAnime;
       emit(state.copyWith(initLoad: true));
@@ -154,6 +222,20 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
       }
     });
   }
+
+  ListTypeAnimePage returnPageForType({required TypeVersionAnime type}) {
+    switch (type) {
+      case TypeVersionAnime.TV:
+        return state.pageTVAnime;
+      case TypeVersionAnime.OVA:
+        return state.pageOvaAnime;
+      case TypeVersionAnime.MOVIE:
+        return state.pageMovieAnime;
+      case TypeVersionAnime.SPECIAL:
+        return state.pageSpecialAnime;
+    }
+  }
+
   void navigationAnimated(
       {required BuildContext context,
       required Widget navigateWidget,
@@ -166,8 +248,8 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
               barrierColor: Colors.black38,
               opaque: true,
               barrierDismissible: true,
-              reverseTransitionDuration: const Duration(milliseconds: 600),
-              transitionDuration: const Duration(milliseconds: 600),
+              reverseTransitionDuration: const Duration(milliseconds: 800),
+              transitionDuration: const Duration(milliseconds: 800),
               pageBuilder: (context, animation, secondaryAnimation) =>
                   navigateWidget,
               transitionsBuilder:
@@ -175,8 +257,8 @@ class AnimeBloc extends Bloc<AnimeEvent, AnimeState> {
                 return FadeTransition(
                     opacity: CurvedAnimation(
                         parent: animation,
-                        curve: Curves.decelerate,
-                        reverseCurve: Curves.decelerate),
+                        curve: Curves.linear,
+                        reverseCurve: Curves.linear),
                     child: child);
               }));
       return;
