@@ -1,11 +1,11 @@
 import 'dart:math';
 
-import 'package:anime/domain/bloc/anime_bloc.dart';
+import 'package:anime/domain/bloc/anime/anime_bloc.dart';
+import 'package:anime/domain/bloc/configuration/configuration_bloc.dart';
 import 'package:anime/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_player/video_player.dart';
-
 
 class LoadPage extends StatefulWidget {
   const LoadPage({super.key});
@@ -33,16 +33,18 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
 
   bool isComplete = false;
   late VideoPlayerController _controller;
+
   @override
   void initState() {
     _initializeVideo();
     _initializeAnimations();
     context.read<AnimeBloc>().add(ObtainData(context: context));
+
+    context.read<ConfigurationBloc>().add(ObtainDataVersion());
     super.initState();
   }
 
   void _initializeVideo() async {
-
     final List<String> listVideo = [
       'assets/video/video1.mp4',
       'assets/video/video2.mp4',
@@ -54,12 +56,12 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
     _controller = VideoPlayerController.asset(
       listVideo[Random().nextInt(listVideo.length)],
     )..initialize().then((_) {
-      _controller
-        ..setLooping(true)
-        ..setVolume(0.01)
-        ..play();
-      setState(() {}); // Reconstruir solo después de inicializar el video
-    });
+        _controller
+          ..setLooping(true)
+          ..setVolume(0.01)
+          ..play();
+        setState(() {}); // Reconstruir solo después de inicializar el video
+      });
   }
 
   void _initializeAnimations() {

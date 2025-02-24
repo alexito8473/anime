@@ -1,9 +1,8 @@
-import 'package:anime/domain/bloc/anime_bloc.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../data/model/complete_anime.dart';
 import '../animation/hero_animation_widget.dart';
 import '../title/title_widget.dart';
@@ -11,73 +10,45 @@ import '../title/title_widget.dart';
 class AppBarDetailAnime extends StatelessWidget {
   final CompleteAnime anime;
   final String? tag;
-  const AppBarDetailAnime({super.key, required this.anime, required this.tag});
+  final Widget safeAnime;
 
-  bool isSaveAnime({required BuildContext context}) => context
-      .watch<AnimeBloc>()
-      .state
-      .listAnimeSave
-      .any((element) => element.title == anime.title);
-
-  void onPressed({required BuildContext context, required bool isSave}) =>
-      context.read<AnimeBloc>().add(SaveAnime(anime: anime, isSave: isSave));
+  const AppBarDetailAnime(
+      {super.key,
+      required this.anime,
+      required this.tag,
+      required this.safeAnime});
 
   Widget buildContent({required Size size, required BuildContext context}) {
-    return SizedBox(
-        child: Column(
-            spacing: size.height * 0.005,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            verticalDirection: VerticalDirection.down,
-            children: [
-          TitleWidget(
-              title: anime.title,
-              maxLines: 3,
-              textStyle: Theme.of(context).textTheme.titleLarge!,
-              tag: tag),
-          Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              runAlignment: WrapAlignment.spaceBetween,
-              alignment: WrapAlignment.spaceBetween,
-              direction: Axis.horizontal,
-              spacing: 10,
-              children: [
-                SubTilesAnime(
-                    title: "Debut", subtitle: anime.debut, size: size),
-                SubTilesAnime(title: "Type", subtitle: anime.type, size: size),
-                HeroAnimationWidget(
-                    tag: tag,
-                    heroTag: anime.rating + anime.title,
-                    child: SubTilesAnime(
-                        title: "Rating", subtitle: anime.rating, size: size)),
-                SubTilesAnime(
-                    title: "Genres",
-                    subtitle: anime.genres.join(", ").toUpperCase(),
-                    size: size)
-              ]),
-        ]));
+    return Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        runAlignment: WrapAlignment.center,
+        alignment: WrapAlignment.spaceBetween,
+        direction: Axis.horizontal,
+        spacing: 10,
+        children: [
+          SubTilesAnime(title: "Debut", subtitle: anime.debut, size: size),
+          SubTilesAnime(title: "Type", subtitle: anime.type, size: size),
+          HeroAnimationWidget(
+              tag: tag,
+              heroTag: anime.rating + anime.title,
+              child: SubTilesAnime(
+                  title: "Rating", subtitle: anime.rating, size: size)),
+          SubTilesAnime(
+              title: "Generos",
+              subtitle: anime.genres.join(", ").toUpperCase(),
+              size: size)
+        ]);
   }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
     Orientation orientation = MediaQuery.of(context).orientation;
-    bool isSave = isSaveAnime(context: context);
     return SliverAppBar(
         leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context),
             icon: const Icon(CupertinoIcons.back, color: Colors.white)),
-        actions: [
-          IconButton(
-              onPressed: () => onPressed(context: context, isSave: isSave),
-              isSelected: isSave,
-              style: const ButtonStyle(elevation: WidgetStatePropertyAll(200)),
-              selectedIcon:
-                  const Icon(CupertinoIcons.heart_fill, color: Colors.orange),
-              icon: const Icon(CupertinoIcons.heart, color: Colors.white))
-        ],
+        actions: [safeAnime],
         collapsedHeight: size.height * 0.4,
         expandedHeight: size.height * 0.4,
         flexibleSpace: Stack(children: [
@@ -88,7 +59,7 @@ class AppBarDetailAnime extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black54,
+                          Colors.black12,
                           Colors.black54,
                           Colors.black
                         ]).createShader(bounds);
@@ -96,6 +67,8 @@ class AppBarDetailAnime extends StatelessWidget {
                   blendMode: BlendMode.darken,
                   child: CachedNetworkImage(
                       alignment: Alignment.topCenter,
+                      color: Colors.black12,
+                      colorBlendMode: BlendMode.darken,
                       imageUrl: anime.isNotBannerCorrect
                           ? anime.poster
                           : anime.banner,
@@ -111,7 +84,7 @@ class AppBarDetailAnime extends StatelessWidget {
                       right: size.width * .05,
                       left: size.width * .05),
                   child: Row(
-                      spacing: size.width * .05,
+                      spacing: size.width * .04,
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.max,
@@ -131,7 +104,20 @@ class AppBarDetailAnime extends StatelessWidget {
                                       : size.height * 0.5,
                                 ))),
                         Expanded(
-                            child: buildContent(context: context, size: size))
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                              TitleWidget(
+                                  title: anime.title,
+                                  maxLines: 8,
+                                  textStyle:
+                                      Theme.of(context).textTheme.titleLarge!,
+                                  tag: tag),
+                              Expanded(
+                                  child: buildContent(
+                                      size: size, context: context))
+                            ]))
                       ])))
         ]));
   }
@@ -139,6 +125,7 @@ class AppBarDetailAnime extends StatelessWidget {
 
 class SynopsysWidget extends StatelessWidget {
   final String title;
+
   const SynopsysWidget({super.key, required this.title});
 
   @override

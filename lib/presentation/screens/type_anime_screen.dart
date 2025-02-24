@@ -1,13 +1,16 @@
 import 'package:anime/data/typeAnime/type_version_anime.dart';
-import 'package:anime/domain/bloc/anime_bloc.dart';
+import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../data/model/list_type_anime_page.dart';
 import '../widgets/banner/banner_widget.dart';
+
 class ListTypeScreen extends StatelessWidget {
   final GlobalKey? targetKey;
   final TypeVersionAnime type;
   final ScrollController scrollController;
+
   const ListTypeScreen(
       {super.key,
       this.targetKey,
@@ -19,7 +22,7 @@ class ListTypeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ListTypeAnimePage listTypeAnimePage =
-        context.watch<AnimeBloc>().returnPageForType(type: type);
+        context.watch<AnimeBloc>().state.mapPageAnimes[type]!;
     Size size = MediaQuery.sizeOf(context);
 
     return CustomScrollView(controller: scrollController, slivers: [

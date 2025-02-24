@@ -1,10 +1,12 @@
 import 'anime.dart';
 import 'episode.dart';
+
 class CompleteAnime extends Anime {
   final String debut;
   final List<String> genres;
   final List<Episode> episodes;
   bool isNotBannerCorrect;
+  bool isCheckBanner;
 
   CompleteAnime(
       {required super.id,
@@ -15,30 +17,27 @@ class CompleteAnime extends Anime {
       required super.rating,
       required super.type,
       required this.debut,
+      required this.isCheckBanner,
       required this.genres,
       required this.isNotBannerCorrect,
       required this.episodes});
 
   factory CompleteAnime.fromJson(Map<dynamic, dynamic> json) {
-    var genresFromJson = json['genres'];
-    List<String>? genresList = List<String>.from(genresFromJson);
-    var episodesFromJson = json['episodes'] as List;
-    List<Episode>? episodesList = episodesFromJson
-        .map((episodeJson) => Episode.fromJson(episodeJson))
-        .toList();
     return CompleteAnime(
-      id: json['id'],
-      title: json['title'],
-      poster: json['poster'],
-      banner: json['banner'],
-      synopsis: json['synopsis'],
-      rating: json['rating'],
-      debut: json['debut'],
-      type: json['type'],
-      genres: genresList,
-      episodes: episodesList,
-      isNotBannerCorrect: true,
-    );
+        id: json['id'],
+        title: json['title'],
+        poster: json['poster'],
+        banner: json['banner'],
+        synopsis: json['synopsis'],
+        rating: json['rating'],
+        debut: json['debut'],
+        type: json['type'],
+        genres: List<String>.from(json['genres']),
+        episodes: (json['episodes'] as List)
+            .map((episodeJson) => Episode.fromJson(episodeJson))
+            .toList(),
+        isNotBannerCorrect: true,
+        isCheckBanner: false);
   }
 
   Map<String, dynamic> toMap() {

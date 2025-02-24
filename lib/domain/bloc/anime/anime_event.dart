@@ -49,13 +49,12 @@ class UpdatePage extends AnimeEvent {
 }
 class SaveAnime extends Save {
   final CompleteAnime anime;
-
-  SaveAnime({required this.anime, required super.isSave});
+  final TypeMyAnimes typeMyAnimes;
+  SaveAnime({required this.anime, required super.isSave,required this.typeMyAnimes});
 }
 
 class SaveEpisode extends Save {
   final Episode episode;
-
   SaveEpisode({required this.episode, required super.isSave});
 }
 

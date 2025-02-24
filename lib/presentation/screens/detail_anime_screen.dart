@@ -1,8 +1,9 @@
 import 'package:anime/data/model/complete_anime.dart';
-import 'package:flutter/material.dart';
 import 'package:anime/data/model/episode.dart';
+import 'package:flutter/material.dart';
+
 import '../widgets/banner/episode_widget.dart';
-import '../widgets/detail_anime_widget/deatil_widget.dart';
+import '../widgets/detail/deatil_widget.dart';
 
 class DetailAnimeScreen extends StatelessWidget {
   final CompleteAnime anime;
@@ -14,6 +15,8 @@ class DetailAnimeScreen extends StatelessWidget {
   final String? tag;
   final Function onTapSaveEpisode;
   final Widget action;
+  final Widget safeAnime;
+
   const DetailAnimeScreen(
       {super.key,
       required this.anime,
@@ -24,15 +27,20 @@ class DetailAnimeScreen extends StatelessWidget {
       required this.textController,
       required this.tag,
       required this.onTapSaveEpisode,
-      required this.action});
+      required this.action,
+      required this.safeAnime});
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) =>
-                [AppBarDetailAnime(anime: anime, tag: tag)],
-            body: SafeArea(
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                  AppBarDetailAnime(
+                      anime: anime, tag: tag, safeAnime: safeAnime)
+                ],
+                        body: SafeArea(
                 child: ClipRRect(
                     borderRadius:
                         BorderRadius.circular(30), // Bordes redondeados
@@ -46,10 +54,11 @@ class DetailAnimeScreen extends StatelessWidget {
                               child: TabBar(
                                   onTap: (value) => onTap(value),
                                   dividerColor: Colors.transparent,
-                                  labelColor: Colors
-                                      .white, // Color del texto seleccionado
-                                  unselectedLabelColor: Colors.grey.withAlpha(
-                                      80), // Color del texto no seleccionado
+                                  labelColor: Colors.white,
+                                  // Color del texto seleccionado
+                                  unselectedLabelColor:
+                                      Colors.grey.withAlpha(80),
+                                  // Color del texto no seleccionado
                                   tabs: [
                                     Tab(
                                         icon: const Icon(Icons.tv),

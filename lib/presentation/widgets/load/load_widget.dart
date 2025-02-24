@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../domain/bloc/anime_bloc.dart';
+import '../../../domain/bloc/anime/anime_bloc.dart';
 
 class LoadWidget extends StatelessWidget {
   final double? height;
+
   const LoadWidget({super.key, this.height});
 
   @override
@@ -23,16 +24,15 @@ class LoadWidget extends StatelessWidget {
 
 class AnimationLoadPage extends StatelessWidget {
   final Widget child;
+
   const AnimationLoadPage({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned.fill(child: child),
-        if (context.watch<AnimeBloc>().state.initLoad)
-          const Positioned.fill(child: LoadWidget()),
-      ],
-    );
+    return Stack(children: [
+      Positioned.fill(child: child),
+      if (context.watch<AnimeBloc>().state.initLoad)
+        const Positioned.fill(child: LoadWidget()),
+    ]);
   }
 }

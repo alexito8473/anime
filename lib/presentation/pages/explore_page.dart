@@ -1,4 +1,4 @@
-import 'package:anime/domain/bloc/anime_bloc.dart';
+import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:filter_list/filter_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,7 +16,8 @@ class ExplorePage extends StatefulWidget {
 class _ExplorePage extends State<ExplorePage> {
   final TextEditingController _controller = TextEditingController();
   late final List<int> listYear;
-  late final List<int> listYearSelected = List.empty(growable: true);
+  late List<int> listYearSelected = List.empty(growable: true);
+
   @override
   void initState() {
     listYear = List.empty(growable: true);
@@ -24,6 +25,12 @@ class _ExplorePage extends State<ExplorePage> {
       listYear.add(i);
     }
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   void onSubmit() {
@@ -50,10 +57,12 @@ class _ExplorePage extends State<ExplorePage> {
               color: isSelected! ? Colors.grey.shade300 : Colors.grey.shade900,
               borderRadius: BorderRadius.circular(10)),
           alignment: Alignment.center,
-          child: Text(item.toString(),style: TextStyle(color: isSelected ? Colors.black : Colors.white),),
+          child: Text(
+            item.toString(),
+            style: TextStyle(color: isSelected ? Colors.black : Colors.white),
+          ),
         );
       },
-
       themeData: FilterListThemeData.dark(context).copyWith(
           headerTheme: HeaderThemeData.dark()
               .copyWith(backgroundColor: Colors.transparent),
@@ -65,27 +74,22 @@ class _ExplorePage extends State<ExplorePage> {
         return false;
       },
       onApplyButtonClick: (list) {
-        /*
-         setState(() {
-          selectedUserList = List.from(list!);
+        setState(() {
+          listYearSelected = List.from(list!);
         });
-        Navigator.pop(context);
-         */
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AnimeBloc, AnimeState>(
-      builder: (context, state) {
-        return AnimationLoadPage(
-            child: ExploreScreen(
-                controller: _controller,
-                onSubmit: onSubmit,
-                listAnime: state.listSearchAnime,
-                onPressed: openFilterDialog));
-      },
-    );
+    return BlocBuilder<AnimeBloc, AnimeState>(builder: (context, state) {
+      return AnimationLoadPage(
+          child: ExploreScreen(
+              controller: _controller,
+              onSubmit: onSubmit,
+              listAnime: state.listSearchAnime,
+              onPressed: openFilterDialog));
+    });
   }
 }

@@ -1,5 +1,5 @@
 import 'package:anime/data/typeAnime/type_data.dart';
-import 'package:anime/domain/bloc/anime_bloc.dart';
+import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../widgets/banner/banner_widget.dart';
@@ -31,14 +31,6 @@ class HomeScreen extends StatelessWidget {
                   title: 'Últimos animes agregados',
                   typeAnime: TypeAnime.ADD,
                   colorTitle: Colors.blueAccent),
-              if (state.listAnimeSave.isNotEmpty)
-                ListBannerAnime(
-                    listAnime: state.listAnimeSave,
-                    size: mediaQueryData.size,
-                    tag: 'favoritos',
-                    title: 'Ánimes favoritos',
-                    typeAnime: TypeAnime.SAVE,
-                    colorTitle: Colors.orangeAccent),
               const SliverTitle(),
               ListAiringAnime(
                   listAringAnime: state.listAringAnime,

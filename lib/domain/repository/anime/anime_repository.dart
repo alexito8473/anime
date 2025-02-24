@@ -2,30 +2,25 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:anime/constans.dart';
+import 'package:anime/data/model/complete_anime.dart';
 import 'package:anime/data/model/list_type_anime_page.dart';
-import 'package:anime/domain/bloc/anime_bloc.dart';
+import 'package:anime/data/model/server.dart';
+import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:beautiful_soup_dart/beautiful_soup.dart';
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:anime/data/model/complete_anime.dart';
-import 'package:anime/data/model/server.dart';
+
+import '../../../data/typeAnime/type_my_animes.dart';
 import '../../../utils/parse_table.dart';
-import 'package:http/http.dart' as http;
 
 class AnimeRepository {
   final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
 
-  Future<void> saveList(List<CompleteAnime> listAnime) async =>
-      await asyncPrefs.setString(Constants.keySharedPreferencesListAnime,
-          jsonEncode(listAnime.map((e) => e.id).toList()));
-
-  Future<void> saveEpisode(List<String> listEpisode) async =>
-      await asyncPrefs.setString(Constants.keySharedPreferencesListEpisode,
-          jsonEncode(listEpisode.toList()));
-
-  Future<List<String>> loadList() async {
+  Future<List<String>> loadList({required TypeMyAnimes typeMiAnime}) async {
     final String? jsonString =
-        await asyncPrefs.getString(Constants.keySharedPreferencesListAnime);
+        await asyncPrefs.getString(typeMiAnime.getKeySharedPreference());
     if (jsonString != null) {
       return List<String>.from(jsonDecode(jsonString));
     }
@@ -55,29 +50,32 @@ class AnimeRepository {
     if ((anime = checkExitAnimeForLastEpisode(
             title: title, listAnimes: state.listAnimes)) ==
         null) {
-      anime = await obtainAnimeForId(id: id, checkBanner: true);
+      anime = await obtainAnimeForId(id: id);
     }
     return anime;
   }
 
-  Future<CompleteAnime?> obtainAnimeForId(
-      {required String id, required bool checkBanner}) async {
-    CompleteAnime? anime;
-
-    anime = CompleteAnime.fromJson(await _getAnimeInfo(id));
-    if (checkBanner) {
-      anime.isNotBannerCorrect = await _checkAnimeBanner(anime: anime);
-    }
-    return anime;
+  Future<CompleteAnime?> obtainAnimeForId({required String id}) async {
+    return CompleteAnime.fromJson(await _getAnimeInfo(id));
   }
 
   Future<List> getLastAddedAnimes() async {
-    final res = await http.Client().get(Uri.parse(Constants.baseUrl));
+    var lastAnimes = [];
+    List<Bs4Element> lastAnimesElements;
+    http.Response res = kIsWeb
+        ? await http.Client()
+            .get(Uri.parse(Constants.corsFilter + Constants.baseUrl))
+        : await http.Client().get(Uri.parse(Constants.baseUrl));
+
     if (res.statusCode == 200) {
-      var lastAnimes = [];
-      final lastAnimesElements =
-          BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
-              .findAll('', selector: '.ListAnimes article.Anime');
+      if (kIsWeb) {
+        lastAnimesElements = BeautifulSoup(jsonDecode(res.body)["contents"])
+            .findAll('', selector: '.ListAnimes article.Anime');
+      } else {
+        lastAnimesElements =
+            BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+                .findAll('', selector: '.ListAnimes article.Anime');
+      }
       for (var anime in lastAnimesElements) {
         final id = anime.a?['href'];
         lastAnimes.add({
@@ -101,13 +99,25 @@ class AnimeRepository {
   }
 
   Future<List> getAiringAnimes() async {
-    final res = await http.Client().get(Uri.parse(Constants.baseUrl));
+    http.Response res;
+    var airingAnimes = [];
+    List<Bs4Element> airingAnimesElements;
+    if (kIsWeb) {
+      res = await http.Client()
+          .get(Uri.parse(Constants.corsFilter + Constants.baseUrl));
+    } else {
+      res = await http.Client().get(Uri.parse(Constants.baseUrl));
+    }
     try {
       if (res.statusCode == 200) {
-        var airingAnimes = [];
-        final airingAnimesElements =
-            BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
-                .findAll('', selector: '.ListSdbr li');
+        if (kIsWeb) {
+          airingAnimesElements = BeautifulSoup(jsonDecode(res.body)["contents"])
+              .findAll('', selector: '.ListSdbr li');
+        } else {
+          airingAnimesElements =
+              BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+                  .findAll('', selector: '.ListSdbr li');
+        }
         for (var anime in airingAnimesElements) {
           final id = anime.a?['href'];
           airingAnimes.add({
@@ -125,12 +135,24 @@ class AnimeRepository {
   }
 
   Future<List> search(String searchQuery) async {
-    final res = await http.Client()
-        .get(Uri.parse('${Constants.searchUrl}$searchQuery'));
+    http.Response res;
+    List<Bs4Element> elements;
+    if (kIsWeb) {
+      res = await http.Client().get(Uri.parse(
+          '${Constants.corsFilter}${Constants.searchUrl}$searchQuery'));
+    } else {
+      res = await http.Client()
+          .get(Uri.parse('${Constants.searchUrl}$searchQuery'));
+    }
     if (res.statusCode == 200) {
-      final elements =
-          BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
-              .findAll('article', class_: 'Anime alt B');
+      if (kIsWeb) {
+        elements = BeautifulSoup(jsonDecode(res.body)["contents"])
+            .findAll('article', class_: 'Anime alt B');
+      } else {
+        elements =
+            BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+                .findAll('article', class_: 'Anime alt B');
+      }
       var ret = [];
       for (var element in elements) {
         var id =
@@ -164,11 +186,17 @@ class AnimeRepository {
 
   Future<List> searchByType(
       {required ListTypeAnimePage listTypeAnimePage}) async {
-    final res = await http.Client().get(Uri.parse(
-        "${Constants.searchUrlForType}${listTypeAnimePage.typeVersionAnime.value}&page=${listTypeAnimePage.page}"));
+    http.Response res = kIsWeb
+        ? await http.Client().get(Uri.parse(
+            "${Constants.corsFilter + Constants.searchUrlForType}${listTypeAnimePage.typeVersionAnime.value}&page=${listTypeAnimePage.page}"))
+        : await http.Client().get(Uri.parse(
+            "${Constants.searchUrlForType}${listTypeAnimePage.typeVersionAnime.value}&page=${listTypeAnimePage.page}"));
+    List<Bs4Element> elements;
     if (res.statusCode == 200) {
-      final elements =
-          BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+      elements = kIsWeb
+          ? BeautifulSoup(jsonDecode(res.body)["contents"])
+              .findAll('article', class_: 'Anime alt B')
+          : BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
               .findAll('article', class_: 'Anime alt B');
       var ret = [];
       for (var element in elements) {
@@ -202,11 +230,16 @@ class AnimeRepository {
   }
 
   Future<List> getVideoServers(String episodeId) async {
-    final res = await http.Client()
-        .get(Uri.parse('${Constants.animeVideoUrl}$episodeId'));
+    List<Bs4Element> scripts;
+    http.Response res = kIsWeb
+        ? await http.Client().get(Uri.parse(
+            '${Constants.corsFilter + Constants.animeVideoUrl}$episodeId'))
+        : await http.Client()
+            .get(Uri.parse('${Constants.animeVideoUrl}$episodeId'));
     if (res.statusCode == 200) {
-      final scripts =
-          BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+      scripts = kIsWeb
+          ? BeautifulSoup(jsonDecode(res.body)["contents"]).findAll('script')
+          : BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
               .findAll('script');
       var servers = [];
       for (var script in scripts) {
@@ -240,8 +273,10 @@ class AnimeRepository {
   }
 
   Future<List> _getAnimeEpisodesInfo(String animeId) async {
-    final res =
-        await http.Client().get(Uri.parse('${Constants.baseUrl}/$animeId'));
+    http.Response res = kIsWeb
+        ? await http.Client().get(
+            Uri.parse('${Constants.corsFilter}${Constants.baseUrl}/$animeId'))
+        : await http.Client().get(Uri.parse('${Constants.baseUrl}/$animeId'));
     BeautifulSoup soup;
     final idAnime;
     final elements;
@@ -254,7 +289,9 @@ class AnimeRepository {
     var animeInfo;
     var data;
     if (res.statusCode == 200) {
-      soup = BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true));
+      soup = kIsWeb
+          ? BeautifulSoup(jsonDecode(res.body)["contents"])
+          : BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true));
       extraInfo = {
         'title': soup.find('', selector: 'h1.Title')?.string,
         'poster':
@@ -302,14 +339,25 @@ class AnimeRepository {
   }
 
   Future<List> getLastEpisodes() async {
+    http.Response res;
+    var lastEpisodes = [];
+    final List<Bs4Element> lastEpisodesElements;
     try {
-      final res = await http.Client().get(Uri.parse(Constants.baseUrl));
-      var lastEpisodes = [];
-      final List<Bs4Element> lastEpisodesElements;
+      if (kIsWeb) {
+        res = await http.Client()
+            .get(Uri.parse(Constants.corsFilter + Constants.baseUrl));
+      } else {
+        res = await http.Client().get(Uri.parse(Constants.baseUrl));
+      }
       if (res.statusCode == 200) {
-        lastEpisodesElements =
-            BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
-                .findAll('', selector: '.ListEpisodios li a.fa-play');
+        if (kIsWeb) {
+          lastEpisodesElements = BeautifulSoup(jsonDecode(res.body)["contents"])
+              .findAll('', selector: '.ListEpisodios li a.fa-play');
+        } else {
+          lastEpisodesElements =
+              BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+                  .findAll('', selector: '.ListEpisodios li a.fa-play');
+        }
         for (var episode in lastEpisodesElements) {
           lastEpisodes.add({
             'anime': episode.find('', selector: '.Title')?.string,
@@ -336,12 +384,17 @@ class AnimeRepository {
         .firstOrNull;
   }
 
+  bool checkExitAnimeForAnime(
+      {required String title, required List<CompleteAnime> listAnimes}) {
+    return listAnimes.any((CompleteAnime element) => element.title == title);
+  }
+
   bool isExitsAnime(
       {required String title, required List<CompleteAnime> listAnimes}) {
     return listAnimes.any((element) => element.title == title);
   }
 
-  Future<bool> _checkAnimeBanner({required CompleteAnime anime}) async {
+  Future<bool> checkAnimeBanner({required CompleteAnime anime}) async {
     try {
       final response = await http.get(Uri.parse(anime.banner));
 

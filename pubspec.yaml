@@ -35,7 +35,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  flutter_bloc: ^8.1.6
+
   google_fonts: ^4.0.4
   flutter_carousel_widget: ^3.1.0
   cached_network_image: ^3.4.1
@@ -46,10 +46,19 @@ dependencies:
   flutter_animate: ^4.5.2
   beautiful_soup_dart: ^0.3.0
   shared_preferences: ^2.3.4
-  bloc_concurrency: ^0.2.5
   flutter_snake_navigationbar: ^0.6.1
   video_player: ^2.9.2
   filter_list: ^1.0.3
+  webview_flutter: ^4.10.0
+  flutter_zoom_drawer: ^3.2.0
+  package_info_plus: ^8.2.1
+  dio: ^5.8.0+1
+  open_file: ^3.5.10
+  permission_handler: ^11.3.1
+  device_info_plus: ^11.3.0
+  bloc_concurrency: ^0.3.0
+  flutter_bloc: ^9.0.0
+  hydrated_bloc: ^10.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -76,6 +85,7 @@ flutter:
   assets:
     - assets/video/
     - assets/image/
+    - assets/wallpaper/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

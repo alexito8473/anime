@@ -17,6 +17,9 @@ class ServerScreen extends StatelessWidget {
   final Function onTapRight;
   final Function onTapSaveEpisode;
   final bool isSave;
+  final Widget web;
+  final Widget? button;
+
   const ServerScreen(
       {super.key,
       required this.episode,
@@ -28,16 +31,17 @@ class ServerScreen extends StatelessWidget {
       required this.onTapLeft,
       required this.onTapRight,
       required this.onTapSaveEpisode,
-      required this.isSave});
+      required this.isSave,
+      required this.web,
+      this.button});
+
   Widget navigatorButton(
       {required Size size,
       required bool isLeft,
       required Function onTap,
       required BuildContext context}) {
     return GestureDetector(
-        onTap: () {
-          onTap();
-        },
+        onTap: () => onTap(),
         child: Container(
             width: size.width * 0.1,
             height: 40,
@@ -84,7 +88,7 @@ class ServerScreen extends StatelessWidget {
                       child: isSave
                           ? const Text("Visto")
                           : const Text("No visto"))),
-              if (anime.episodes.length - 1 > episode.episode)
+              if (anime.episodes.length > episode.episode)
                 navigatorButton(
                     size: size,
                     isLeft: false,
@@ -98,8 +102,9 @@ class ServerScreen extends StatelessWidget {
     Size size = MediaQuery.sizeOf(context);
     return Scaffold(
         appBar: AppBar(
-           toolbarHeight: 100,
+            toolbarHeight: 100,
             actions: [
+              if (button != null) button!,
               IconButton(
                   onPressed: () => onTapSaveEpisode(isSave, episode),
                   isSelected: isSave,
@@ -110,55 +115,28 @@ class ServerScreen extends StatelessWidget {
                   icon: const Icon(CupertinoIcons.heart, color: Colors.white))
             ],
             title: TitleWidget(
-                title:"${anime.title} - Episodeo: ${episode.episode}",
+                title: "${anime.title} - Episodeo: ${episode.episode}",
                 maxLines: 3,
                 textStyle: Theme.of(context).textTheme.titleMedium!,
                 tag: episode.id)),
-        body: SingleChildScrollView(
-            child: Column(children: [
-          SafeArea(
-              child: BottomNavigationBar(
-                  iconSize: 0,
-                  currentIndex: currentPage,
-                  onTap: (value) {
-                    onTap(value, episode);
-                  },
-                  showSelectedLabels: true,
-                  showUnselectedLabels: true,
-                  items: (episode.servers
-                      .map((server) => BottomNavigationBarItem(
-                          icon: const Icon(Icons.add), label: server.title))
-                      .toList()))),
-          SizedBox(
-              height: size.height * 0.7,
-              child: episode.servers[currentPage].code == null
-                  ? const CircularProgressIndicator()
-                  : Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: size.width * 0.05,
-                          vertical: size.height * 0.05),
-                      child: InAppWebView(
-                          initialSettings: inAppWebViewSettings,
-                          shouldOverrideUrlLoading:
-                              (controller, navigationAction) async {
-                            if (navigationAction.request.url
-                                .toString()
-                                .contains("hlsflast.com")) {
-                              return NavigationActionPolicy.ALLOW;
-                            }
-                            if (episode.servers[currentPage].code!.contains(
-                                navigationAction.request.url.toString())) {
-                              return NavigationActionPolicy
-                                  .ALLOW; // Bloquea la carga del enlace
-                            }
-                            return NavigationActionPolicy.CANCEL;
-                          },
-                          onWebViewCreated: (controller) =>
-                              onWebViewCreated(controller),
-                          initialUrlRequest: URLRequest(
-                              url: WebUri(
-                                  episode.servers[currentPage].code!))))),
-          navigationButton(size: size, context: context)
-        ])));
+        body: CustomScrollView(slivers: [
+          SliverToBoxAdapter(
+              child: SafeArea(
+                  child: BottomNavigationBar(
+                      iconSize: 0,
+                      currentIndex: currentPage,
+                      onTap: (value) {
+                        onTap(value, episode);
+                      },
+                      showSelectedLabels: true,
+                      showUnselectedLabels: true,
+                      items: (episode.servers
+                          .map((server) => BottomNavigationBarItem(
+                              icon: const Icon(Icons.add), label: server.title))
+                          .toList())))),
+          SliverToBoxAdapter(child: web),
+          SliverToBoxAdapter(
+              child: navigationButton(size: size, context: context))
+        ]));
   }
 }

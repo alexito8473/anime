@@ -5,9 +5,9 @@ import 'anime.dart';
 class ListTypeAnimePage {
   final int page;
   final List<Anime> listAnime;
-  final bool isObtainAllData;
+  late bool isObtainAllData;
   final TypeVersionAnime typeVersionAnime;
-  const ListTypeAnimePage(
+  ListTypeAnimePage(
       {required this.page,
       required this.listAnime,
       required this.isObtainAllData,

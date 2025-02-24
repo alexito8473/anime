@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/model/anime.dart';
 import '../../data/typeAnime/type_data.dart';
-import '../../domain/bloc/anime_bloc.dart';
+import '../../domain/bloc/anime/anime_bloc.dart';
 import '../screens/list_anime_screen.dart';
 import '../widgets/load/load_widget.dart';
 
@@ -13,6 +13,7 @@ class ListAnimePage extends StatefulWidget {
   final TypeAnime typeAnime;
   final String title;
   final Color colorTitle;
+
   const ListAnimePage(
       {super.key,
       required this.tag,
@@ -35,10 +36,10 @@ class _ListAnimePageState extends State<ListAnimePage> {
   }
 
   List<Anime> filterAnime({required List<Anime> listAnime}) {
-    if(isFirstReset && !widget.typeAnime.isAdd()){
+    if (isFirstReset && !widget.typeAnime.isAdd()) {
       listAnime.sort((a, b) => a.title.compareTo(b.title));
       setState(() {
-        isFirstReset=false;
+        isFirstReset = false;
       });
     }
 
@@ -48,15 +49,10 @@ class _ListAnimePageState extends State<ListAnimePage> {
         .toList();
   }
 
-  List<Anime> selectAnime() {
-    return widget.typeAnime.isAdd()
-        ? context.watch<AnimeBloc>().state.lastAnimesAdd
-        : context.watch<AnimeBloc>().state.listAnimeSave;
-  }
-
   @override
   Widget build(BuildContext context) {
-    List<Anime> listAnime = filterAnime(listAnime: selectAnime());
+    List<Anime> listAnime =
+        filterAnime(listAnime: context.watch<AnimeBloc>().state.lastAnimesAdd);
     return AnimationLoadPage(
         child: ListAnimeScreen(
             tag: widget.tag,

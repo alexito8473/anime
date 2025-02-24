@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:anime/data/model/episode.dart';
 import 'package:anime/data/model/complete_anime.dart';
-import '../../../domain/bloc/anime_bloc.dart';
+import '../../../domain/bloc/anime/anime_bloc.dart';
 import '../sliver/sliver_widget.dart';
 import '../title/title_widget.dart';
 
@@ -100,18 +100,18 @@ class BannerEpisode extends StatelessWidget {
                                 Theme.of(context).textTheme.titleMedium!),
                         Row(
                           children: [
-                            AutoSizeText("Episode : ${episode.episode}"),
+                            AutoSizeText("Episodeo : ${episode.episode}"),
                             if (episode.part != null)
-                              AutoSizeText(" Part : ${episode.part}")
+                              AutoSizeText("Parte : ${episode.part}")
                           ],
                         ),
                       ])),
                   IconButton(
                       onPressed: () => onTapSaveEpisode(isSave, episode),
                       style: ButtonStyle(foregroundColor:
-                          MaterialStateProperty.resolveWith<Color>(
-                              (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.selected)) {
+                          WidgetStateProperty.resolveWith<Color>(
+                              (Set<WidgetState> states) {
+                        if (states.contains(WidgetState.selected)) {
                           return Colors
                               .white; // Color blanco cuando está seleccionado
                         }

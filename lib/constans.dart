@@ -1,4 +1,6 @@
 class Constants {
+  static const corsFilter="https://api.allorigins.win/get?url=";
+  static const corsFilter2="https://corsproxy.io/?url=";
   static const searchUrl = 'https://animeflv.net/browse?q=';
   static const searchUrlForType =
       'https://www3.animeflv.net/browse?type%5B%5D=';
@@ -27,6 +29,11 @@ class Constants {
   static const String urlAssetImagePageSerie = "assets/image/image_serie.jpg";
   static const String urlAssetImagePageTV = "assets/image/image_tv.jpg";
   static const String urlAssetImagePageOva = "assets/image/image_ova.jpg";
-  static const String keySharedPreferencesListAnime = "listSafeAnime";
+  static const String keySharedPreferencesListAnimeFavorite = "listSafeAnime";
+  static const String keySharedPreferencesListAnimeInProgress = "listInProgressAnime";
+  static const String keySharedPreferencesListAnimeFilled = "listFilledAnime";
+  static const String keySharedPreferencesListAnimeWaiting = "listWaitingAnime";
+  static const String keySharedPreferencesListAnimeAbandoned = "listAbandonedAnime";
+  static const String keySharedPreferencesListAnimePlanned = "listPlannedAnime";
   static const String keySharedPreferencesListEpisode = "listSafeEpisode";
 }

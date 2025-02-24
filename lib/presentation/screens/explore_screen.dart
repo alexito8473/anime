@@ -28,6 +28,7 @@ class ExploreScreen extends StatelessWidget {
             padding: EdgeInsets.only(top: size.height * 0.01),
             sliver: SliverAppBarSearch(
                 isFlexibleSpaceBar: false,
+                snapFloatingPinned: false,
                 controller: controller,
                 onSubmit: () => onSubmit())),
         if (listAnime.isEmpty)

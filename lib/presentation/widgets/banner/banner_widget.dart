@@ -1,15 +1,16 @@
 import 'dart:io';
 
 import 'package:anime/data/typeAnime/type_data.dart';
-import 'package:anime/domain/bloc/anime_bloc.dart';
+import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/gestures.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
-import '../../../data/model/basic_anime.dart';
+
 import '../../../data/model/anime.dart';
+import '../../../data/model/basic_anime.dart';
 import '../../../data/model/last_episode.dart';
 import '../animation/hero_animation_widget.dart';
 import '../button/button_widget.dart';
@@ -20,6 +21,7 @@ class BannerWidget extends StatelessWidget {
   final List<LastEpisode> lastEpisodes;
   final Size size;
   final Orientation orientation;
+
   const BannerWidget(
       {super.key,
       required this.lastEpisodes,
@@ -35,7 +37,7 @@ class BannerWidget extends StatelessWidget {
           child: Container(
               height: size.height * 0.5,
               padding: EdgeInsets.symmetric(horizontal: size.width * 0.2),
-              constraints: const BoxConstraints(minHeight: 300),
+              constraints: const BoxConstraints(minHeight: 350),
               child: const Center(
                   child: LinearProgressIndicator(
                       backgroundColor: Colors.blueAccent))));
@@ -44,6 +46,7 @@ class BannerWidget extends StatelessWidget {
     return SliverToBoxAdapter(
         child: Container(
             constraints: const BoxConstraints(minHeight: 300),
+            height: size.height*0.3,
             child: Stack(children: [
               Positioned.fill(
                   child: FlutterCarousel(
@@ -80,6 +83,7 @@ class BannerWidget extends StatelessWidget {
 
 class BannerCarrouselAnime extends StatelessWidget {
   final LastEpisode lastEpisode;
+
   const BannerCarrouselAnime({super.key, required this.lastEpisode});
 
   void obtainData({required BuildContext context}) =>
@@ -99,15 +103,14 @@ class BannerCarrouselAnime extends StatelessWidget {
               child: ShaderMask(
                   shaderCallback: (Rect bounds) {
                     return const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black38,
-                        Colors.black45,
-                        Colors.black87,
-                        Colors.black
-                      ],
-                    ).createShader(bounds);
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        tileMode: TileMode.repeated,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black12,
+                          Colors.black
+                        ]).createShader(bounds);
                   },
                   blendMode: BlendMode.darken,
                   child: CachedNetworkImage(
@@ -119,15 +122,16 @@ class BannerCarrouselAnime extends StatelessWidget {
           Positioned(
               bottom: size.height * 0.05,
               left: size.width * 0.05,
+              right: size.width * 0.05,
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
                         width: size.width * 0.95,
                         child: Text(lastEpisode.anime,
-                            style: Theme.of(context).textTheme.titleLarge,
+                            style: Theme.of(context).textTheme.titleMedium,
                             softWrap: true)),
-                    Text("Episode : ${lastEpisode.episode}",
+                    Text("Episodeo : ${lastEpisode.episode}",
                         style: Theme.of(context).textTheme.titleMedium)
                   ]))
         ]));
@@ -141,6 +145,7 @@ class ListBannerAnime extends StatelessWidget {
   final String title;
   final TypeAnime typeAnime;
   final Color colorTitle;
+
   const ListBannerAnime(
       {super.key,
       required this.listAnime,
@@ -177,24 +182,23 @@ class ListBannerAnime extends StatelessWidget {
                         typeAnime: typeAnime,
                         colorTitle: colorTitle)
                   ])),
-          if (Platform.isWindows || Platform.isMacOS)
-            SizedBox(
-                width: size.width,
-                height: 300,
-                child: DragCarousel(listAnime: listAnime, tag: tag)),
-          if (Platform.isAndroid || Platform.isIOS)
-            SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                    vertical: size.height * 0.05,
-                    horizontal: size.width * 0.05),
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: size.width * 0.05,
-                    children: listAnime
-                        .map((lastAnime) =>
-                            BannerAnime(anime: lastAnime, tag: tag))
-                        .toList()))
+          kIsWeb || Platform.isWindows || Platform.isMacOS
+              ? SizedBox(
+                  width: size.width,
+                  height: 300,
+                  child: DragCarousel(listAnime: listAnime, tag: tag))
+              : SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(
+                      vertical: size.height * 0.05,
+                      horizontal: size.width * 0.05),
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: size.width * 0.05,
+                      children: listAnime
+                          .map((lastAnime) =>
+                              BannerAnime(anime: lastAnime, tag: tag))
+                          .toList()))
         ]));
   }
 }
@@ -202,6 +206,7 @@ class ListBannerAnime extends StatelessWidget {
 class BannerAnime extends StatelessWidget {
   final Anime anime;
   final String? tag;
+
   const BannerAnime({super.key, required this.anime, required this.tag});
 
   void onTap({required BuildContext context}) =>
@@ -218,7 +223,7 @@ class BannerAnime extends StatelessWidget {
     return GestureDetector(
         onTap: () => onTap(context: context),
         child: Container(
-          constraints: const BoxConstraints(minWidth: 150),
+            constraints: const BoxConstraints(minWidth: 150),
             width: orientation == Orientation.portrait
                 ? size.width * 0.4
                 : size.width * 0.15,
@@ -351,8 +356,10 @@ class BannerAiringAnime extends StatelessWidget {
 class ListAiringAnime extends StatelessWidget {
   final List<BasicAnime> listAringAnime;
   final Size size;
+
   const ListAiringAnime(
       {super.key, required this.listAringAnime, required this.size});
+
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
@@ -370,10 +377,11 @@ class ListAiringAnime extends StatelessWidget {
 class DragCarousel extends StatefulWidget {
   final List<Anime> listAnime;
   final String? tag;
+
   const DragCarousel({super.key, required this.listAnime, required this.tag});
 
   @override
-  _DragCarouselState createState() => _DragCarouselState();
+  State<DragCarousel> createState() => _DragCarouselState();
 }
 
 class _DragCarouselState extends State<DragCarousel> {
@@ -381,9 +389,10 @@ class _DragCarouselState extends State<DragCarousel> {
   Offset? _dragStartOffset;
   double _initialScrollOffset = 0.0;
   double _lastDragDelta = 0.0;
+
   @override
   Widget build(BuildContext context) {
-    Size size=MediaQuery.sizeOf(context);
+    Size size = MediaQuery.sizeOf(context);
     return Listener(
         onPointerDown: (event) {
           // Guarda la posición inicial del clic y el desplazamiento actual del scroll
@@ -424,7 +433,7 @@ class _DragCarouselState extends State<DragCarousel> {
           _lastDragDelta = 0.0;
         },
         child: ListView.separated(
-            padding: EdgeInsets.symmetric(horizontal: size.width*0.05),
+            padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
             controller: _scrollController,
             scrollDirection: Axis.horizontal,
             itemCount: widget.listAnime.length,

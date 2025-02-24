@@ -75,18 +75,17 @@ class SubTilesAnime extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        constraints: const BoxConstraints(minHeight: 50),
-        height: size.height * 0.07,
-
+        constraints: const BoxConstraints(maxHeight: 80),
         child:
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title,
+        Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
+          AutoSizeText(title,
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
                   ?.copyWith(color: Colors.blue)),
-          AutoSizeText(subtitle,
+           AutoSizeText(subtitle,
               style: Theme.of(context).textTheme.bodySmall, maxLines: 2)
+
         ]));
   }
 }
