@@ -30,8 +30,6 @@ class DetailAnimeScreen extends StatelessWidget {
       required this.action,
       required this.safeAnime});
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +38,7 @@ class DetailAnimeScreen extends StatelessWidget {
                   AppBarDetailAnime(
                       anime: anime, tag: tag, safeAnime: safeAnime)
                 ],
-                        body: SafeArea(
+            body: SafeArea(
                 child: ClipRRect(
                     borderRadius:
                         BorderRadius.circular(30), // Bordes redondeados

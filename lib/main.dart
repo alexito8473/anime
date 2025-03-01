@@ -18,11 +18,9 @@ void main() async {
     DeviceOrientation.portraitDown
   ]); // Solo orientación vertical
   HydratedBloc.storage = await HydratedStorage.build(
-    storageDirectory: kIsWeb
-        ? HydratedStorageDirectory.web
-        : HydratedStorageDirectory((await getTemporaryDirectory()).path),
-  );
-
+      storageDirectory: kIsWeb
+          ? HydratedStorageDirectory.web
+          : HydratedStorageDirectory((await getTemporaryDirectory()).path));
   runApp(const MyApp());
 }
 

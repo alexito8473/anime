@@ -10,32 +10,10 @@ import 'package:beautiful_soup_dart/beautiful_soup.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../data/typeAnime/type_my_animes.dart';
 import '../../../utils/parse_table.dart';
 
 class AnimeRepository {
-  final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
-
-  Future<List<String>> loadList({required TypeMyAnimes typeMiAnime}) async {
-    final String? jsonString =
-        await asyncPrefs.getString(typeMiAnime.getKeySharedPreference());
-    if (jsonString != null) {
-      return List<String>.from(jsonDecode(jsonString));
-    }
-    return [];
-  }
-
-  Future<List<String>> loadEpisode() async {
-    final String? jsonString =
-        await asyncPrefs.getString(Constants.keySharedPreferencesListEpisode);
-    if (jsonString != null) {
-      return List<String>.from(jsonDecode(jsonString));
-    }
-    return [];
-  }
-
   Future<List<ServerInfo>> obtainVideoServerOfEpisode(
           {required String id}) async =>
       (await getVideoServers(id))

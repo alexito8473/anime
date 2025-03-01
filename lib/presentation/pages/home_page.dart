@@ -100,7 +100,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
-    Orientation orientation = MediaQuery.of(context).orientation;
+    Orientation orientation = MediaQuery.orientationOf(context);
     return BlocConsumer<UpdateBloc, UpdateState>(listener: (context, state) {
       if (state.canUpdate) {
         mostrarDialogoActualizacion(context);

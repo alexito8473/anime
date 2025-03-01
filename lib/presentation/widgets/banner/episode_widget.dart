@@ -1,10 +1,11 @@
+import 'package:anime/data/model/complete_anime.dart';
+import 'package:anime/data/model/episode.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:anime/data/model/episode.dart';
-import 'package:anime/data/model/complete_anime.dart';
+
 import '../../../domain/bloc/anime/anime_bloc.dart';
 import '../sliver/sliver_widget.dart';
 import '../title/title_widget.dart';
@@ -15,6 +16,7 @@ class BannerEpisode extends StatelessWidget {
   final Orientation orientation;
   final Size size;
   final Function onTapSaveEpisode;
+
   const BannerEpisode(
       {super.key,
       required this.episode,
@@ -131,34 +133,42 @@ class ListEpisodes extends StatelessWidget {
   final TextEditingController textController;
   final Function onTapSaveEpisode;
   final Widget? action;
+
   const ListEpisodes(
       {super.key,
       required this.anime,
       required this.episodes,
       required this.textController,
-      required this.onTapSaveEpisode, this.action});
+      required this.onTapSaveEpisode,
+      this.action});
 
   @override
   Widget build(BuildContext context) {
-    MediaQueryData data = MediaQuery.of(context);
+    Size size = MediaQuery.sizeOf(context);
+    Orientation orientation = MediaQuery.orientationOf(context);
     return CustomScrollView(
       slivers: [
-        SliverAppBarSearch(
-          controller: textController,
-          action: action
-        ),
+        SliverAppBarSearch(controller: textController),
+        SliverAppBar(
+            automaticallyImplyLeading: false,
+            forceMaterialTransparency: true,
+            pinned: true,
+            actions: [
+              Padding(
+                  padding: EdgeInsets.only(right: size.width * 0.05, top: 10),
+                  child: action!)
+            ]),
         SliverPadding(
             padding: const EdgeInsets.only(top: 20),
             sliver: SliverList.builder(
                 itemCount: episodes.length,
                 itemBuilder: (context, index) {
                   return BannerEpisode(
-                    anime: anime,
-                    episode: episodes[index],
-                    orientation: data.orientation,
-                    size: data.size,
-                    onTapSaveEpisode: onTapSaveEpisode,
-                  );
+                      anime: anime,
+                      episode: episodes[index],
+                      orientation: orientation,
+                      size: size,
+                      onTapSaveEpisode: onTapSaveEpisode);
                 }))
       ],
     );

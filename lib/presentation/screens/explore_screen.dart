@@ -17,7 +17,7 @@ class ExploreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    Size size = MediaQuery.sizeOf(context);
     return Scaffold(
       floatingActionButton: FloatingActionButton(onPressed: () => onPressed(size)),
       body: CustomScrollView(slivers: [

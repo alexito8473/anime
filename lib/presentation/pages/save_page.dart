@@ -21,43 +21,36 @@ class _SavePageState extends State<SavePage> {
           length: TypeMyAnimes.values.length - 1, // Número de pestañas
           child: Column(children: [
             TabBar(
-              isScrollable: true,
-              indicatorColor: Colors.orangeAccent,
-              tabAlignment: TabAlignment.start,
-              labelColor: Colors.yellowAccent,
-              dividerColor: Colors.orangeAccent.withAlpha(100),
-              tabs: TypeMyAnimes.values
-                  .getRange(1, TypeMyAnimes.values.length)
-                  .map(
-                (e) {
-                  return Tab(icon: Icon(e.getIcon()), text: e.name);
-                },
-              ).toList(),
-            ),
+                isScrollable: true,
+                indicatorColor: Colors.orangeAccent,
+                tabAlignment: TabAlignment.start,
+                labelColor: Colors.yellowAccent,
+                dividerColor: Colors.orangeAccent.withAlpha(100),
+                tabs: TypeMyAnimes.values
+                    .getRange(1, TypeMyAnimes.values.length)
+                    .map((e) => Tab(icon: Icon(e.getIcon()), text: e.name))
+                    .toList()),
             Expanded(
                 child: TabBarView(
                     children: TypeMyAnimes.values
                         .getRange(1, TypeMyAnimes.values.length)
-                        .map(
-              (e) {
-                return GridView.builder(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: size.width * 0.05,
-                        vertical: size.height * 0.02),
-                    itemBuilder: (context, index) {
-                      return BannerAnime(
-                          anime: state.mapAnimesLoad[e]![index],
-                          tag: 'animeSearch');
-                    },
-                    itemCount:  state.mapAnimesLoad[e]!.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 220,
-                            crossAxisSpacing: 30,
-                            mainAxisExtent: 250,
-                            mainAxisSpacing: 30));
-              },
-            ).toList()))
+                        .map((e) => GridView.builder(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: size.width * 0.05,
+                                vertical: size.height * 0.02),
+                            itemBuilder: (context, index) =>
+                                BannerAnimeAndEpisodes(
+                                    completeAnime:
+                                        state.mapAnimesLoad[e]![index],
+                                    tag: 'animeSearch'),
+                            itemCount: state.mapAnimesLoad[e]!.length,
+                            gridDelegate:
+                                const SliverGridDelegateWithMaxCrossAxisExtent(
+                                    maxCrossAxisExtent: 220,
+                                    crossAxisSpacing: 30,
+                                    mainAxisExtent: 280,
+                                    mainAxisSpacing: 30)))
+                        .toList()))
           ]));
     });
   }

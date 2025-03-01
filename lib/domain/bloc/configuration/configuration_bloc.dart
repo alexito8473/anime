@@ -8,22 +8,18 @@ part 'configuration_state.dart';
 class ConfigurationBloc
     extends HydratedBloc<ConfigurationEvent, ConfigurationState> {
   ConfigurationBloc() : super(ConfigurationState.init()) {
-    on<ConfigurationEvent>((event, emit) async {
-      await PackageInfo.fromPlatform().then(
-        (value) {
-          emit(ConfigurationState(version: value.version));
-        },
-      );
-    });
+    on<ChangeOrderList>((event, emit) =>
+        emit(state.copyWith(isUpwardList: !state.isUpwardList)));
+    on<ConfigurationEvent>((event, emit) async =>
+        await PackageInfo.fromPlatform()
+            .then((value) => emit(state.copyWith(version: value.version))));
   }
 
   @override
-  ConfigurationState? fromJson(Map<String, dynamic> json) {
-    return ConfigurationState(version: json["version"]);
-  }
+  ConfigurationState? fromJson(Map<String, dynamic> json) => ConfigurationState(
+      version: json["version"], isUpwardList: json["isUpwardList"] as bool);
 
   @override
-  Map<String, dynamic>? toJson(ConfigurationState state) {
-    return {"version": state.version};
-  }
+  Map<String, dynamic>? toJson(ConfigurationState state) =>
+      {"version": state.version, "isUpwardList": state.isUpwardList};
 }

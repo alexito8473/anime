@@ -85,7 +85,6 @@ class SubTilesAnime extends StatelessWidget {
                   ?.copyWith(color: Colors.blue)),
            AutoSizeText(subtitle,
               style: Theme.of(context).textTheme.bodySmall, maxLines: 2)
-
         ]));
   }
 }

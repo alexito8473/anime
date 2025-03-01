@@ -39,7 +39,6 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
     _initializeVideo();
     _initializeAnimations();
     context.read<AnimeBloc>().add(ObtainData(context: context));
-
     context.read<ConfigurationBloc>().add(ObtainDataVersion());
     super.initState();
   }

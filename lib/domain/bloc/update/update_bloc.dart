@@ -12,6 +12,7 @@ class UpdateBloc extends Bloc<UpdateEvent, UpdateState> {
     on<CanUpdateMobileEvent>((event, emit) async {
       String url = "";
       String versionInstalada = await updateRepository.obtenerVersionApp();
+      print("version. " + versionInstalada);
       Map<String, dynamic> ultimaVersion =
           await updateRepository.obtenerUltimaVersionGitHub();
       for (var asset in ultimaVersion['assets']) {
@@ -46,13 +47,13 @@ class UpdateBloc extends Bloc<UpdateEvent, UpdateState> {
         await dio.download(state.urlApk, filePath,
             onReceiveProgress: (received, total) {
           if (total != -1) {
-            String data=(received / total * 100).toStringAsFixed(0);
-            if(data!=state.advance){
-              emit(state.copyWith(advance: (received / total * 100).toStringAsFixed(0)));
+            String data = (received / total * 100).toStringAsFixed(0);
+            if (data != state.advance) {
+              emit(state.copyWith(
+                  advance: (received / total * 100).toStringAsFixed(0)));
               print(
                   "Descargando: ${(received / total * 100).toStringAsFixed(0)}%");
             }
-
           }
         });
         emit(state.copyWith(isUpdating: false));

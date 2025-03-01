@@ -7,16 +7,15 @@ class ConfigurationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.sizeOf(context);
     return BlocBuilder<ConfigurationBloc, ConfigurationState>(
-      builder: (context, state) {
-        return CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Text("Versión : ${state.version}"),
-            )
-          ],
-        );
-      },
-    );
+        builder: (context, state) {
+      return CustomScrollView(slivers: [
+        SliverPadding(
+            padding: EdgeInsets.symmetric(horizontal: size.width * .1),
+            sliver:
+                SliverToBoxAdapter(child: Text("Versión : ${state.version}")))
+      ]);
+    });
   }
 }

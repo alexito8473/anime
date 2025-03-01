@@ -3,11 +3,9 @@ import 'dart:io';
 import 'package:anime/data/model/complete_anime.dart';
 import 'package:anime/data/model/episode.dart';
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 import '../screens/server_screen.dart';
 import '../widgets/load/load_widget.dart';
@@ -25,9 +23,10 @@ class ServerListPage extends StatefulWidget {
 
 class _ServerListPageState extends State<ServerListPage> {
   int _currentPage = 0;
-  WebViewController? _controller;
   bool onFullScreen = false;
   InAppWebViewController? webViewController;
+  final List<String> list = List.unmodifiable(
+      ["hlsflast.com", "streamwish", "yourupload", "ok.ru", "rapidplayers"]);
   final InAppWebViewSettings inAppWebViewSettings = InAppWebViewSettings(
       allowFileAccess: true,
       useHybridComposition: true,
@@ -56,9 +55,7 @@ class _ServerListPageState extends State<ServerListPage> {
 
   @override
   void initState() {
-    if (kIsWeb || Platform.isWindows) {
-      task();
-    }
+    task();
     super.initState();
   }
 
@@ -67,21 +64,14 @@ class _ServerListPageState extends State<ServerListPage> {
       _currentPage = index;
     });
 
-    if (kIsWeb || Platform.isWindows) {
-      if (_controller != null) {
-        _controller!
-            .loadRequest(Uri.parse(episode.servers[_currentPage].code!));
-      }
-    } else {
-      await webViewController?.loadUrl(
-          urlRequest: URLRequest(
-              allowsExpensiveNetworkAccess: true,
-              assumesHTTP3Capable: true,
-              url: WebUri(episode.servers[_currentPage].code!)));
-    }
+    await webViewController?.loadUrl(
+        urlRequest: URLRequest(
+            allowsExpensiveNetworkAccess: true,
+            assumesHTTP3Capable: true,
+            url: WebUri(episode.servers[_currentPage].code!)));
   }
 
-  void task() {
+  void task() async {
     CompleteAnime anime = context
         .read<AnimeBloc>()
         .state
@@ -89,23 +79,11 @@ class _ServerListPageState extends State<ServerListPage> {
         .firstWhere((element) => element.id == widget.idAnime);
     Episode episode =
         anime.episodes.firstWhere((element) => element.id == widget.idEpisode);
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(
-          NavigationDelegate(onNavigationRequest: (NavigationRequest request) {
-        if (request.url.toString().contains("hlsflast.com") ||
-            request.url.toString().contains("streamwish") ||
-            request.url.toString().contains("yourupload") ||
-            request.url.toString().contains("ok.ru")) {
-          return NavigationDecision.navigate;
-        }
-        if (episode.servers[_currentPage].code!
-            .contains(request.url.toString())) {
-          return NavigationDecision.navigate; // Bloquea la carga del enlace
-        }
-        return NavigationDecision.prevent;
-      }))
-      ..loadRequest(Uri.parse(episode.servers[_currentPage].code!));
+    await webViewController?.loadUrl(
+        urlRequest: URLRequest(
+            allowsExpensiveNetworkAccess: true,
+            assumesHTTP3Capable: true,
+            url: WebUri(episode.servers[_currentPage].code!)));
   }
 
   @override
@@ -166,7 +144,7 @@ class _ServerListPageState extends State<ServerListPage> {
           episode: episode,
           currentPage: _currentPage,
           onTap: onTap,
-          button: kIsWeb || Platform.isWindows
+          button: Platform.isWindows
               ? IconButton(
                   onPressed: () {
                     setState(() {
@@ -184,65 +162,34 @@ class _ServerListPageState extends State<ServerListPage> {
           onTapRight: onTapRight,
           onTapSaveEpisode: onTapSaveEpisode,
           isSave: state.listEpisodesView.contains(episode.id),
-          web: kIsWeb || Platform.isWindows
-              ? SizedBox(
-                  height: onFullScreen ? size.height * 0.8 : size.height * 0.7,
-                  width: onFullScreen ? size.width : size.width * 0.8,
-                  child: episode.servers[_currentPage].code == null
-                      ? const CircularProgressIndicator()
-                      : Padding(
-                          padding: onFullScreen
-                              ? EdgeInsets.zero
-                              : EdgeInsets.symmetric(
-                                  horizontal: size.width * 0.05,
-                                  vertical: size.height * 0.05),
-                          child: _controller == null
-                              ? const SizedBox()
-                              : WebViewWidget(controller: _controller!),
-                        ))
-              : SizedBox(
-                  height: size.height * 0.7,
-                  width: size.width * 0.8,
-                  child: episode.servers[_currentPage].code == null
-                      ? const CircularProgressIndicator()
-                      : Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: size.width * 0.05,
-                              vertical: size.height * 0.05),
-                          child: InAppWebView(
-                              initialSettings: inAppWebViewSettings,
-                              shouldOverrideUrlLoading:
-                                  (controller, navigationAction) async {
-                                if (navigationAction.request.url
-                                        .toString()
-                                        .contains("hlsflast.com") ||
-                                    navigationAction.request.url
-                                        .toString()
-                                        .contains("streamwish") ||
-                                    navigationAction.request.url
-                                        .toString()
-                                        .contains("yourupload") ||
-                                    navigationAction.request.url
-                                        .toString()
-                                        .contains("ok.ru") ||
-                                    navigationAction.request.url
-                                        .toString()
-                                        .contains("rapidplayers")) {
-                                  return NavigationActionPolicy.ALLOW;
-                                }
-                                if (episode.servers[_currentPage].code!
-                                    .contains(navigationAction.request.url
-                                        .toString())) {
-                                  return NavigationActionPolicy
-                                      .ALLOW; // Bloquea la carga del enlace
-                                }
-                                return NavigationActionPolicy.CANCEL;
-                              },
-                              onWebViewCreated: (controller) =>
-                                  onWebViewCreated(controller),
-                              initialUrlRequest: URLRequest(
-                                  url: WebUri(
-                                      episode.servers[_currentPage].code!))))));
+          web: SizedBox(
+              height: size.height * 0.7,
+              width: size.width * 0.8,
+              child: episode.servers[_currentPage].code == null
+                  ? const CircularProgressIndicator()
+                  : Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: size.width * 0.05,
+                          vertical: size.height * 0.05),
+                      child: InAppWebView(
+                          initialSettings: inAppWebViewSettings,
+                          shouldOverrideUrlLoading:
+                              (controller, navigationAction) async {
+                            if (list.any((element) => navigationAction
+                                    .request.url
+                                    .toString()
+                                    .contains(element)) ||
+                                episode.servers[_currentPage].code!.contains(
+                                    navigationAction.request.url.toString())) {
+                              return NavigationActionPolicy.ALLOW;
+                            }
+                            return NavigationActionPolicy.CANCEL;
+                          },
+                          onWebViewCreated: (controller) =>
+                              onWebViewCreated(controller),
+                          initialUrlRequest: URLRequest(
+                              url: WebUri(
+                                  episode.servers[_currentPage].code!))))));
     }));
   }
 }

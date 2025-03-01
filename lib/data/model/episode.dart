@@ -12,7 +12,10 @@ class Episode {
       required this.id,
       required this.imagePreview,
       this.part});
-
+  int compareTo(Episode other) {
+    // Comparar por edad de forma ascendente
+    return this.episode.compareTo(other.episode);
+  }
   factory Episode.fromJson(Map<String, dynamic> json) {
     dynamic jsonValue = json['episode'];
     int cantDecimalPat;

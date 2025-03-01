@@ -21,7 +21,6 @@ class SliverAppBarSearch extends StatelessWidget {
         margin: isFlexibleSpaceBar
             ? EdgeInsets.zero
             : EdgeInsets.symmetric(horizontal: size.width * 0.05),
-
         child: Row(
             spacing: 10,
             children: [

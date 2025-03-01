@@ -4,3 +4,4 @@ part of 'configuration_bloc.dart';
 sealed class ConfigurationEvent {}
 
 class ObtainDataVersion extends ConfigurationEvent{}
+class ChangeOrderList extends ConfigurationEvent{}

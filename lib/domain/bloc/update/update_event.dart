@@ -5,3 +5,4 @@ class UpdateEvent {}
 class CanUpdateMobileEvent extends UpdateEvent{}
 
 class UpdateMobileEvent extends UpdateEvent{}
+

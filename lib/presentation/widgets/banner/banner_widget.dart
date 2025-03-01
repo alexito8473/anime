@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:anime/data/model/complete_anime.dart';
 import 'package:anime/data/typeAnime/type_data.dart';
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -46,7 +47,7 @@ class BannerWidget extends StatelessWidget {
     return SliverToBoxAdapter(
         child: Container(
             constraints: const BoxConstraints(minHeight: 300),
-            height: size.height*0.3,
+            height: size.height * 0.3,
             child: Stack(children: [
               Positioned.fill(
                   child: FlutterCarousel(
@@ -116,6 +117,7 @@ class BannerCarrouselAnime extends StatelessWidget {
                   child: CachedNetworkImage(
                       imageUrl: lastEpisode.imagePreview,
                       fit: BoxFit.cover,
+                      alignment: Alignment.topCenter,
                       filterQuality: FilterQuality.high,
                       errorWidget: (context, child, loadingProgress) =>
                           const Center(child: CircularProgressIndicator())))),
@@ -219,7 +221,7 @@ class BannerAnime extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
-    Orientation orientation = MediaQuery.of(context).orientation;
+    Orientation orientation = MediaQuery.orientationOf(context);
     return GestureDetector(
         onTap: () => onTap(context: context),
         child: Container(
@@ -280,13 +282,120 @@ class BannerAnime extends StatelessWidget {
   }
 }
 
+class BannerAnimeAndEpisodes extends StatelessWidget {
+  final CompleteAnime completeAnime;
+  final String? tag;
+
+  const BannerAnimeAndEpisodes(
+      {super.key, required this.completeAnime, required this.tag});
+
+  void onTap({required BuildContext context}) =>
+      context.read<AnimeBloc>().add(ObtainDataAnime(
+          tag: tag,
+          context: context,
+          id: completeAnime.idAnime(),
+          title: completeAnime.getTitle()));
+
+  int calculateEpisodeView({required BuildContext context}) {
+    return completeAnime.episodes
+        .where((element) => context
+            .read<AnimeBloc>()
+            .state
+            .listEpisodesView
+            .contains(element.id))
+        .length;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.sizeOf(context);
+    Orientation orientation = MediaQuery.orientationOf(context);
+    return GestureDetector(
+        onTap: () => onTap(context: context),
+        child: Container(
+            constraints: const BoxConstraints(minWidth: 150),
+            width: orientation == Orientation.portrait
+                ? size.width * 0.4
+                : size.width * 0.15,
+            child: Column(
+                spacing: size.height * 0.005,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                      height: 180,
+                      child: Stack(children: [
+                        Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: HeroAnimationWidget(
+                                tag: tag,
+                                heroTag: completeAnime.poster,
+                                child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: CachedNetworkImage(
+                                        imageUrl: completeAnime.poster,
+                                        fit: BoxFit.cover,
+                                        progressIndicatorBuilder:
+                                            (context, url, progress) =>
+                                                const LoadWidget(),
+                                        filterQuality: FilterQuality.high)))),
+                        Positioned(
+                            top: 15,
+                            left: 8,
+                            child: HeroAnimationWidget(
+                                tag: tag,
+                                heroTag:
+                                    completeAnime.rating + completeAnime.title,
+                                child: Container(
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: Text(completeAnime.rating,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge
+                                          ?.copyWith(color: Colors.yellow)),
+                                )))
+                      ])),
+                  Wrap(children: [
+                    TitleWidget(
+                        title: "Episodeos vistos: ",
+                        maxLines: 1,
+                        textStyle: Theme.of(context)
+                            .textTheme
+                            .titleSmall!
+                            .copyWith(color: Colors.orange),
+                        tag: null),
+                    TitleWidget(
+                        title:
+                            "${calculateEpisodeView(context: context)} / ${completeAnime.episodes.length}",
+                        maxLines: 1,
+                        textStyle: Theme.of(context)
+                            .textTheme
+                            .titleSmall!
+                            .copyWith(color: Colors.orangeAccent),
+                        tag: null)
+                  ]),
+                  TitleWidget(
+                      title: completeAnime.title,
+                      maxLines: 3,
+                      textStyle: Theme.of(context).textTheme.titleSmall!,
+                      tag: tag),
+                ])));
+  }
+}
+
 class BannerAnimeReload extends StatelessWidget {
   const BannerAnimeReload({super.key});
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
-    Orientation orientation = MediaQuery.of(context).orientation;
+    Orientation orientation = MediaQuery.orientationOf(context);
     return SizedBox(
       width: orientation == Orientation.portrait
           ? size.width * 0.3

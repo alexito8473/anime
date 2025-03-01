@@ -43,7 +43,7 @@ class AppBarDetailAnime extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
-    Orientation orientation = MediaQuery.of(context).orientation;
+    Orientation orientation = MediaQuery.orientationOf(context);
     return SliverAppBar(
         leading: IconButton(
             onPressed: () => Navigator.pop(context),
