@@ -7,6 +7,8 @@ class CompleteAnime extends Anime {
   final List<Episode> episodes;
   bool isNotBannerCorrect;
   bool isCheckBanner;
+  bool isCheckListAnimesRelated;
+  final List<Anime> listAnimeRelated = List.empty(growable: true);
 
   CompleteAnime(
       {required super.id,
@@ -19,6 +21,7 @@ class CompleteAnime extends Anime {
       required this.debut,
       required this.isCheckBanner,
       required this.genres,
+      required this.isCheckListAnimesRelated,
       required this.isNotBannerCorrect,
       required this.episodes});
 
@@ -37,6 +40,7 @@ class CompleteAnime extends Anime {
             .map((episodeJson) => Episode.fromJson(episodeJson))
             .toList(),
         isNotBannerCorrect: true,
+        isCheckListAnimesRelated: false,
         isCheckBanner: false);
   }
 

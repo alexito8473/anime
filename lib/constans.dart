@@ -4,6 +4,8 @@ class Constants {
   static const searchUrl = 'https://animeflv.net/browse?q=';
   static const searchUrlForType =
       'https://www3.animeflv.net/browse?type%5B%5D=';
+  static const searchUrlForGender =
+      'https://www3.animeflv.net/browse?genre%5B%5D=';
   static const baseUrl = 'https://animeflv.net';
   static const browseUrl = 'https://animeflv.net/browse?';
   static const animeVideoUrl = 'https://animeflv.net/ver/';

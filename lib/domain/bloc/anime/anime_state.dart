@@ -7,6 +7,7 @@ class AnimeState {
   final List<BasicAnime> listAringAnime;
   final Map<TypeMyAnimes, List<CompleteAnime>> mapAnimesLoad;
   final Map<TypeVersionAnime, ListTypeAnimePage> mapPageAnimes;
+  final Map<Gender, GenderAnimeForPage> mapGeneresAnimes;
   final Map<TypeMyAnimes, List<String>> mapAnimesSave;
 
   final List<Anime> listSearchAnime;
@@ -28,10 +29,12 @@ class AnimeState {
       required this.listFilmAnime,
       required this.listEpisodesView,
       required this.mapPageAnimes,
+      required this.mapGeneresAnimes,
       required this.mapAnimesSave});
 
   factory AnimeState.init() {
     Map<TypeVersionAnime, ListTypeAnimePage> mapPageAnimes = Map();
+    Map<Gender, GenderAnimeForPage> mapGeneresAnimes = Map();
     Map<TypeMyAnimes, List<CompleteAnime>> mapAnimesLoad = Map();
     Map<TypeMyAnimes, List<String>> mapAnimesSave = Map();
     for (TypeVersionAnime versionAnime in TypeVersionAnime.values) {
@@ -41,6 +44,10 @@ class AnimeState {
     for (TypeMyAnimes animes in TypeMyAnimes.values) {
       mapAnimesLoad.putIfAbsent(animes, () => List.empty(growable: true));
       mapAnimesSave.putIfAbsent(animes, () => List.empty(growable: true));
+    }
+    for (Gender animes in Gender.values) {
+      mapGeneresAnimes.putIfAbsent(
+          animes, () => GenderAnimeForPage.init(type: animes));
     }
     return AnimeState(
         lastEpisodes: List.empty(growable: true),
@@ -54,7 +61,8 @@ class AnimeState {
         listEpisodesView: List.empty(growable: true),
         mapAnimesLoad: mapAnimesLoad,
         mapAnimesSave: mapAnimesSave,
-        mapPageAnimes: mapPageAnimes);
+        mapPageAnimes: mapPageAnimes,
+        mapGeneresAnimes: mapGeneresAnimes);
   }
 
   AnimeState copyWith(
@@ -69,6 +77,7 @@ class AnimeState {
       Map<TypeMyAnimes, List<CompleteAnime>>? mapAnimesLoad,
       Map<TypeMyAnimes, List<String>>? mapAnimesSave,
       List<String>? listEpisodesView,
+      Map<Gender, GenderAnimeForPage>? mapGeneresAnimes,
       bool? initLoad}) {
     return AnimeState(
         isObtainAllData: isObtainAllData ?? this.isObtainAllData,
@@ -82,6 +91,7 @@ class AnimeState {
         listEpisodesView: listEpisodesView ?? this.listEpisodesView,
         mapAnimesSave: mapAnimesSave ?? this.mapAnimesSave,
         mapAnimesLoad: mapAnimesLoad ?? this.mapAnimesLoad,
+        mapGeneresAnimes: mapGeneresAnimes ?? this.mapGeneresAnimes,
         mapPageAnimes: mapPageAnimes ?? this.mapPageAnimes);
   }
 
@@ -96,6 +106,7 @@ class AnimeState {
   factory AnimeState.fromJson(Map<String, dynamic> json) {
     Map<TypeVersionAnime, ListTypeAnimePage> mapPageAnimes = Map();
     Map<TypeMyAnimes, List<CompleteAnime>> mapAnimesLoad = Map();
+    Map<Gender, GenderAnimeForPage> mapGeneresAnimes = Map();
     Map<TypeMyAnimes, List<String>> mapAnimesSave;
     for (TypeVersionAnime versionAnime in TypeVersionAnime.values) {
       mapPageAnimes.putIfAbsent(
@@ -108,6 +119,10 @@ class AnimeState {
         (key, value) => MapEntry(
             TypeMyAnimes.values.firstWhere((e) => e.name == key),
             List<String>.from(value)));
+    for (Gender animes in Gender.values) {
+      mapGeneresAnimes.putIfAbsent(
+          animes, () => GenderAnimeForPage.init(type: animes));
+    }
     return AnimeState(
         isObtainAllData: false,
         initLoad: false,
@@ -122,6 +137,7 @@ class AnimeState {
         lastEpisodes: List.empty(growable: true),
         listAringAnime: List.empty(growable: true),
         listSearchAnime: List.empty(growable: true),
-        listFilmAnime: List.empty(growable: true));
+        listFilmAnime: List.empty(growable: true),
+        mapGeneresAnimes: mapGeneresAnimes);
   }
 }

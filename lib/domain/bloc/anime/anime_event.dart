@@ -7,6 +7,7 @@ class ObtainDataAnime extends AnimeEvent {
   final String id;
   final BuildContext context;
   final String? tag;
+
   ObtainDataAnime(
       {required this.context,
       required this.title,
@@ -16,6 +17,7 @@ class ObtainDataAnime extends AnimeEvent {
 
 class SearchAnime extends AnimeEvent {
   final String query;
+
   SearchAnime({required this.query});
 }
 
@@ -24,7 +26,14 @@ class Reset extends AnimeEvent {}
 class ObtainDataType extends AnimeEvent {
   final BuildContext context;
   final TypeVersionAnime type;
+
   ObtainDataType(this.type, {required this.context});
+}
+
+class ObtainDataGender extends AnimeEvent {
+  final BuildContext context;
+  final Gender gender;
+  ObtainDataGender({required this.context, required this.gender});
 }
 
 class ObtainVideoSever extends AnimeEvent {
@@ -32,6 +41,7 @@ class ObtainVideoSever extends AnimeEvent {
   final CompleteAnime anime;
   final BuildContext context;
   final bool isNavigationReplacement;
+
   ObtainVideoSever(
       {required this.anime,
       required this.episode,
@@ -41,25 +51,33 @@ class ObtainVideoSever extends AnimeEvent {
 
 class Save extends AnimeEvent {
   final bool isSave;
+
   Save({required this.isSave});
 }
+
 class UpdatePage extends AnimeEvent {
   final TypeVersionAnime typeVersionAnime;
+
   UpdatePage({required this.typeVersionAnime});
 }
+
 class SaveAnime extends Save {
   final CompleteAnime anime;
   final TypeMyAnimes typeMyAnimes;
-  SaveAnime({required this.anime, required super.isSave,required this.typeMyAnimes});
+
+  SaveAnime(
+      {required this.anime, required super.isSave, required this.typeMyAnimes});
 }
 
 class SaveEpisode extends Save {
   final Episode episode;
+
   SaveEpisode({required this.episode, required super.isSave});
 }
 
 class ObtainData extends AnimeEvent {
   final BuildContext context;
+
   ObtainData({required this.context});
 }
 

@@ -1,4 +1,4 @@
-import 'package:anime/data/typeAnime/type_data.dart';
+import 'package:anime/data/enums/type_data.dart';
 import 'package:anime/presentation/pages/list_anime_page.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +11,7 @@ class ButtonNavigateListAnime extends StatelessWidget {
   final String title;
   final Color colorTitle;
   final TypeAnime typeAnime;
+
   const ButtonNavigateListAnime(
       {super.key,
       required this.color,

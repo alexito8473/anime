@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 
+import '../../data/enums/type_version_anime.dart';
 import '../../data/model/list_type_anime_page.dart';
-import '../../data/typeAnime/type_version_anime.dart';
 import '../../domain/bloc/anime/anime_bloc.dart';
 import '../screens/type_anime_screen.dart';
 

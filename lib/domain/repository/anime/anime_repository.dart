@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:anime/constans.dart';
 import 'package:anime/data/model/complete_anime.dart';
+import 'package:anime/data/model/gender_anime_page.dart';
 import 'package:anime/data/model/list_type_anime_page.dart';
 import 'package:anime/data/model/server.dart';
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
@@ -40,20 +41,13 @@ class AnimeRepository {
   Future<List> getLastAddedAnimes() async {
     var lastAnimes = [];
     List<Bs4Element> lastAnimesElements;
-    http.Response res = kIsWeb
-        ? await http.Client()
-            .get(Uri.parse(Constants.corsFilter + Constants.baseUrl))
-        : await http.Client().get(Uri.parse(Constants.baseUrl));
+    http.Response res = await http.Client().get(Uri.parse(Constants.baseUrl));
 
     if (res.statusCode == 200) {
-      if (kIsWeb) {
-        lastAnimesElements = BeautifulSoup(jsonDecode(res.body)["contents"])
-            .findAll('', selector: '.ListAnimes article.Anime');
-      } else {
-        lastAnimesElements =
-            BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
-                .findAll('', selector: '.ListAnimes article.Anime');
-      }
+      lastAnimesElements =
+          BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+              .findAll('', selector: '.ListAnimes article.Anime');
+
       for (var anime in lastAnimesElements) {
         final id = anime.a?['href'];
         lastAnimes.add({
@@ -113,112 +107,96 @@ class AnimeRepository {
   }
 
   Future<List> search(String searchQuery) async {
-    http.Response res;
-    List<Bs4Element> elements;
-    if (kIsWeb) {
-      res = await http.Client().get(Uri.parse(
-          '${Constants.corsFilter}${Constants.searchUrl}$searchQuery'));
-    } else {
-      res = await http.Client()
-          .get(Uri.parse('${Constants.searchUrl}$searchQuery'));
-    }
-    if (res.statusCode == 200) {
-      if (kIsWeb) {
-        elements = BeautifulSoup(jsonDecode(res.body)["contents"])
-            .findAll('article', class_: 'Anime alt B');
-      } else {
-        elements =
-            BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
-                .findAll('article', class_: 'Anime alt B');
-      }
-      var ret = [];
-      for (var element in elements) {
-        var id =
-            element.find('', selector: 'div.Description a.Button')?['href'];
-        try {
-          ret.add({
-            'id': id?.substring(1, id.length),
-            'title': element.find('', selector: 'a h3')?.string,
-            'poster': element.find('', selector: '.Image figure img')?['src'],
-            'banner': element
-                .find('', selector: '.Image figure img')?['src']
-                ?.replaceAll('covers', 'banners')
-                .trim(),
-            'type': element
-                .find('', selector: 'div.Description p span.Type')
-                ?.string,
-            'synopsis': element
-                .findAll('', selector: 'div.Description p')[1]
-                .string
-                .trim(),
-            'rating': element
-                .find('', selector: 'div.Description p span.Vts')
-                ?.string,
-          });
-        } catch (e) {}
-      }
-      return ret;
-    }
-    return [];
+    final res = await http.Client().get(
+        Uri.parse("${Constants.searchUrl}$searchQuery"),
+        headers: {'Accept-Encoding': 'gzip'});
+
+    if (res.statusCode != 200) return [];
+
+    return compute(
+        _parseAnimeList, utf8.decode(res.bodyBytes, allowMalformed: true));
   }
 
   Future<List> searchByType(
       {required ListTypeAnimePage listTypeAnimePage}) async {
-    http.Response res = kIsWeb
-        ? await http.Client().get(Uri.parse(
-            "${Constants.corsFilter + Constants.searchUrlForType}${listTypeAnimePage.typeVersionAnime.value}&page=${listTypeAnimePage.page}"))
-        : await http.Client().get(Uri.parse(
-            "${Constants.searchUrlForType}${listTypeAnimePage.typeVersionAnime.value}&page=${listTypeAnimePage.page}"));
-    List<Bs4Element> elements;
-    if (res.statusCode == 200) {
-      elements = kIsWeb
-          ? BeautifulSoup(jsonDecode(res.body)["contents"])
-              .findAll('article', class_: 'Anime alt B')
-          : BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
-              .findAll('article', class_: 'Anime alt B');
-      var ret = [];
-      for (var element in elements) {
-        var id =
-            element.find('', selector: 'div.Description a.Button')?['href'];
-        try {
-          ret.add({
-            'id': id?.substring(1, id.length),
-            'title': element.find('', selector: 'a h3')?.string,
-            'poster': element.find('', selector: '.Image figure img')?['src'],
-            'banner': element
-                .find('', selector: '.Image figure img')?['src']
-                ?.replaceAll('covers', 'banners')
-                .trim(),
-            'type': element
-                .find('', selector: 'div.Description p span.Type')
-                ?.string,
-            'synopsis': element
-                .findAll('', selector: 'div.Description p')[1]
-                .string
-                .trim(),
-            'rating': element
-                .find('', selector: 'div.Description p span.Vts')
-                ?.string,
-          });
-        } catch (e) {}
-      }
-      return ret;
-    }
-    return [];
+    final res = await http.Client().get(
+        Uri.parse(
+            "${Constants.searchUrlForType}${listTypeAnimePage.typeVersionAnime.value}&page=${listTypeAnimePage.page}"),
+        headers: {'Accept-Encoding': 'gzip'});
+
+    if (res.statusCode != 200) return [];
+
+    return compute(
+        _parseAnimeList, utf8.decode(res.bodyBytes, allowMalformed: true));
+  }
+
+  Future<List> searchByGender({required GenderAnimeForPage gender}) async {
+    final res = await http.Client().get(
+        Uri.parse(
+            "${Constants.searchUrlForGender}${gender.typeVersionAnime.search}&page=${gender.page}"),
+        headers: {'Accept-Encoding': 'gzip'});
+
+    if (res.statusCode != 200) return [];
+
+    return compute(
+        _parseAnimeList, utf8.decode(res.bodyBytes, allowMalformed: true));
+  }
+
+// Función optimizada para procesar en un `Isolate`
+  List _parseAnimeList(String html) {
+    final elements =
+        BeautifulSoup(html).findAll('article', class_: 'Anime alt B');
+
+    return elements
+        .map((element) {
+          try {
+            var id = element
+                .find('div', class_: 'Description')
+                ?.find('a', class_: 'Button')?['href'];
+            return {
+              'id': id?.substring(1, id.length),
+              'title': element.find('a')?.find('h3')?.text,
+              'poster': element
+                  .find('div', class_: 'Image')
+                  ?.find('figure')
+                  ?.find('img')?['src'],
+              'banner': element
+                  .find('div', class_: 'Image')
+                  ?.find('figure')
+                  ?.find('img')?['src']
+                  ?.replaceAll('covers', 'banners')
+                  .trim(),
+              'type': element
+                  .find('div', class_: 'Description')
+                  ?.find('p')
+                  ?.find('span', class_: 'Type')
+                  ?.text,
+              'synopsis': element
+                  .find('div', class_: 'Description')
+                  ?.findAll('p')[1]
+                  .text
+                  .trim(),
+              'rating': element
+                  .find('div', class_: 'Description')
+                  ?.find('p')
+                  ?.find('span', class_: 'Vts')
+                  ?.text,
+            };
+          } catch (e) {
+            return null; // Evita agregar elementos inválidos a la lista
+          }
+        })
+        .where((element) => element != null)
+        .toList();
   }
 
   Future<List> getVideoServers(String episodeId) async {
     List<Bs4Element> scripts;
-    http.Response res = kIsWeb
-        ? await http.Client().get(Uri.parse(
-            '${Constants.corsFilter + Constants.animeVideoUrl}$episodeId'))
-        : await http.Client()
-            .get(Uri.parse('${Constants.animeVideoUrl}$episodeId'));
+    http.Response res = await http.Client()
+        .get(Uri.parse('${Constants.animeVideoUrl}$episodeId'));
     if (res.statusCode == 200) {
-      scripts = kIsWeb
-          ? BeautifulSoup(jsonDecode(res.body)["contents"]).findAll('script')
-          : BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
-              .findAll('script');
+      scripts = BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+          .findAll('script');
       var servers = [];
       for (var script in scripts) {
         final content = script.toString();
@@ -251,69 +229,71 @@ class AnimeRepository {
   }
 
   Future<List> _getAnimeEpisodesInfo(String animeId) async {
-    http.Response res = kIsWeb
-        ? await http.Client().get(
-            Uri.parse('${Constants.corsFilter}${Constants.baseUrl}/$animeId'))
-        : await http.Client().get(Uri.parse('${Constants.baseUrl}/$animeId'));
-    BeautifulSoup soup;
-    final idAnime;
-    final elements;
-    var extraInfo;
-    var genres;
-    var infoIds = [];
-    var episodesData = [];
-    var episodes = [];
-    var contents;
-    var animeInfo;
-    var data;
-    if (res.statusCode == 200) {
-      soup = kIsWeb
-          ? BeautifulSoup(jsonDecode(res.body)["contents"])
-          : BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true));
-      extraInfo = {
-        'title': soup.find('', selector: 'h1.Title')?.string,
-        'poster':
-            '${Constants.baseUrl}${soup.find("", selector: "div.Image figure img")?["src"]}',
-        'synopsis': soup.find('', selector: 'div.Description p')?.string.trim(),
-        'rating': soup.find('', selector: 'span#votes_prmd')?.string,
-        'debut': soup.find('', selector: 'p.AnmStts')?.string,
-        'type': soup.find('', selector: 'span.Type')?.string,
-      };
-      extraInfo['banner'] =
-          extraInfo['poster']?.replaceAll('covers', 'banners');
-      genres = [];
-      elements = soup.findAll('', selector: '.Nvgnrs a');
-      for (var element in elements) {
-        if (element['href']!.contains('=')) {
-          genres.add(element['href']?.split('=')[1]);
-        }
+    final res = await http.Client().get(
+        Uri.parse("${Constants.baseUrl}/$animeId"),
+        headers: {'Accept-Encoding': 'gzip'});
+
+    if (res.statusCode != 200) return [];
+
+    return compute(
+        _parseAnimeEpisodes, utf8.decode(res.bodyBytes, allowMalformed: true));
+  }
+
+// 🌟 Función que procesa los resultados en un `Isolate`
+  List _parseAnimeEpisodes(String html) {
+    final soup = BeautifulSoup(html);
+
+    final extraInfo = {
+      'title': soup.find('h1', class_: 'Title')?.text,
+      'poster':
+          '${Constants.baseUrl}${soup.find('div', class_: 'Image')?.find('figure')?.find('img')?['src']}',
+      'synopsis':
+          soup.find('div', class_: 'Description')?.find('p')?.text.trim(),
+      'rating': soup.find('span', id: 'votes_prmd')?.text,
+      'debut': soup.find('p', class_: 'AnmStts')?.text,
+      'type': soup.find('span', class_: 'Type')?.text,
+    };
+    extraInfo['banner'] = extraInfo['poster']?.replaceAll('covers', 'banners');
+
+    // Obtener géneros
+    var genres = [];
+    var elements = soup.findAll('', selector: '.Nvgnrs a');
+    for (var element in elements) {
+      if (element['href']!.contains('=')) {
+        genres.add(element['href']?.split('=')[1]);
       }
-      for (var script in soup.findAll('script')) {
-        contents = script.toString();
-        if (contents.contains('var anime_info')) {
-          animeInfo = contents.split('var anime_info = ')[1].split(';')[0];
-          infoIds.add(json.decode(animeInfo));
-        }
-        if (contents.contains('var episodes = [')) {
-          data = contents.split('var episodes = ')[1].split(';')[0];
-          for (var episodeData in json.decode(data)) {
-            episodesData.add([episodeData[0], episodeData[1]]);
-          }
-        }
-      }
-      idAnime = infoIds[0][2];
-      for (var episodeData in episodesData) {
-        episodes.add({
-          'anime': extraInfo['title'],
-          'episode': episodeData[0],
-          'id': '$idAnime-${episodeData[0]}',
-          'imagePreview':
-              '${Constants.baseEpisodeImgUrl}${infoIds[0][0]}/${episodeData[0]}/th_3.jpg',
-        });
-      }
-      return [episodes, genres, extraInfo];
     }
-    return [];
+
+    String? animeInfo;
+    List episodesData = [];
+    for (var script in soup.findAll('script')) {
+      final contents = script.toString();
+      if (contents.contains('var anime_info')) {
+        animeInfo = contents.split('var anime_info = ')[1].split(';')[0];
+      }
+      if (contents.contains('var episodes = [')) {
+        final data = contents.split('var episodes = ')[1].split(';')[0];
+        episodesData = List.from(jsonDecode(data));
+      }
+    }
+
+    if (animeInfo == null) return [];
+
+    final infoIds = List.from(jsonDecode(animeInfo));
+    final idAnime = infoIds[2];
+
+    // Obtener episodios
+    final episodes = episodesData.map((episodeData) {
+      return {
+        'anime': extraInfo['title'],
+        'episode': episodeData[0],
+        'id': '$idAnime-${episodeData[0]}',
+        'imagePreview':
+            '${Constants.baseEpisodeImgUrl}${infoIds[0]}/${episodeData[0]}/th_3.jpg',
+      };
+    }).toList();
+
+    return [episodes, genres, extraInfo];
   }
 
   Future<List> getLastEpisodes() async {
@@ -321,21 +301,13 @@ class AnimeRepository {
     var lastEpisodes = [];
     final List<Bs4Element> lastEpisodesElements;
     try {
-      if (kIsWeb) {
-        res = await http.Client()
-            .get(Uri.parse(Constants.corsFilter + Constants.baseUrl));
-      } else {
-        res = await http.Client().get(Uri.parse(Constants.baseUrl));
-      }
+      res = await http.Client().get(Uri.parse(Constants.baseUrl));
+
       if (res.statusCode == 200) {
-        if (kIsWeb) {
-          lastEpisodesElements = BeautifulSoup(jsonDecode(res.body)["contents"])
-              .findAll('', selector: '.ListEpisodios li a.fa-play');
-        } else {
-          lastEpisodesElements =
-              BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
-                  .findAll('', selector: '.ListEpisodios li a.fa-play');
-        }
+        lastEpisodesElements =
+            BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
+                .findAll('', selector: '.ListEpisodios li a.fa-play');
+
         for (var episode in lastEpisodesElements) {
           lastEpisodes.add({
             'anime': episode.find('', selector: '.Title')?.string,
@@ -374,32 +346,42 @@ class AnimeRepository {
 
   Future<bool> checkAnimeBanner({required CompleteAnime anime}) async {
     try {
+      // Descargar la imagen antes de enviar los datos a `compute`
       final response = await http.get(Uri.parse(anime.banner));
 
-      if (response.statusCode != 200) return false;
+      if (response.statusCode != 200 || response.bodyBytes.isEmpty) {
+        return false; // La imagen no es válida
+      }
 
-      final image = img.decodeImage(response.bodyBytes);
+      return await compute(_checkBannerCompute, response.bodyBytes);
+    } catch (e) {
+      print('Error al verificar el banner: $e');
+      return false;
+    }
+  }
+
+// 🖼 Función de análisis de imagen en un Isolate
+  bool _checkBannerCompute(Uint8List imageData) {
+    try {
+      final image = img.decodeImage(imageData);
       if (image == null) return false;
 
-      // Obtener un píxel de referencia en (0,0)
-      final referencePixel = image.getPixel(0, 0);
+      // 📌 Verificar si la imagen es monocromática
+      const int sampleCount = 50;
       final random = Random();
-
-      // Número de muestras aleatorias (ajústalo según la precisión deseada)
-      const int sampleCount = 100;
+      final referencePixel = image.getPixel(0, 0);
 
       for (int i = 0; i < sampleCount; i++) {
         final x = random.nextInt(image.width);
         final y = random.nextInt(image.height);
 
         if (image.getPixel(x, y) != referencePixel) {
-          return false; // Si un píxel aleatorio difiere, no es monocromática
+          return false; // Imagen con variación de color
         }
       }
-
-      return true; // Si todas las muestras coinciden, la imagen es monocromática
+      return true; // Imagen monocromática
     } catch (e) {
-      print('Error al verificar el banner: $e');
+      print('Error en compute: $e');
       return false;
     }
   }

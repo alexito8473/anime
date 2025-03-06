@@ -1,7 +1,8 @@
 import 'dart:io';
+import 'dart:ui';
 
+import 'package:anime/data/enums/type_data.dart';
 import 'package:anime/data/model/complete_anime.dart';
-import 'package:anime/data/typeAnime/type_data.dart';
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -202,6 +203,40 @@ class ListBannerAnime extends StatelessWidget {
                               BannerAnime(anime: lastAnime, tag: tag))
                           .toList()))
         ]));
+  }
+}
+
+class BannerBlur extends StatelessWidget {
+  final String text;
+  final String image;
+
+  const BannerBlur({super.key, required this.text, required this.image});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(children: [
+      Positioned.fill(
+          child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.white24)),
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: ImageFiltered(
+                      imageFilter: ImageFilter.blur(
+                          tileMode: TileMode.decal, sigmaX: 1, sigmaY: 1),
+                      child: Image.asset(image,
+                          color: Colors.black.withAlpha(170),
+                          colorBlendMode: BlendMode.darken,
+                          fit: BoxFit.cover))))),
+      Positioned.fill(
+          child: Center(
+              child: Text(text,
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelLarge
+                      ?.copyWith(fontWeight: FontWeight.bold))))
+    ]);
   }
 }
 

@@ -1,5 +1,5 @@
-import 'package:anime/data/typeAnime/type_my_animes.dart';
-import 'package:anime/data/typeAnime/types_vision.dart';
+import 'package:anime/data/enums/type_my_animes.dart';
+import 'package:anime/data/enums/types_vision.dart';
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -164,9 +164,8 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
                                     color: Colors.green,
                                     fontWeight: FontWeight.bold))),
                   IconButton(
-                      onPressed: () async {
-                        await openDialog(isSave: isSave, anime: anime);
-                      },
+                      onPressed: () async =>
+                          await openDialog(isSave: isSave, anime: anime),
                       isSelected: isSave,
                       style: const ButtonStyle(
                           elevation: WidgetStatePropertyAll(200)),

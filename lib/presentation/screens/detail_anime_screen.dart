@@ -1,5 +1,6 @@
 import 'package:anime/data/model/complete_anime.dart';
 import 'package:anime/data/model/episode.dart';
+import 'package:anime/presentation/widgets/banner/banner_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/banner/episode_widget.dart';
@@ -30,6 +31,17 @@ class DetailAnimeScreen extends StatelessWidget {
       required this.action,
       required this.safeAnime});
 
+  int countTabBar() {
+    int count = 1;
+    if (anime.synopsis.isNotEmpty) {
+      count++;
+    }
+    if (anime.listAnimeRelated.isNotEmpty) {
+      count++;
+    }
+    return count;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +55,7 @@ class DetailAnimeScreen extends StatelessWidget {
                     borderRadius:
                         BorderRadius.circular(30), // Bordes redondeados
                     child: DefaultTabController(
-                        length: anime.synopsis.isNotEmpty ? 2 : 1,
+                        length: countTabBar(),
                         initialIndex: currentPage,
                         child: Column(children: [
                           Padding(
@@ -65,7 +77,11 @@ class DetailAnimeScreen extends StatelessWidget {
                                     if (anime.synopsis.isNotEmpty)
                                       const Tab(
                                           icon: Icon(Icons.description_sharp),
-                                          text: "Synopsis")
+                                          text: "Synopsis"),
+                                    if (anime.listAnimeRelated.isNotEmpty)
+                                      const Tab(
+                                          icon: Icon(Icons.movie),
+                                          text: "Relacionados")
                                   ])),
                           Expanded(
                               child: TabBarView(children: [
@@ -75,7 +91,30 @@ class DetailAnimeScreen extends StatelessWidget {
                                 textController: textController,
                                 action: action,
                                 onTapSaveEpisode: onTapSaveEpisode),
-                            SynopsysWidget(title: anime.synopsis)
+                            if (anime.synopsis.isNotEmpty)
+                              SynopsysWidget(title: anime.synopsis),
+                            if (anime.listAnimeRelated.isNotEmpty)
+                              CustomScrollView(
+                                slivers: [
+                                  SliverPadding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: size.width * 0.08),
+                                      sliver: SliverGrid.builder(
+                                          gridDelegate:
+                                              const SliverGridDelegateWithMaxCrossAxisExtent(
+                                                  maxCrossAxisExtent: 220,
+                                                  crossAxisSpacing: 30,
+                                                  mainAxisExtent: 280,
+                                                  mainAxisSpacing: 30),
+                                          itemCount:
+                                              anime.listAnimeRelated.length,
+                                          itemBuilder: (context, index) =>
+                                              BannerAnime(
+                                                  anime: anime
+                                                      .listAnimeRelated[index],
+                                                  tag: 'animeSearch')))
+                                ],
+                              )
                           ]))
                         ]))))));
   }

@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -53,27 +54,30 @@ class AppBarDetailAnime extends StatelessWidget {
         expandedHeight: size.height * 0.4,
         flexibleSpace: Stack(children: [
           Positioned.fill(
-              child: ShaderMask(
-                  shaderCallback: (Rect bounds) {
-                    return const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black12,
-                          Colors.black54,
-                          Colors.black
-                        ]).createShader(bounds);
-                  },
-                  blendMode: BlendMode.darken,
-                  child: CachedNetworkImage(
-                      alignment: Alignment.topCenter,
-                      color: Colors.black12,
-                      colorBlendMode: BlendMode.darken,
-                      imageUrl: anime.isNotBannerCorrect
-                          ? anime.poster
-                          : anime.banner,
-                      filterQuality: FilterQuality.high,
-                      fit: BoxFit.cover))),
+              child: FadeIn(
+                curve: Curves.linear,
+                duration: Duration(seconds: 1),
+                  child: ShaderMask(
+                      shaderCallback: (Rect bounds) {
+                        return const LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.black12,
+                              Colors.black54,
+                              Colors.black
+                            ]).createShader(bounds);
+                      },
+                      blendMode: BlendMode.darken,
+                      child: CachedNetworkImage(
+                          alignment: Alignment.topCenter,
+                          color: Colors.black12,
+                          colorBlendMode: BlendMode.darken,
+                          imageUrl: anime.isNotBannerCorrect
+                              ? anime.poster
+                              : anime.banner,
+                          filterQuality: FilterQuality.high,
+                          fit: BoxFit.cover)))),
           Positioned.fill(
               child: Container(
                   height: size.height * 0.4,

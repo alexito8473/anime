@@ -1,31 +1,32 @@
-import '../enums/type_version_anime.dart';
+import '../enums/gender.dart';
 import 'anime.dart';
 
-class ListTypeAnimePage {
+class GenderAnimeForPage {
   final int page;
   final List<Anime> listAnime;
   late bool isObtainAllData;
-  final TypeVersionAnime typeVersionAnime;
-  ListTypeAnimePage(
+  final Gender typeVersionAnime;
+
+  GenderAnimeForPage(
       {required this.page,
       required this.listAnime,
       required this.isObtainAllData,
       required this.typeVersionAnime});
 
-  factory ListTypeAnimePage.init({required TypeVersionAnime type}) {
-    return ListTypeAnimePage(
+  factory GenderAnimeForPage.init({required Gender type}) {
+    return GenderAnimeForPage(
         page: 1,
         listAnime: List.empty(growable: true),
         isObtainAllData: false,
         typeVersionAnime: type);
   }
 
-  ListTypeAnimePage copyWith(
+  GenderAnimeForPage copyWith(
       {int? page,
       List<Anime>? listAnime,
       bool? isObtainAllData,
-      TypeVersionAnime? typeVersionAnime}) {
-    return ListTypeAnimePage(
+      Gender? typeVersionAnime}) {
+    return GenderAnimeForPage(
         isObtainAllData: isObtainAllData ?? this.isObtainAllData,
         page: page ?? this.page,
         listAnime: listAnime ?? this.listAnime,

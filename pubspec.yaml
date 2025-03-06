@@ -29,7 +29,6 @@ dependencies:
   beautiful_soup_dart: ^0.3.0
   flutter_snake_navigationbar: ^0.6.1
   video_player: ^2.9.3
-  filter_list: ^1.0.3
   webview_flutter: ^4.10.0
   flutter_zoom_drawer: ^3.2.0
   package_info_plus: ^8.2.1
@@ -40,6 +39,7 @@ dependencies:
   bloc_concurrency: ^0.3.0
   flutter_bloc: ^9.0.0
   hydrated_bloc: ^10.0.0
+  animate_do: ^4.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -53,6 +53,7 @@ flutter:
     - assets/video/
     - assets/image/
     - assets/wallpaper/
+    - assets/gender/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

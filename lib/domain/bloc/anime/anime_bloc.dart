@@ -1,16 +1,19 @@
+import 'package:anime/data/enums/gender.dart';
 import 'package:anime/data/model/anime.dart';
 import 'package:anime/data/model/basic_anime.dart';
 import 'package:anime/data/model/complete_anime.dart';
 import 'package:anime/data/model/episode.dart';
+import 'package:anime/data/model/gender_anime_page.dart';
 import 'package:anime/data/model/last_episode.dart';
-import 'package:anime/data/typeAnime/type_my_animes.dart';
-import 'package:anime/data/typeAnime/type_version_anime.dart';
 import 'package:anime/domain/repository/anime/anime_repository.dart';
 import 'package:anime/presentation/pages/detail_anime_page.dart';
+import 'package:anime/presentation/pages/gender_list_anime_page.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter/material.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
+import '../../../data/enums/type_my_animes.dart';
+import '../../../data/enums/type_version_anime.dart';
 import '../../../data/model/list_type_anime_page.dart';
 import '../../../presentation/pages/server_page.dart';
 
@@ -22,25 +25,19 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
 
   AnimeBloc() : super(AnimeState.init()) {
     on<SaveAnime>((event, emit) async {
-      state.mapAnimesLoad.updateAll(
-        (key, value) {
-          value.removeWhere((element) => element.id == event.anime.id);
-          return value;
-        },
-      );
-      state.mapAnimesSave.updateAll(
-        (key, value) {
-          value.removeWhere((element) => element == event.anime.id);
-          return value;
-        },
-      );
-      state.mapAnimesLoad.update(event.typeMyAnimes, (value) {
-        value.add(event.anime);
-        value.sort((a, b) => a.title.compareTo(b.title));
+      state.mapAnimesLoad.updateAll((key, value) {
+        value.removeWhere((element) => element.id == event.anime.id);
+        if (key == event.typeMyAnimes) {
+          value.add(event.anime);
+          value.sort((a, b) => a.title.compareTo(b.title));
+        }
         return value;
       });
-      state.mapAnimesSave.update(event.typeMyAnimes, (value) {
-        value.add(event.anime.id);
+      state.mapAnimesSave.updateAll((key, value) {
+        value.removeWhere((element) => element == event.anime.id);
+        if (key == event.typeMyAnimes) {
+          value.add(event.anime.id);
+        }
         return value;
       });
       // Más adelante e optimizara
@@ -121,6 +118,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
     }, transformer: restartable());
 
     on<ObtainDataAnime>((event, emit) async {
+      CompleteAnime? anime;
       try {
         emit(state.copyWith(initLoad: true));
         await animeRepository
@@ -129,26 +127,39 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
             .then((value) async {
           if (!animeRepository.checkExitAnimeForAnime(
               title: value!.title, listAnimes: state.listAnimes)) {
+            anime = value;
             state.listAnimes.add(value);
             if (!value.isCheckBanner) {
               await animeRepository.checkAnimeBanner(anime: value).then((res) {
                 value.isNotBannerCorrect = res;
                 value.isCheckBanner = true;
+                emit(state.copyWith());
               });
             }
           }
-          if (event.context.mounted) {
-            navigationAnimated(
-                context: event.context,
-                navigateWidget:
-                    DetailAnimePage(tag: event.tag, idAnime: value.id));
-          }
+          emit(state.copyWith(initLoad: false));
+          await Future.wait([
+            if (anime != null && !anime!.isCheckListAnimesRelated)
+              animeRepository.search(event.title).then((value) {
+                anime?.listAnimeRelated.addAll(value
+                    .map((e) => Anime.fromJson(e))
+                    .where((element) => element.title != anime?.title)
+                    .toList());
+                anime!.isCheckListAnimesRelated = true;
+                emit(state.copyWith());
+              }),
+            // Navegación
+            if (event.context.mounted)
+              Future.microtask(() => navigationAnimated(
+                  context: event.context,
+                  navigateWidget:
+                      DetailAnimePage(tag: event.tag, idAnime: value.id)))
+          ]);
         });
-      } catch (e) {
-
-      }
+      } catch (e) {}
       emit(state.copyWith(initLoad: false));
     });
+
     on<UpdatePage>((event, emit) async {
       if (state.mapPageAnimes[event.typeVersionAnime]!.isObtainAllData) {
         emit(state.copyWith(initLoad: false));
@@ -184,7 +195,32 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
       state.listSearchAnime.addAll(listAnime);
       emit(state.copyWith(initLoad: false));
     });
-
+    on<ObtainDataGender>((event, emit) async {
+      if (state.mapGeneresAnimes[event.gender]!.listAnime.isNotEmpty) {
+        navigationAnimated(
+            context: event.context,
+            navigateWidget: GenderListAnimePage(gender: event.gender));
+        return;
+      }
+      emit(state.copyWith(initLoad: true));
+      await animeRepository
+          .searchByGender(gender: state.mapGeneresAnimes[event.gender]!)
+          .then(
+        (value) {
+          state.mapGeneresAnimes.update(
+            event.gender,
+            (page) {
+              page.listAnime.addAll(value.map((e) => Anime.fromJson(e)));
+              return page.copyWith(page: page.page + 1);
+            },
+          );
+          emit(state.copyWith(initLoad: false));
+          navigationAnimated(
+              context: event.context,
+              navigateWidget: GenderListAnimePage(gender: event.gender));
+        },
+      );
+    });
     on<ObtainVideoSever>((event, emit) async {
       emit(state.copyWith(initLoad: true));
       if (event.episode.servers.isEmpty) {
@@ -223,6 +259,18 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
     }).toList();
   }
 
+  Future<void> navigationFuture(
+      {required BuildContext context,
+      required Widget navigateWidget,
+      bool isReplacement = false}) {
+    return Future.microtask(
+      () => navigationAnimated(
+          context: context,
+          navigateWidget: navigateWidget,
+          isReplacement: isReplacement),
+    );
+  }
+
   void navigationAnimated(
       {required BuildContext context,
       required Widget navigateWidget,
@@ -235,8 +283,8 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
               barrierColor: Colors.black38,
               opaque: true,
               barrierDismissible: true,
-              reverseTransitionDuration: const Duration(milliseconds: 800),
-              transitionDuration: const Duration(milliseconds: 800),
+              reverseTransitionDuration: const Duration(milliseconds: 700),
+              transitionDuration: const Duration(seconds: 900),
               pageBuilder: (context, animation, secondaryAnimation) =>
                   navigateWidget,
               transitionsBuilder:

@@ -1,4 +1,4 @@
-import 'package:anime/data/typeAnime/type_data.dart';
+import 'package:anime/data/enums/type_data.dart';
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

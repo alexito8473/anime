@@ -75,7 +75,9 @@ class ZoomDrawerScreen extends StatelessWidget {
                   size: size,
                   context: context),
               createButtonDrawer(
-                  title: "Opciones", current: 3, size: size, context: context),
+                  title: "Géneros", current: 3, size: size, context: context),
+              createButtonDrawer(
+                  title: "Opciones", current: 4, size: size, context: context),
             ])));
   }
 }

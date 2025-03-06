@@ -14,6 +14,7 @@ import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 
 import '../screens/configuration_screen.dart';
 import '../widgets/load/load_widget.dart';
+import 'gender_anime_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,6 +30,7 @@ class _HomePageState extends State<HomePage> {
     const HomeScreen(),
     const SavePage(),
     const TypesAnimePage(),
+    const GenderAnimePage(),
     const ConfigurationScreen()
   ];
 
@@ -149,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                           },
                           icon: const Icon(Icons.search))
                     ]),
-                body: listScreenPage[_currentIndex])),
+                body: listScreenPage[_currentIndex]))
       ]));
     });
   }

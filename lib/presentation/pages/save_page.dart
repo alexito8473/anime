@@ -2,7 +2,7 @@ import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../data/typeAnime/type_my_animes.dart';
+import '../../data/enums/type_my_animes.dart';
 import '../widgets/banner/banner_widget.dart';
 
 class SavePage extends StatefulWidget {
@@ -21,6 +21,8 @@ class _SavePageState extends State<SavePage> {
           length: TypeMyAnimes.values.length - 1, // Número de pestañas
           child: Column(children: [
             TabBar(
+                indicatorAnimation: TabIndicatorAnimation.linear,
+                physics: ClampingScrollPhysics(),
                 isScrollable: true,
                 indicatorColor: Colors.orangeAccent,
                 tabAlignment: TabAlignment.start,

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/model/anime.dart';
-import '../../data/typeAnime/type_data.dart';
+import '../../data/enums/type_data.dart';
 import '../../domain/bloc/anime/anime_bloc.dart';
 import '../screens/list_anime_screen.dart';
 import '../widgets/load/load_widget.dart';
