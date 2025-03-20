@@ -10,13 +10,12 @@ class GenderListAnimeScreen extends StatelessWidget {
   final bool isCollapsed;
   final Function goUp;
 
-  const GenderListAnimeScreen(
-      {super.key,
-      required this.targetKey,
-      required this.scrollController,
-      required this.genderAnimeForPage,
-      required this.isCollapsed,
-      required this.goUp});
+  const GenderListAnimeScreen({super.key,
+    required this.targetKey,
+    required this.scrollController,
+    required this.genderAnimeForPage,
+    required this.isCollapsed,
+    required this.goUp});
 
   @override
   Widget build(BuildContext context) {
@@ -34,29 +33,32 @@ class GenderListAnimeScreen extends StatelessWidget {
                 IconButton(onPressed: () => goUp(), icon: Icon(Icons.move_up))
             ],
             title: Text(genderAnimeForPage.typeVersionAnime.name,
-                style: Theme.of(context).textTheme.titleLarge),
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .titleLarge),
             flexibleSpace: FlexibleSpaceBar(
               background: Material(
                   child: Hero(
-                tag: genderAnimeForPage.typeVersionAnime.name,
-                child: ShaderMask(
-                    shaderCallback: (bounds) {
-                      return LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black12,
-                            Colors.black26,
-                            Colors.black,
-                          ]).createShader(bounds);
-                    },
-                    blendMode: BlendMode.darken,
-                    child: Image.asset(
-                      genderAnimeForPage.typeVersionAnime.getImage(),
-                      fit: BoxFit.cover,
-                      alignment: Alignment.topCenter,
-                    )),
-              )),
+                    tag: genderAnimeForPage.typeVersionAnime.name,
+                    child: ShaderMask(
+                        shaderCallback: (bounds) {
+                          return LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black26,
+                                Colors.black,
+                              ]).createShader(bounds);
+                        },
+                        blendMode: BlendMode.darken,
+                        child: Image.asset(
+                          genderAnimeForPage.typeVersionAnime.getImage(),
+                          fit: BoxFit.cover,
+                          alignment: Alignment.topCenter,
+                        )),
+                  )),
             ),
           ),
           SliverPadding(
@@ -68,7 +70,7 @@ class GenderListAnimeScreen extends StatelessWidget {
                   return BannerAnime(
                       anime: genderAnimeForPage.listAnime[index],
                       tag:
-                          "${genderAnimeForPage.listAnime[index].title} $index");
+                      "${genderAnimeForPage.listAnime[index].title} $index");
                 },
                 gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                     mainAxisExtent: 250,

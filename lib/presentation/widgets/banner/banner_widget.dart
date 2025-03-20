@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 
+import '../../../data/enums/gender.dart';
 import '../../../data/model/anime.dart';
 import '../../../data/model/basic_anime.dart';
 import '../../../data/model/last_episode.dart';
@@ -37,12 +38,61 @@ class BannerWidget extends StatelessWidget {
     if (lastEpisodes.isEmpty) {
       return SliverToBoxAdapter(
           child: Container(
-              height: size.height * 0.5,
-              padding: EdgeInsets.symmetric(horizontal: size.width * 0.2),
-              constraints: const BoxConstraints(minHeight: 350),
-              child: const Center(
-                  child: LinearProgressIndicator(
-                      backgroundColor: Colors.blueAccent))));
+              constraints: const BoxConstraints(minHeight: 300),
+              height: size.height * 0.3,
+              child: Stack(children: [
+                FlutterCarousel(
+                    items: Gender.values.sublist(1, 7).map((gender) {
+                      return ShaderMask(
+                          shaderCallback: (bounds) {
+                            return LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black54,
+                                  Colors.black
+                                ]).createShader(bounds);
+                          },
+                          blendMode: BlendMode.darken,
+                          child: ImageFiltered(
+                              imageFilter: ImageFilter.blur(
+                                  tileMode: TileMode.decal,
+                                  sigmaX: 4,
+                                  sigmaY: 4),
+                              child: Image.asset(gender.getImage(),
+                                  filterQuality: FilterQuality.none,
+                                  isAntiAlias: false,
+                                  color: Colors.black.withAlpha(130),
+                                  width: size.width,
+                                  colorBlendMode: BlendMode.darken,
+                                  fit: BoxFit.cover)));
+                    }).toList(),
+                    options: FlutterCarouselOptions(
+                        enableInfiniteScroll: true,
+                        autoPlay: true,
+                        viewportFraction: 1,
+                        autoPlayCurve: Curves.linear,
+                        allowImplicitScrolling: true,
+                        height: height,
+                        showIndicator: true)),
+                Positioned(
+                    child: SafeArea(
+                        child: Padding(
+                            padding: EdgeInsets.only(
+                                left: size.width * 0.05,
+                                top: size.height * 0.01),
+                            child: const TitleBannerWidget(
+                                title: "Últimos episodeos agregados",
+                                color: Colors.orange,
+                                shadows: [
+                                  Shadow(
+                                      offset: Offset(
+                                          2.0, 3.0), // Desplazamiento en X e Y
+                                      blurRadius: 5.0, // Difuminado
+                                      color: Colors.black)
+                                ]))))
+              ])));
     }
 
     return SliverToBoxAdapter(
@@ -70,7 +120,7 @@ class BannerWidget extends StatelessWidget {
                           padding: EdgeInsets.only(
                               left: size.width * 0.05, top: size.height * 0.01),
                           child: const TitleBannerWidget(
-                              title: "Últimos episódeos agregados",
+                              title: "Últimos episodeos agregados",
                               color: Colors.orange,
                               shadows: [
                                 Shadow(
@@ -169,7 +219,7 @@ class ListBannerAnime extends StatelessWidget {
               padding: EdgeInsets.only(
                   right: size.width * 0.05,
                   left: size.width * 0.05,
-                  top: size.height * 0.05),
+                  top: size.height * 0.1),
               child: Wrap(
                   alignment: WrapAlignment.spaceBetween,
                   direction: Axis.horizontal,
@@ -185,23 +235,93 @@ class ListBannerAnime extends StatelessWidget {
                         typeAnime: typeAnime,
                         colorTitle: colorTitle)
                   ])),
-          kIsWeb || Platform.isWindows || Platform.isMacOS
-              ? SizedBox(
-                  width: size.width,
-                  height: 300,
-                  child: DragCarousel(listAnime: listAnime, tag: tag))
-              : SingleChildScrollView(
+          listAnime.isEmpty
+              ? SingleChildScrollView(
                   padding: EdgeInsets.symmetric(
                       vertical: size.height * 0.05,
                       horizontal: size.width * 0.05),
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: size.width * 0.05,
-                      children: listAnime
-                          .map((lastAnime) =>
-                              BannerAnime(anime: lastAnime, tag: tag))
-                          .toList()))
+                    spacing: size.width * 0.05,
+                    children: Gender.values.sublist(9, 12).map(
+                      (gender) {
+                        return ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: ImageFiltered(
+                                imageFilter: ImageFilter.blur(
+                                    tileMode: TileMode.decal,
+                                    sigmaX: 6,
+                                    sigmaY: 6),
+                                child: Container(
+                                    constraints:
+                                        const BoxConstraints(minWidth: 150),
+                                    width: size.width * 0.45,
+                                    child: Column(
+                                        spacing: size.height * 0.005,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                              height: 180,
+                                              child: Stack(children: [
+                                                Positioned(
+                                                    top: 0,
+                                                    left: 0,
+                                                    right: 0,
+                                                    bottom: 0,
+                                                    child: Image.asset(
+                                                        gender.getImage(),
+                                                        fit: BoxFit.cover,
+                                                        filterQuality:
+                                                            FilterQuality
+                                                                .high)),
+                                                Positioned(
+                                                    top: 15,
+                                                    left: 8,
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              3),
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.black,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      20)),
+                                                      child: Text("5.0",
+                                                          style: Theme.of(
+                                                                  context)
+                                                              .textTheme
+                                                              .labelLarge
+                                                              ?.copyWith(
+                                                                  color: Colors
+                                                                      .yellow)),
+                                                    ))
+                                              ]))
+                                        ]))));
+                      },
+                    ).toList(),
+                  ),
+                )
+              : kIsWeb || Platform.isWindows || Platform.isMacOS
+                  ? SizedBox(
+                      width: size.width,
+                      height: 300,
+                      child: DragCarousel(listAnime: listAnime, tag: tag))
+                  : SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(
+                          vertical: size.height * 0.05,
+                          horizontal: size.width * 0.05),
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: size.width * 0.05,
+                          children: listAnime
+                              .map((lastAnime) =>
+                                  BannerAnime(anime: lastAnime, tag: tag))
+                              .toList()))
         ]));
   }
 }
@@ -226,7 +346,9 @@ class BannerBlur extends StatelessWidget {
                       imageFilter: ImageFilter.blur(
                           tileMode: TileMode.decal, sigmaX: 1, sigmaY: 1),
                       child: Image.asset(image,
-                          color: Colors.black.withAlpha(170),
+                          filterQuality: FilterQuality.none,
+                          isAntiAlias: false,
+                          color: Colors.black.withAlpha(130),
                           colorBlendMode: BlendMode.darken,
                           fit: BoxFit.cover))))),
       Positioned.fill(

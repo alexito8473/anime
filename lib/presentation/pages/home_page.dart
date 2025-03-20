@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 
+import '../../domain/bloc/configuration/configuration_bloc.dart';
 import '../screens/configuration_screen.dart';
 import '../widgets/load/load_widget.dart';
 import 'gender_anime_page.dart';
@@ -26,7 +27,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final zoomDrawerController = ZoomDrawerController();
   int _currentIndex = 0;
-  late final List<Widget> listScreenPage = [
+  late final List<Widget> _listScreenPage = [
     const HomeScreen(),
     const SavePage(),
     const TypesAnimePage(),
@@ -36,7 +37,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    context.read<ConfigurationBloc>().add(ObtainDataVersion());
     super.initState();
     if (!kIsWeb && Platform.isAndroid) {
       context.read<UpdateBloc>().add(CanUpdateMobileEvent());
@@ -63,7 +64,7 @@ class _HomePageState extends State<HomePage> {
     zoomDrawerController.toggle?.call();
   }
 
-  void mostrarDialogoActualizacion(BuildContext context) {
+  void shoeModelUpdate(BuildContext context) {
     showDialog(
         context: context,
         barrierColor: Colors.black87,
@@ -105,7 +106,7 @@ class _HomePageState extends State<HomePage> {
     Orientation orientation = MediaQuery.orientationOf(context);
     return BlocConsumer<UpdateBloc, UpdateState>(listener: (context, state) {
       if (state.canUpdate) {
-        mostrarDialogoActualizacion(context);
+        shoeModelUpdate(context);
       }
     }, builder: (context, state) {
       return AnimationLoadPage(
@@ -141,17 +142,13 @@ class _HomePageState extends State<HomePage> {
                         : null,
                     shadowColor: Colors.transparent,
                     surfaceTintColor: Colors.transparent,
-                    leading: IconButton(
-                        onPressed: () => zoomDrawerController.toggle?.call(),
-                        icon: const Icon(Icons.menu)),
+                    leading: IconButton(onPressed: () => zoomDrawerController.toggle?.call(), icon: const Icon(Icons.menu)),
                     actions: [
                       IconButton(
-                          onPressed: () {
-                            navigateToSearch();
-                          },
+                          onPressed: () => navigateToSearch(),
                           icon: const Icon(Icons.search))
                     ]),
-                body: listScreenPage[_currentIndex]))
+                body: _listScreenPage[_currentIndex]))
       ]));
     });
   }

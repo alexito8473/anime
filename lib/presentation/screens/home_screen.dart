@@ -23,7 +23,7 @@ class HomeScreen extends StatelessWidget {
               return Future.value();
             },
             child: CustomScrollView(slivers: [
-              BannerWidget(
+               BannerWidget(
                   key: targetKey,
                   lastEpisodes: state.lastEpisodes,
                   size: size,

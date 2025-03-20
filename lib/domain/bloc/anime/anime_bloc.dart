@@ -23,7 +23,15 @@ part 'anime_state.dart';
 class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
   final AnimeRepository animeRepository = AnimeRepository();
 
-  AnimeBloc() : super(AnimeState.init()) {
+  AnimeBloc({required AnimeState animeState}) : super(animeState) {
+    on<LoadNewState>((event, emit) async {
+      emit(state.copyWith(
+          lastEpisodes: event.animeState.lastEpisodes,
+          lastAnimesAdd: event.animeState.lastAnimesAdd,
+          listAringAnime: event.animeState.listAringAnime,
+          mapPageAnimes: event.animeState.mapPageAnimes));
+    });
+
     on<SaveAnime>((event, emit) async {
       state.mapAnimesLoad.updateAll((key, value) {
         value.removeWhere((element) => element.id == event.anime.id);
@@ -63,17 +71,24 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
     on<ObtainData>((event, emit) async {
       List<Future<Null>> listFutures = List.empty(growable: true);
       emit(state.copyWith(isObtainAllData: false, initLoad: true));
-      state.listAnimes.clear();
-      state.lastEpisodes.clear();
-      state.lastAnimesAdd.clear();
-      state.listAringAnime.clear();
-      state.mapAnimesLoad.forEach((key, value) => value.clear());
-      for (TypeMyAnimes animes in TypeMyAnimes.values
-          .where((element) => element != TypeMyAnimes.NONE)) {
-        listFutures.addAll(transformListStringToListFuture(
-            listAnime: state.mapAnimesSave[animes]!,
-            listAnimeState: state.mapAnimesLoad[animes]!));
-      }
+      await Future.wait([
+        Future.microtask(() => state.listAnimes.clear()),
+        Future.microtask(() => state.listAnimes.clear()),
+        Future.microtask(() => state.lastEpisodes.clear()),
+        Future.microtask(() => state.lastAnimesAdd.clear()),
+        Future.microtask(() => state.listAringAnime.clear()),
+        Future.microtask(() => state.listAringAnime.clear()),
+        Future.microtask(
+            () => state.mapAnimesLoad.forEach((key, value) => value.clear())),
+        Future.microtask(() {
+          for (TypeMyAnimes animes in TypeMyAnimes.values
+              .where((element) => element != TypeMyAnimes.NONE)) {
+            listFutures.addAll(transformListStringToListFuture(
+                listAnime: state.mapAnimesSave[animes]!,
+                listAnimeState: state.mapAnimesLoad[animes]!));
+          }
+        })
+      ]);
       try {
         final results = await Future.wait([
           animeRepository.getLastEpisodes(),
@@ -89,31 +104,36 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
               listTypeAnimePage:
                   state.mapPageAnimes[TypeVersionAnime.SPECIAL]!),
         ]);
-        state.lastEpisodes
-            .addAll(results[0].map((e) => LastEpisode.fromJson(e)).toList());
-        state.lastAnimesAdd
-            .addAll(results[1].map((e) => Anime.fromJson(e)).toList());
-        state.listAringAnime
-            .addAll(results[2].map((e) => BasicAnime.fromJson(e)).toList());
-        state.mapPageAnimes[TypeVersionAnime.OVA]?.listAnime
-            .addAll(Anime.listDynamicToListAnime(results[3]));
-        state.mapPageAnimes[TypeVersionAnime.MOVIE]?.listAnime
-            .addAll(Anime.listDynamicToListAnime(results[4]));
-        state.mapPageAnimes[TypeVersionAnime.TV]?.listAnime
-            .addAll(Anime.listDynamicToListAnime(results[5]));
-        state.mapPageAnimes[TypeVersionAnime.SPECIAL]?.listAnime
-            .addAll(Anime.listDynamicToListAnime(results[6]));
-
-        state.mapPageAnimes.updateAll((key, value) {
-          return value.copyWith(page: value.page + 1);
-        });
+        await Future.wait([
+          Future.microtask(() => state.lastEpisodes
+              .addAll(results[0].map((e) => LastEpisode.fromJson(e)).toList())),
+          Future.microtask(() => state.lastAnimesAdd
+              .addAll(results[1].map((e) => Anime.fromJson(e)).toList())),
+          Future.microtask(() => state.listAringAnime
+              .addAll(results[2].map((e) => BasicAnime.fromJson(e)).toList())),
+          Future.microtask(() => state
+              .mapPageAnimes[TypeVersionAnime.OVA]?.listAnime
+              .addAll(Anime.listDynamicToListAnime(results[3]))),
+          Future.microtask(() => state
+              .mapPageAnimes[TypeVersionAnime.MOVIE]?.listAnime
+              .addAll(Anime.listDynamicToListAnime(results[4]))),
+          Future.microtask(() => state
+              .mapPageAnimes[TypeVersionAnime.TV]?.listAnime
+              .addAll(Anime.listDynamicToListAnime(results[5]))),
+          Future.microtask(() => state
+              .mapPageAnimes[TypeVersionAnime.SPECIAL]?.listAnime
+              .addAll(Anime.listDynamicToListAnime(results[6]))),
+          Future.microtask(() {
+            state.mapPageAnimes.updateAll((key, value) {
+              return value.copyWith(page: value.page + 1);
+            });
+          })
+        ]);
         emit(state.copyWith(isObtainAllData: true, initLoad: false));
-        // Esperar a que todas las solicitudes se completen
         await Future.wait(listFutures);
       } catch (e) {
         print("Error en el proceso de carga masiva de animes: $e");
       }
-
       emit(state.copyWith(isObtainAllData: true, initLoad: false));
     }, transformer: restartable());
 
@@ -186,13 +206,12 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
     }, transformer: restartable());
 
     on<SearchAnime>((event, emit) async {
-      List<Anime> listAnime;
       emit(state.copyWith(initLoad: true));
-      listAnime = (await animeRepository.search(event.query))
-          .map((e) => Anime.fromJson(e))
-          .toList();
-      state.listSearchAnime.clear();
-      state.listSearchAnime.addAll(listAnime);
+      await animeRepository.search(event.query).then((value) {
+        state.listSearchAnime.clear();
+        state.listSearchAnime
+            .addAll(value.map((e) => Anime.fromJson(e)).toList());
+      });
       emit(state.copyWith(initLoad: false));
     });
     on<ObtainDataGender>((event, emit) async {
@@ -222,24 +241,21 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
       );
     });
     on<ObtainVideoSever>((event, emit) async {
-      emit(state.copyWith(initLoad: true));
       if (event.episode.servers.isEmpty) {
-        state.listAnimes
-                .firstWhere((animeDeleted) => animeDeleted.id == event.anime.id)
-                .episodes
-                .firstWhere((element) => element.id == event.episode.id)
-                .servers =
-            await animeRepository.obtainVideoServerOfEpisode(
-                id: event.episode.id);
+        emit(state.copyWith(initLoad: true));
+        await animeRepository
+            .obtainVideoServerOfEpisode(id: event.episode.id)
+            .then((value) {
+          event.episode.servers.addAll(value);
+        });
+        emit(state.copyWith(initLoad: false));
       }
-      emit(state.copyWith(initLoad: false));
-      if (event.context.mounted) {
-        navigationAnimated(
-            isReplacement: event.isNavigationReplacement,
-            context: event.context,
-            navigateWidget: ServerListPage(
-                idAnime: event.anime.id, idEpisode: event.episode.id));
-      }
+
+      navigationAnimated(
+          isReplacement: event.isNavigationReplacement,
+          context: event.context,
+          navigateWidget: ServerListPage(
+              idAnime: event.anime.id, idEpisode: event.episode.id));
     });
   }
 
@@ -284,7 +300,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
               opaque: true,
               barrierDismissible: true,
               reverseTransitionDuration: const Duration(milliseconds: 700),
-              transitionDuration: const Duration(seconds: 900),
+              transitionDuration: const Duration(seconds: 1),
               pageBuilder: (context, animation, secondaryAnimation) =>
                   navigateWidget,
               transitionsBuilder:

@@ -73,55 +73,55 @@ enum Gender {
       case Gender.FANCY:
         return "assets/gender/fantasia.jpg";
       case Gender.HAREM:
-        return "assets/gender/accion.webp";
+        return "assets/gender/harem.webp";
       case Gender.HISTORICAL:
-        return "assets/gender/accion.webp";
+        return "assets/gender/historico.jpg";
       case Gender.CHILDREN:
-        return "assets/gender/accion.webp";
+        return "assets/gender/infantil.jpg";
       case Gender.JOSEI:
-        return "assets/gender/accion.webp";
+        return "assets/gender/josei.jpg";
       case Gender.GAMES:
-        return "assets/gender/accion.webp";
+        return "assets/gender/juegos.jpg";
       case Gender.MAGIC:
-        return "assets/gender/accion.webp";
+        return "assets/gender/magia.webp";
       case Gender.WICK:
-        return "assets/gender/accion.webp";
+        return "assets/gender/mecha.jpg";
       case Gender.MYSTERY:
-        return "assets/gender/accion.webp";
+        return "assets/gender/misterio.jpg";
       case Gender.MILITARY:
-        return "assets/gender/accion.webp";
+        return "assets/gender/militar.jpg";
       case Gender.MUSIC:
-        return "assets/gender/accion.webp";
+        return "assets/gender/musical.jpg";
       case Gender.PARODY:
-        return "assets/gender/accion.webp";
+        return "assets/gender/parodia.jpg";
       case Gender.POLICE:
-        return "assets/gender/accion.webp";
+        return "assets/gender/policia.jpg";
       case Gender.PSYCHOLOGIST:
-        return "assets/gender/accion.webp";
+        return "assets/gender/psicologico.webp";
       case Gender.ROMANCE:
-        return "assets/gender/accion.webp";
+        return "assets/gender/romance.jpg";
       case Gender.SAMURAI:
-        return "assets/gender/accion.webp";
+        return "assets/gender/samurai.jpg";
       case Gender.SEINEN:
-        return "assets/gender/accion.webp";
+        return "assets/gender/seinen.jpg";
       case Gender.SHOUJO:
-        return "assets/gender/accion.webp";
+        return "assets/gender/shoujo.jpg";
       case Gender.SHOUNEN:
-        return "assets/gender/accion.webp";
+        return "assets/gender/shonen.jpg";
       case Gender.SUPERNATURAL:
-        return "assets/gender/accion.webp";
+        return "assets/gender/sobrenatural.jpg";
       case Gender.SUPERPOWERS:
-        return "assets/gender/accion.webp";
+        return "assets/gender/superpoderes.jpg";
       case Gender.SUSPENSE:
-        return "assets/gender/accion.webp";
+        return "assets/gender/suspense.jpg";
       case Gender.TERROR:
-        return "assets/gender/accion.webp";
+        return "assets/gender/terror.jpg";
       case Gender.VAMPIRES:
-        return "assets/gender/accion.webp";
+        return "assets/gender/vampiros.jpg";
       case Gender.YAOI:
-        return "assets/gender/accion.webp";
+        return "assets/gender/yaoi.webp";
       case Gender.YURI:
-        return "assets/gender/accion.webp";
+        return "assets/gender/yuri.jpg";
     }
   }
 

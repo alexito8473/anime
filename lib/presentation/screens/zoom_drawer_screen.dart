@@ -1,4 +1,6 @@
+import 'package:anime/domain/bloc/configuration/configuration_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ZoomDrawerScreen extends StatelessWidget {
   final Function changeIndex;
@@ -24,20 +26,17 @@ class ZoomDrawerScreen extends StatelessWidget {
                     // Sombra elevada
                     shadowColor: Colors.transparent)
                 .copyWith(
-              overlayColor: WidgetStateProperty.resolveWith(
-                (states) {
-                  if (states.contains(WidgetState.pressed)) {
-                    return Colors.blueGrey.shade900; // Efecto al presionar
-                  }
-                  return null;
-                },
-              ),
-            ),
+                    overlayColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.pressed)) {
+                return Colors.blueGrey.shade900; // Efecto al presionar
+              }
+              return null;
+            })),
             child: SizedBox(
                 width: size.width * 0.55,
                 child: Text(
                   title,
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: Theme.of(context).textTheme.titleMedium
                 ))));
   }
 
@@ -60,7 +59,7 @@ class ZoomDrawerScreen extends StatelessWidget {
                           maxRadius: 45,
                           minRadius: 40,
                           backgroundImage:
-                              Image.asset("assets/wallpaper/saitama.webp")
+                              Image.asset(context.watch<ConfigurationBloc>().state.imagePerson)
                                   .image))),
               createButtonDrawer(
                   title: "Inicio", current: 0, size: size, context: context),

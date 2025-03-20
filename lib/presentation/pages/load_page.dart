@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
-import 'package:anime/domain/bloc/configuration/configuration_bloc.dart';
 import 'package:anime/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,12 +14,6 @@ class LoadPage extends StatefulWidget {
 }
 
 class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
-  late AnimationController _zoomAnimationController;
-  late AnimationController _darkAnimationController;
-  late AnimationController _volumeAnimationController;
-  late Animation<double> _zoomAnimation;
-  late Animation<double> _darkAnimation;
-  late Animation<double> _volumeAnimation;
   final List<String> listVideo = [
     'assets/video/video1.mp4',
     'assets/video/video2.mp4',
@@ -29,17 +22,12 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
     'assets/video/video5.mp4',
     'assets/video/video6.mp4'
   ];
-  final Duration durationAnimation = const Duration(seconds: 1);
-
-  bool isComplete = false;
   late VideoPlayerController _controller;
 
   @override
   void initState() {
+
     _initializeVideo();
-    _initializeAnimations();
-    context.read<AnimeBloc>().add(ObtainData(context: context));
-    context.read<ConfigurationBloc>().add(ObtainDataVersion());
     super.initState();
   }
 
@@ -54,62 +42,31 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
     ];
     _controller = VideoPlayerController.asset(
       listVideo[Random().nextInt(listVideo.length)],
-    )..initialize().then((_) {
-        _controller
-          ..setLooping(true)
-          ..setVolume(0.01)
-          ..play();
-        setState(() {}); // Reconstruir solo después de inicializar el video
-      });
-  }
-
-  void _initializeAnimations() {
-    _zoomAnimationController =
-        AnimationController(vsync: this, duration: durationAnimation);
-    _zoomAnimation = Tween<double>(begin: 1.5, end: 5.0).animate(
-        CurvedAnimation(
-            parent: _zoomAnimationController, curve: Curves.linear));
-    _darkAnimationController =
-        AnimationController(vsync: this, duration: durationAnimation);
-    _darkAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(
-            parent: _darkAnimationController, curve: Curves.linear));
-    _volumeAnimationController =
-        AnimationController(vsync: this, duration: durationAnimation);
-    _volumeAnimation = Tween<double>(begin: 0.01, end: 0.0).animate(
-        CurvedAnimation(
-            parent: _volumeAnimationController, curve: Curves.linear));
-    _volumeAnimationController
-        .addListener(() => _controller.setVolume(_volumeAnimation.value));
+    )
+      ..setLooping(true)
+      ..setVolume(0.00)
+      ..initialize()
+      ..play();
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    _zoomAnimationController.dispose();
-    _darkAnimationController.dispose();
-    _volumeAnimationController.dispose();
     super.dispose();
-  }
-
-  Future<void> _action() async {
-    await Future.wait([
-      _zoomAnimationController.forward(),
-      _darkAnimationController.forward(),
-      _volumeAnimationController.forward()
-    ]);
   }
 
   void _navigateToHome() {
     Navigator.pushAndRemoveUntil(
         context,
         PageRouteBuilder(
-            transitionDuration: const Duration(milliseconds: 400),
+            transitionDuration: const Duration(seconds: 1),
+            // Ajusta la duración del fundido
             pageBuilder: (context, animation, secondaryAnimation) =>
                 const HomePage(),
             transitionsBuilder:
-                (context, animation, secondaryAnimation, child) =>
-                    FadeTransition(opacity: animation, child: child)),
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            }),
         (route) => false);
   }
 
@@ -117,26 +74,12 @@ class _LoadPageState extends State<LoadPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return BlocListener<AnimeBloc, AnimeState>(
         listener: (context, state) async {
-          if (state.isObtainAllData && !isComplete) {
-            isComplete = true;
-            await _action().whenComplete(() => _navigateToHome());
+          if (state.isObtainAllData) {
+            _navigateToHome();
           }
         },
-        child: Stack(children: [
-          Center(
-              child: AnimatedBuilder(
-                  animation: _zoomAnimation,
-                  builder: (context, child) => Transform.scale(
-                      scale: _zoomAnimation.value,
-                      child: AspectRatio(
-                          aspectRatio: _controller.value.aspectRatio,
-                          child: VideoPlayer(_controller))))),
-          AnimatedBuilder(
-              animation: _darkAnimation,
-              builder: (context, child) {
-                return Container(
-                    color: Colors.black.withOpacity(_darkAnimation.value));
-              })
-        ]));
+        child: AspectRatio(
+            aspectRatio: _controller.value.aspectRatio,
+            child: VideoPlayer(_controller)));
   }
 }

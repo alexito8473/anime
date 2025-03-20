@@ -18,20 +18,16 @@ class GenderAnimeScreen extends StatelessWidget {
             sliver: SliverGrid.builder(
                 gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                     crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    maxCrossAxisExtent: 170),
-
+                    mainAxisSpacing: 20,
+                    maxCrossAxisExtent: 160),
                 itemBuilder: (context, index) {
                   return GestureDetector(
-                      onTap: () {
-                        navigation(Gender.values[index]);
-                      },
+                      onTap: () => navigation(Gender.values[index]),
                       child: Hero(
                           tag: Gender.values[index].name,
                           child: BannerBlur(
-                            image: Gender.values[index].getImage(),
-                            text: Gender.values[index].name,
-                          )));
+                              image: Gender.values[index].getImage(),
+                              text: Gender.values[index].name)));
                 },
                 itemCount: Gender.values.length)),
       ],
