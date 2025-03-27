@@ -9,3 +9,7 @@ class ChangeImagePerson extends ConfigurationEvent{
   final String image;
   ChangeImagePerson({required this.image});
 }
+class ChangeImageBackground extends ConfigurationEvent{
+  final String image;
+  ChangeImageBackground({required this.image});
+}

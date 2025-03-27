@@ -34,9 +34,9 @@ class UpdateRepository {
 
   Future<String> obtainPathAndroid(int sdkVersion) async {
     if (sdkVersion >= 29) {
-      return "/storage/emulated/0/Download/update.apk";
+      return "/storage/emulated/0/Download/update${DateTime.now().hour}.apk";
     } else {
-      return "${(await getExternalStorageDirectory())!.path}/update.apk";
+      return "${(await getExternalStorageDirectory())!.path}/update${DateTime.now().hour}.apk";
     }
   }
 

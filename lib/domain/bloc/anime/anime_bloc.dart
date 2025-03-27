@@ -229,17 +229,45 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
           state.mapGeneresAnimes.update(
             event.gender,
             (page) {
+              if (value.isEmpty) {
+                return page.copyWith(isObtainAllData: true);
+              }
               page.listAnime.addAll(value.map((e) => Anime.fromJson(e)));
               return page.copyWith(page: page.page + 1);
             },
           );
           emit(state.copyWith(initLoad: false));
+
           navigationAnimated(
               context: event.context,
               navigateWidget: GenderListAnimePage(gender: event.gender));
         },
       );
     });
+
+    on<LoadMoreGender>((event, emit) async {
+      if (state.mapGeneresAnimes[event.gender]!.isObtainAllData) {
+        return;
+      }
+      emit(state.copyWith(initLoad: true));
+      await animeRepository
+          .searchByGender(gender: state.mapGeneresAnimes[event.gender]!)
+          .then(
+        (value) {
+          state.mapGeneresAnimes.update(
+            event.gender,
+            (page) {
+              if (value.isEmpty) {
+                return page.copyWith(isObtainAllData: true);
+              }
+              page.listAnime.addAll(value.map((e) => Anime.fromJson(e)));
+              return page.copyWith(page: page.page + 1);
+            },
+          );
+          emit(state.copyWith(initLoad: false));
+        },
+      );
+    },transformer: restartable());
     on<ObtainVideoSever>((event, emit) async {
       if (event.episode.servers.isEmpty) {
         emit(state.copyWith(initLoad: true));

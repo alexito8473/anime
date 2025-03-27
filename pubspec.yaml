@@ -1,7 +1,7 @@
 name: anime
 description: "Anime project"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.0.0+1
+version: 1.0.1+1
 environment:
   sdk: ^3.5.4
 
@@ -40,6 +40,7 @@ dependencies:
   firebase_core: ^3.12.1
   firebase_messaging: ^15.2.3
   flutter_local_notifications: ^18.0.1
+  loading_more_list: ^7.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -52,6 +53,7 @@ flutter:
     - assets/image/
     - assets/wallpaper/
     - assets/gender/
+    - assets/backgroundImage/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

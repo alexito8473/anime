@@ -1,6 +1,13 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:anime/domain/bloc/configuration/configuration_bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../domain/bloc/update/update_bloc.dart';
 
 class ConfigurationScreen extends StatelessWidget {
   const ConfigurationScreen({super.key});
@@ -10,20 +17,17 @@ class ConfigurationScreen extends StatelessWidget {
     showModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
-        // Fondo transparente para suavizar bordes
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
         builder: (context) {
           return Container(
               decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.white70, blurRadius: 10, spreadRadius: -3)
-                ],
-              ),
+                  color: Colors.black,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.white70, blurRadius: 10, spreadRadius: -3)
+                  ]),
               padding: EdgeInsets.only(
                   top: 30, right: size.width * 0.05, left: size.width * 0.05),
               height: size.height * 0.6,
@@ -70,6 +74,183 @@ class ConfigurationScreen extends StatelessWidget {
         });
   }
 
+  void openImageBackGroundSelector(
+      BuildContext context, String imageCurrent) async {
+    final manifestContent = await rootBundle.loadString('AssetManifest.json');
+    final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+
+    // Filtrar solo los archivos dentro del directorio deseado
+    List<String> assets = manifestMap.keys
+        .where((key) => key.startsWith("assets/backgroundImage/"))
+        .toList();
+    print(assets);
+    Size size = MediaQuery.sizeOf(context);
+    showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        builder: (context) {
+          return Container(
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.white70, blurRadius: 10, spreadRadius: -3)
+                ],
+              ),
+              padding: EdgeInsets.only(
+                  top: 30, right: size.width * 0.05, left: size.width * 0.05),
+              height: size.height * 0.6,
+              child: Column(spacing: size.height * 0.02, children: [
+                Text("Selecciona una imagen",
+                    style: Theme.of(context).textTheme.titleLarge),
+                Expanded(
+                    child: GridView.count(
+                        crossAxisSpacing: size.width * 0.05,
+                        mainAxisSpacing: size.height * 0.02,
+                        crossAxisCount: 3,
+                        children: assets.map((imageUrl) {
+                          return GestureDetector(
+                              onTap: () {
+                                context.read<ConfigurationBloc>().add(
+                                    ChangeImageBackground(image: imageUrl));
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                    border: imageUrl == imageCurrent
+                                        ? Border.all(
+                                            color: Colors.blueAccent, width: 3)
+                                        : null,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.asset(imageUrl,
+                                        fit: BoxFit.cover),
+                                  )));
+                        }).toList()))
+              ]));
+        });
+  }
+
+  Widget _buildVersionCard(BuildContext context, ConfigurationState state) {
+    return SliverToBoxAdapter(
+        child: Container(
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade800,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: EdgeInsets.all(20),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
+                children: [
+                  Text("Versión Actual",
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
+                  Text(state.version,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.orange, fontWeight: FontWeight.w600))
+                ])));
+  }
+
+  Widget _buildAvatarSection(BuildContext context, ConfigurationState state) {
+    return SliverToBoxAdapter(
+        child: Padding(
+            padding: EdgeInsets.only(bottom: 10),
+            child: Column(spacing: 10, children: [
+              Text("Cambiar imagen del avatar",
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: Colors.white)),
+              GestureDetector(
+                  onTap: () => openImageSelector(context, state.imagePerson),
+                  child: Container(
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white10, width: 3),
+                          borderRadius: BorderRadius.circular(10)),
+                      width: 120,
+                      height: 120,
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.asset(state.imagePerson,
+                              width: 120, height: 120, fit: BoxFit.cover))))
+            ])));
+  }
+
+  Widget _buildBackGroundSection(
+      BuildContext context, ConfigurationState state) {
+    return SliverToBoxAdapter(
+        child: Column(spacing: 10, children: [
+      Text("Cambiar imagen del fondo",
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(color: Colors.white)),
+      GestureDetector(
+          onTap: () =>
+              openImageBackGroundSelector(context, state.imageBackGround),
+          child: Container(
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white10, width: 3),
+                  borderRadius: BorderRadius.circular(10)),
+              width: 120,
+              height: 120,
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(state.imageBackGround,
+                      width: 120, height: 120, fit: BoxFit.cover))))
+    ]));
+  }
+
+  Widget _buildUpdateCard(BuildContext context) {
+    bool canUpdate = context.watch<UpdateBloc>().state.canUpdate;
+    return SliverToBoxAdapter(
+        child: Container(
+      margin: EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+          color: Colors.grey.shade800, borderRadius: BorderRadius.circular(20)),
+      padding: EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            canUpdate
+                ? "¡Nueva versión disponible!"
+                : "Tienes la última versión",
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(color: Colors.white),
+          ),
+          if (canUpdate)
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+                onPressed: () => {
+                  if (!kIsWeb && Platform.isAndroid)
+                    {context.read<UpdateBloc>().add(CanUpdateMobileEvent())}
+                },
+                child: Text("Actualizar ahora",
+                    style: TextStyle(color: Colors.white)),
+              ),
+            ),
+        ],
+      ),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
@@ -78,28 +259,10 @@ class ConfigurationScreen extends StatelessWidget {
       return Padding(
           padding: EdgeInsets.symmetric(horizontal: size.width * .1),
           child: CustomScrollView(slivers: [
-            SliverToBoxAdapter(child: Text("Versión : ${state.version}")),
-            SliverToBoxAdapter(
-                child: Row(children: [
-              Expanded(child: Text("Cambiar imagen del avatar: ")),
-              Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white10, width: 3),
-                      borderRadius: BorderRadius.circular(5)),
-                  width: 120,
-                  height: 100,
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                        padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                        shadowColor: WidgetStatePropertyAll(Colors.white),
-                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5)))),
-                    onPressed: () =>
-                        openImageSelector(context, state.imagePerson),
-                    child: Image.asset(state.imagePerson,
-                        width: 120, height: 100, fit: BoxFit.cover),
-                  ))
-            ]))
+            _buildVersionCard(context, state),
+            _buildUpdateCard(context),
+            _buildAvatarSection(context, state),
+            _buildBackGroundSection(context, state),
           ]));
     });
   }

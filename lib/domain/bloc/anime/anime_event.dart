@@ -17,26 +17,38 @@ class ObtainDataAnime extends AnimeEvent {
 
 class SearchAnime extends AnimeEvent {
   final String query;
+
   SearchAnime({required this.query});
 }
+
 class LoadNewState extends AnimeEvent {
   final AnimeState animeState;
+
   LoadNewState({required this.animeState});
 }
+
 class Reset extends AnimeEvent {}
 
 class ObtainDataType extends AnimeEvent {
   final BuildContext context;
   final TypeVersionAnime type;
+
   ObtainDataType(this.type, {required this.context});
 }
 
 class ObtainDataGender extends AnimeEvent {
   final BuildContext context;
   final Gender gender;
-  ObtainDataGender({required this.context, required this.gender});
+  ObtainDataGender(
+      {required this.context, required this.gender});
 }
+class LoadMoreGender extends AnimeEvent {
+  final BuildContext context;
+  final Gender gender;
 
+  LoadMoreGender(
+      {required this.context, required this.gender});
+}
 class ObtainVideoSever extends AnimeEvent {
   final Episode episode;
   final CompleteAnime anime;
@@ -78,6 +90,7 @@ class SaveEpisode extends Save {
 
 class ObtainData extends AnimeEvent {
   final BuildContext context;
+
   ObtainData({required this.context});
 }
 

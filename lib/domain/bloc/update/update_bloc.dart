@@ -12,7 +12,6 @@ class UpdateBloc extends Bloc<UpdateEvent, UpdateState> {
     on<CanUpdateMobileEvent>((event, emit) async {
       String url = "";
       String versionInstalada = await updateRepository.obtenerVersionApp();
-      print("version. " + versionInstalada);
       Map<String, dynamic> ultimaVersion =
           await updateRepository.obtenerUltimaVersionGitHub();
       for (var asset in ultimaVersion['assets']) {
@@ -27,6 +26,7 @@ class UpdateBloc extends Bloc<UpdateEvent, UpdateState> {
         emit(state.copyWith(canUpdate: true, urlApk: url));
       }
     });
+
     on<UpdateMobileEvent>((event, emit) async {
       int sdkVersion = await updateRepository.getSdkVersion();
       bool canUpdate =
@@ -51,17 +51,16 @@ class UpdateBloc extends Bloc<UpdateEvent, UpdateState> {
             if (data != state.advance) {
               emit(state.copyWith(
                   advance: (received / total * 100).toStringAsFixed(0)));
-              print(
-                  "Descargando: ${(received / total * 100).toStringAsFixed(0)}%");
             }
           }
         });
         emit(state.copyWith(isUpdating: false));
         final result = await OpenFile.open(filePath);
         if (result.type == ResultType.error) {
+          emit(state.copyWith(isError: true));
           print("Error al abrir la APK: ${result.message}");
         } else {
-          emit(state.copyWith(isError: true));
+          emit(state.copyWith(isError: false));
           print("APK abierta correctamente para instalación");
         }
       } catch (e) {

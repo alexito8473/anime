@@ -10,14 +10,15 @@ class ZoomDrawerScreen extends StatelessWidget {
   Widget createButtonDrawer(
       {required String title,
       required int current,
+      required IconData icon,
       required Size size,
       required BuildContext context}) {
     return Padding(
-        padding: const EdgeInsets.only(left: 10),
+        padding:  EdgeInsets.only(left: size.width*0.01),
         child: ElevatedButton(
             onPressed: () => changeIndex(index: current),
             style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
+                    backgroundColor: Colors.grey.withAlpha(50),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 14),
                     shape: RoundedRectangleBorder(
@@ -32,12 +33,13 @@ class ZoomDrawerScreen extends StatelessWidget {
               }
               return null;
             })),
-            child: SizedBox(
-                width: size.width * 0.55,
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium
-                ))));
+            child:  Row(
+                  spacing: 10,
+                  children: [
+                    Icon(icon,color: Colors.white,),
+                    Text(title, style: Theme.of(context).textTheme.titleMedium)
+                  ],
+                )));
   }
 
   @override
@@ -58,24 +60,31 @@ class ZoomDrawerScreen extends StatelessWidget {
                       child: CircleAvatar(
                           maxRadius: 45,
                           minRadius: 40,
-                          backgroundImage:
-                              Image.asset(context.watch<ConfigurationBloc>().state.imagePerson)
-                                  .image))),
+                          backgroundImage: Image.asset(context
+                                  .watch<ConfigurationBloc>()
+                                  .state
+                                  .imagePerson)
+                              .image))),
               createButtonDrawer(
+                icon: Icons.home,
                   title: "Inicio", current: 0, size: size, context: context),
               createButtonDrawer(
+                  icon: Icons.favorite,
                   title: "Mis animes",
                   current: 1,
                   size: size,
                   context: context),
               createButtonDrawer(
+                  icon: Icons.category,
                   title: "Tipos de animes",
                   current: 2,
                   size: size,
                   context: context),
               createButtonDrawer(
+                  icon: Icons.label,
                   title: "Géneros", current: 3, size: size, context: context),
               createButtonDrawer(
+                  icon: Icons.settings,
                   title: "Opciones", current: 4, size: size, context: context),
             ])));
   }

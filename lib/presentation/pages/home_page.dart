@@ -8,7 +8,6 @@ import 'package:anime/presentation/screens/home_screen.dart';
 import 'package:anime/presentation/screens/zoom_drawer_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 
@@ -112,7 +111,7 @@ class _HomePageState extends State<HomePage> {
       return AnimationLoadPage(
           child: Stack(children: [
         Positioned.fill(
-            child: Image.asset("assets/wallpaper/wallpaper2.webp",
+            child: Image.asset(context.watch<ConfigurationBloc>().state.imageBackGround,
                 fit: BoxFit.cover,
                 filterQuality: FilterQuality.none,
                 colorBlendMode: BlendMode.darken,
@@ -122,7 +121,7 @@ class _HomePageState extends State<HomePage> {
             controller: zoomDrawerController,
             drawerShadowsBackgroundColor: Colors.grey.shade800,
             slideWidth: orientation == Orientation.portrait
-                ? size.width * 0.55
+                ? size.width * 0.65
                 : size.width * 0.35,
             angle: 0.0,
             menuBackgroundColor: Colors.transparent,
@@ -136,7 +135,7 @@ class _HomePageState extends State<HomePage> {
                 appBar: AppBar(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
-                    title: context.read<UpdateBloc>().state.isUpdating
+                    title: context.watch<UpdateBloc>().state.isUpdating
                         ? Text(
                             "Descargando : ${context.read<UpdateBloc>().state.advance}%")
                         : null,

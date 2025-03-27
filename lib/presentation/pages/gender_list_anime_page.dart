@@ -3,6 +3,7 @@ import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../data/model/gender_anime_page.dart';
 import '../screens/gender_list_anime_screen.dart';
 import '../widgets/load/load_widget.dart';
 
@@ -19,13 +20,22 @@ class _GenderListAnimePageState extends State<GenderListAnimePage> {
   final ScrollController _controller = ScrollController();
   final GlobalKey key = GlobalKey();
   bool isCollapsed = false;
+  bool _canUpdate = true;
 
   @override
   void initState() {
     super.initState();
     _controller.addListener(_onScroll);
+    _controller.addListener(
+      () => loadMore(
+          context.read<AnimeBloc>().state.mapGeneresAnimes[widget.gender]!),
+    );
   }
-
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
   void _onScroll() {
     if (_controller.offset >= 250 != isCollapsed) {
       setState(() {
@@ -42,16 +52,43 @@ class _GenderListAnimePageState extends State<GenderListAnimePage> {
         );
   }
 
+  void loadMore(GenderAnimeForPage page) async {
+    if (page.isObtainAllData) {
+      if (_canUpdate) {
+        setState(() {
+          _canUpdate = false;
+        });
+      }
+      return;
+    }
+    if (_controller.position.pixels >=
+        _controller.position.maxScrollExtent - 200) {
+      final double currentScrollPosition = _controller.position.pixels;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _controller.jumpTo(currentScrollPosition - 100);
+      });
+      context
+          .read<AnimeBloc>()
+          .add(LoadMoreGender(gender: widget.gender, context: context));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AnimeBloc, AnimeState>(builder: (context, state) {
-      return AnimationLoadPage(
-          child: GenderListAnimeScreen(
-              genderAnimeForPage: state.mapGeneresAnimes[widget.gender]!,
-              scrollController: _controller,
-              targetKey: key,
-              isCollapsed: isCollapsed,
-              goUp: _scrollToTop));
-    });
+    return BlocConsumer<AnimeBloc, AnimeState>(
+      listener: (context, state) {
+        _controller.removeListener(
+            () => loadMore(state.mapGeneresAnimes[widget.gender]!));
+      },
+      builder: (context, state) {
+        return AnimationLoadPage(
+            child: GenderListAnimeScreen(
+                genderAnimeForPage: state.mapGeneresAnimes[widget.gender]!,
+                scrollController: _controller,
+                targetKey: key,
+                isCollapsed: isCollapsed,
+                goUp: _scrollToTop));
+      },
+    );
   }
 }

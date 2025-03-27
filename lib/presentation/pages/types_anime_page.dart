@@ -20,10 +20,10 @@ class _TypesAnimePageState extends State<TypesAnimePage> {
   final ScrollController _scrollControllerOva = ScrollController();
   final ScrollController _scrollControllerSpecial = ScrollController();
   final ScrollController _scrollControllerTV = ScrollController();
-  bool _canupdaeMovie = true;
-  bool _canupdaeOva = true;
-  bool _canupdaeSpecial = true;
-  bool _canupdaeTV = true;
+  bool _canUpdateMovie = true;
+  bool _canUpdateOva = true;
+  bool _canUpdateSpecial = true;
+  bool _canUpdateTV = true;
   final List<GlobalKey> _targetKeyList = [
     GlobalKey(),
     GlobalKey(),
@@ -73,33 +73,33 @@ class _TypesAnimePageState extends State<TypesAnimePage> {
     }
   }
 
-  bool getbool(TypeVersionAnime key) {
+  bool getBool(TypeVersionAnime key) {
     switch (key) {
       case TypeVersionAnime.TV:
-        return _canupdaeTV;
+        return _canUpdateTV;
       case TypeVersionAnime.OVA:
-        return _canupdaeOva;
+        return _canUpdateOva;
       case TypeVersionAnime.MOVIE:
-        return _canupdaeMovie;
+        return _canUpdateMovie;
       case TypeVersionAnime.SPECIAL:
-        return _canupdaeSpecial;
+        return _canUpdateSpecial;
     }
   }
 
   void loadMore(
       ScrollController scrollController, ListTypeAnimePage page) async {
     if (page.isObtainAllData) {
-      if (getbool(page.typeVersionAnime)) {
+      if (getBool(page.typeVersionAnime)) {
         setState(() {
           switch (page.typeVersionAnime) {
             case TypeVersionAnime.TV:
-              _canupdaeTV = false;
+              _canUpdateTV = false;
             case TypeVersionAnime.OVA:
-              _canupdaeOva = false;
+              _canUpdateOva = false;
             case TypeVersionAnime.MOVIE:
-              _canupdaeMovie = false;
+              _canUpdateMovie = false;
             case TypeVersionAnime.SPECIAL:
-              _canupdaeSpecial = false;
+              _canUpdateSpecial = false;
           }
         });
       }
@@ -145,7 +145,7 @@ class _TypesAnimePageState extends State<TypesAnimePage> {
     return BlocListener<AnimeBloc, AnimeState>(
         listener: (context, state) {
           state.mapPageAnimes.forEach((key, value) {
-            if (value.isObtainAllData && getbool(key)) {
+            if (value.isObtainAllData && getBool(key)) {
               get(key).removeListener(
                 () => loadMore(get(key), value),
               );
