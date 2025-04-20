@@ -3,8 +3,10 @@ import 'package:anime/data/model/episode.dart';
 import 'package:anime/presentation/widgets/banner/banner_widget.dart';
 import 'package:flutter/material.dart';
 
+import '../widgets/animation/hero_animation_widget.dart';
 import '../widgets/banner/episode_widget.dart';
 import '../widgets/detail/deatil_widget.dart';
+import '../widgets/title/title_widget.dart';
 
 class DetailAnimeScreen extends StatelessWidget {
   final CompleteAnime anime;
@@ -44,17 +46,50 @@ class DetailAnimeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: NestedScrollView(
+    return Material(
+        child: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
                   AppBarDetailAnime(
-                      anime: anime, tag: tag, safeAnime: safeAnime)
+                      anime: anime, tag: tag, safeAnime: safeAnime),
+              SliverPadding(padding: EdgeInsets.only(
+                top: size.height*0.05,
+                  right: size.width * 0.08,
+              left:  size.width * 0.08),
+              sliver:  SliverToBoxAdapter(
+                  child:Container(
+                    decoration: BoxDecoration(
+                      color:Colors.grey.shade900.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(20)
+                    ),
+                    padding: EdgeInsets.only(
+                        right: size.width * 0.08,
+                        left:  size.width * 0.08),
+                    child:  Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        runAlignment: WrapAlignment.center,
+                        alignment: WrapAlignment.spaceBetween,
+                        direction: Axis.horizontal,
+                        spacing: 10,
+                        children: [
+                          SubTilesAnime(title: "Estado", subtitle: anime.debut, size: size),
+                          SubTilesAnime(title: "Tipo", subtitle: anime.type, size: size),
+                          HeroAnimationWidget(
+                              tag: tag,
+                              heroTag: anime.rating + anime.title,
+                              child: SubTilesAnime(
+                                  title: "Valoración", subtitle: anime.rating, size: size)),
+                          if(anime.genres.isNotEmpty)
+                            SubTilesAnime(
+                                title: "Géneros",
+                                subtitle: anime.genres.join(", ").toUpperCase(),
+                                size: size)
+                        ])
+                  )
+              ))
                 ],
             body: SafeArea(
-                child: ClipRRect(
-                    borderRadius:
-                        BorderRadius.circular(30), // Bordes redondeados
-                    child: DefaultTabController(
+              minimum: EdgeInsets.only(top: size.height*0.1),
+                child:  DefaultTabController(
                         length: countTabBar(),
                         initialIndex: currentPage,
                         child: Column(children: [
@@ -116,6 +151,6 @@ class DetailAnimeScreen extends StatelessWidget {
                                 ],
                               )
                           ]))
-                        ]))))));
+                        ])))));
   }
 }
