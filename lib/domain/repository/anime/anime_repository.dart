@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:anime/constans.dart';
+import 'package:anime/constansT.dart';
 import 'package:anime/data/model/complete_anime.dart';
 import 'package:anime/data/model/gender_anime_page.dart';
 import 'package:anime/data/model/list_type_anime_page.dart';
@@ -355,7 +355,9 @@ class AnimeRepository {
 
       return await compute(_checkBannerCompute, response.bodyBytes);
     } catch (e) {
-      print('Error al verificar el banner: $e');
+      if (kDebugMode) {
+        print('Error al verificar el banner: $e');
+      }
       return false;
     }
   }
@@ -381,7 +383,6 @@ class AnimeRepository {
       }
       return true; // Imagen monocromática
     } catch (e) {
-      print('Error en compute: $e');
       return false;
     }
   }

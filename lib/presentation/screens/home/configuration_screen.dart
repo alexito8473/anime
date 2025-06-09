@@ -7,21 +7,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../domain/bloc/update/update_bloc.dart';
+import '../../../domain/bloc/update/update_bloc.dart';
 
 class ConfigurationScreen extends StatelessWidget {
   const ConfigurationScreen({super.key});
 
   void openImageSelector(BuildContext context, String imagePerson) {
-    Size size = MediaQuery.sizeOf(context);
+    final Size size = MediaQuery.sizeOf(context);
     showModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
         builder: (context) {
           return Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                   color: Colors.black,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
                   boxShadow: [
@@ -32,7 +32,7 @@ class ConfigurationScreen extends StatelessWidget {
                   top: 30, right: size.width * 0.05, left: size.width * 0.05),
               height: size.height * 0.6,
               child: Column(spacing: size.height * 0.02, children: [
-                Text("Selecciona una imagen",
+                Text('Selecciona una imagen',
                     style: Theme.of(context).textTheme.titleLarge),
                 Expanded(
                     child: GridView.count(
@@ -40,14 +40,14 @@ class ConfigurationScreen extends StatelessWidget {
                         mainAxisSpacing: size.height * 0.02,
                         crossAxisCount: 3,
                         children: [
-                          "assets/wallpaper/saitama.webp",
-                          "assets/wallpaper/imagen2.webp",
-                          "assets/wallpaper/imagen3.webp",
-                          "assets/wallpaper/imagen4.jpg",
-                          "assets/wallpaper/imagen5.webp",
-                          "assets/wallpaper/imagen6.webp",
-                          "assets/wallpaper/imagen7.webp",
-                          "assets/wallpaper/imagen8.webp"
+                          'assets/wallpaper/saitama.webp',
+                          'assets/wallpaper/imagen2.webp',
+                          'assets/wallpaper/imagen3.webp',
+                          'assets/wallpaper/imagen4.jpg',
+                          'assets/wallpaper/imagen5.webp',
+                          'assets/wallpaper/imagen6.webp',
+                          'assets/wallpaper/imagen7.webp',
+                          'assets/wallpaper/imagen8.webp'
                         ].map((imageUrl) {
                           return GestureDetector(
                               onTap: () {
@@ -65,10 +65,9 @@ class ConfigurationScreen extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Image.asset(imageUrl,
-                                        fit: BoxFit.cover),
-                                  )));
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.asset(imageUrl,
+                                          fit: BoxFit.cover))));
                         }).toList()))
               ]));
         });
@@ -80,31 +79,29 @@ class ConfigurationScreen extends StatelessWidget {
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
 
     // Filtrar solo los archivos dentro del directorio deseado
-    List<String> assets = manifestMap.keys
-        .where((key) => key.startsWith("assets/backgroundImage/"))
+    final List<String> assets = manifestMap.keys
+        .where((key) => key.startsWith('assets/backgroundImage/'))
         .toList();
-    print(assets);
-    Size size = MediaQuery.sizeOf(context);
+    final Size size = MediaQuery.sizeOf(context);
     showModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
         builder: (context) {
           return Container(
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.white70, blurRadius: 10, spreadRadius: -3)
-                ],
-              ),
+              decoration: const BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.white70, blurRadius: 10, spreadRadius: -3)
+                  ]),
               padding: EdgeInsets.only(
                   top: 30, right: size.width * 0.05, left: size.width * 0.05),
               height: size.height * 0.6,
               child: Column(spacing: size.height * 0.02, children: [
-                Text("Selecciona una imagen",
+                Text('Selecciona una imagen',
                     style: Theme.of(context).textTheme.titleLarge),
                 Expanded(
                     child: GridView.count(
@@ -139,17 +136,17 @@ class ConfigurationScreen extends StatelessWidget {
   Widget _buildVersionCard(BuildContext context, ConfigurationState state) {
     return SliverToBoxAdapter(
         child: Container(
-            margin: EdgeInsets.only(bottom: 10),
+            margin: const EdgeInsets.only(bottom: 10),
             decoration: BoxDecoration(
               color: Colors.grey.shade800,
               borderRadius: BorderRadius.circular(20),
             ),
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 10,
                 children: [
-                  Text("Versión Actual",
+                  Text('Versión Actual',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Colors.white, fontWeight: FontWeight.bold)),
                   Text(state.version,
@@ -161,9 +158,9 @@ class ConfigurationScreen extends StatelessWidget {
   Widget _buildAvatarSection(BuildContext context, ConfigurationState state) {
     return SliverToBoxAdapter(
         child: Padding(
-            padding: EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.only(bottom: 10),
             child: Column(spacing: 10, children: [
-              Text("Cambiar imagen del avatar",
+              Text('Cambiar imagen del avatar',
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium
@@ -187,7 +184,7 @@ class ConfigurationScreen extends StatelessWidget {
       BuildContext context, ConfigurationState state) {
     return SliverToBoxAdapter(
         child: Column(spacing: 10, children: [
-      Text("Cambiar imagen del fondo",
+      Text('Cambiar imagen del fondo',
           style: Theme.of(context)
               .textTheme
               .titleMedium
@@ -209,20 +206,20 @@ class ConfigurationScreen extends StatelessWidget {
   }
 
   Widget _buildUpdateCard(BuildContext context) {
-    bool canUpdate = context.watch<UpdateBloc>().state.canUpdate;
+    final bool canUpdate = context.watch<UpdateBloc>().state.canUpdate;
     return SliverToBoxAdapter(
         child: Container(
-      margin: EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
           color: Colors.grey.shade800, borderRadius: BorderRadius.circular(20)),
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             canUpdate
-                ? "¡Nueva versión disponible!"
-                : "Tienes la última versión",
+                ? '¡Nueva versión disponible!'
+                : 'Tienes la última versión',
             style: Theme.of(context)
                 .textTheme
                 .titleMedium
@@ -236,13 +233,14 @@ class ConfigurationScreen extends StatelessWidget {
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),
                 onPressed: () => {
                   if (!kIsWeb && Platform.isAndroid)
                     {context.read<UpdateBloc>().add(CanUpdateMobileEvent())}
                 },
-                child: Text("Actualizar ahora",
+                child: const Text('Actualizar ahora',
                     style: TextStyle(color: Colors.white)),
               ),
             ),
@@ -253,7 +251,7 @@ class ConfigurationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
+    final Size size = MediaQuery.sizeOf(context);
     return BlocBuilder<ConfigurationBloc, ConfigurationState>(
         builder: (context, state) {
       return Padding(

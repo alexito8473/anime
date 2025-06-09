@@ -10,15 +10,16 @@ class LoadWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
         height: height,
-        color: Colors.black54,
-        child: const Center(
-            child: CircularProgressIndicator(
-                backgroundColor: Colors.red,
-                strokeWidth: 10,
-                strokeAlign: 3,
-                color: Colors.orange)));
+        child: const ColoredBox(
+            color: Colors.black54,
+            child: Center(
+                child: CircularProgressIndicator(
+                    backgroundColor: Colors.red,
+                    strokeWidth: 10,
+                    strokeAlign: 3,
+                    color: Colors.orange))));
   }
 }
 
@@ -29,10 +30,7 @@ class AnimationLoadPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      Positioned.fill(child: child),
-      if (context.watch<AnimeBloc>().state.initLoad)
-        const Positioned.fill(child: LoadWidget()),
-    ]);
+    final bool isLoading = context.watch<AnimeBloc>().state.initLoad;
+    return Stack(children: [child, if (isLoading) const LoadWidget()]);
   }
 }

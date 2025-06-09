@@ -8,6 +8,7 @@ class TitleBannerWidget extends StatelessWidget {
   final String? tag;
   final Color color;
   final List<Shadow>? shadows;
+
   const TitleBannerWidget(
       {super.key,
       this.tag,
@@ -36,6 +37,7 @@ class TitleWidget extends StatelessWidget {
   final TextStyle textStyle;
   final String? tag;
   final bool isAutoSize;
+
   const TitleWidget(
       {super.key,
       required this.title,
@@ -44,21 +46,18 @@ class TitleWidget extends StatelessWidget {
       required this.tag,
       this.isAutoSize = true});
 
-  Widget buildAutoSizeText() {
-    if (isAutoSize) {
-      return AutoSizeText(title, style: textStyle, maxLines: maxLines);
-    }
-    return Text(title,
-        style: textStyle,
-        maxLines: maxLines,
-        softWrap: true,
-        overflow: TextOverflow.ellipsis);
-  }
-
   @override
   Widget build(BuildContext context) {
     return HeroAnimationWidget(
-        heroTag: title, tag: tag, child: buildAutoSizeText());
+        heroTag: title,
+        tag: tag,
+        child: isAutoSize
+            ? AutoSizeText(title, style: textStyle, maxLines: maxLines)
+            : Text(title,
+                style: textStyle,
+                maxLines: maxLines,
+                softWrap: true,
+                overflow: TextOverflow.ellipsis));
   }
 }
 
@@ -66,6 +65,7 @@ class SubTilesAnime extends StatelessWidget {
   final String title;
   final String subtitle;
   final Size size;
+
   const SubTilesAnime(
       {super.key,
       required this.title,
@@ -74,18 +74,20 @@ class SubTilesAnime extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ConstrainedBox(
         constraints: const BoxConstraints(maxHeight: 80),
-        child:
-        Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
-          AutoSizeText(title,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(color: Colors.blue)),
-           AutoSizeText(subtitle,
-              style: Theme.of(context).textTheme.bodySmall, maxLines: 2)
-        ]));
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AutoSizeText(title,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: Colors.blue)),
+              AutoSizeText(subtitle,
+                  style: Theme.of(context).textTheme.bodySmall, maxLines: 2)
+            ]));
   }
 }
 
@@ -97,10 +99,9 @@ class SliverTitle extends StatelessWidget {
     Size size = MediaQuery.sizeOf(context);
     return SliverToBoxAdapter(
         child: Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: size.width * 0.05,
-                    vertical: size.height * 0.05),
-                child: const TitleBannerWidget(
-                    title: "Animes en emisión", color: Colors.green)));
+            padding: EdgeInsets.symmetric(
+                horizontal: size.width * 0.05, vertical: size.height * 0.05),
+            child: const TitleBannerWidget(
+                title: "Animes en emisión", color: Colors.green)));
   }
 }

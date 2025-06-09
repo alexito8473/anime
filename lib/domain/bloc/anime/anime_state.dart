@@ -33,10 +33,10 @@ class AnimeState {
       required this.mapAnimesSave});
 
   factory AnimeState.init() {
-    Map<TypeVersionAnime, ListTypeAnimePage> mapPageAnimes = Map();
-    Map<Gender, GenderAnimeForPage> mapGeneresAnimes = Map();
-    Map<TypeMyAnimes, List<CompleteAnime>> mapAnimesLoad = Map();
-    Map<TypeMyAnimes, List<String>> mapAnimesSave = Map();
+    final Map<TypeVersionAnime, ListTypeAnimePage> mapPageAnimes = {};
+    final Map<Gender, GenderAnimeForPage> mapGeneresAnimes = {};
+    final Map<TypeMyAnimes, List<CompleteAnime>> mapAnimesLoad = {};
+    final Map<TypeMyAnimes, List<String>> mapAnimesSave = {};
     for (TypeVersionAnime versionAnime in TypeVersionAnime.values) {
       mapPageAnimes.putIfAbsent(
           versionAnime, () => ListTypeAnimePage.init(type: versionAnime));
@@ -104,9 +104,9 @@ class AnimeState {
   }
 
   factory AnimeState.fromJson(Map<String, dynamic> json) {
-    Map<TypeVersionAnime, ListTypeAnimePage> mapPageAnimes = Map();
-    Map<TypeMyAnimes, List<CompleteAnime>> mapAnimesLoad = Map();
-    Map<Gender, GenderAnimeForPage> mapGeneresAnimes = Map();
+    final Map<TypeVersionAnime, ListTypeAnimePage> mapPageAnimes = Map();
+    final Map<TypeMyAnimes, List<CompleteAnime>> mapAnimesLoad = Map();
+    final Map<Gender, GenderAnimeForPage> mapGeneresAnimes = Map();
     Map<TypeMyAnimes, List<String>> mapAnimesSave;
     for (TypeVersionAnime versionAnime in TypeVersionAnime.values) {
       mapPageAnimes.putIfAbsent(

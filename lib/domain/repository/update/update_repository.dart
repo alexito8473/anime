@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,7 +18,9 @@ class UpdateRepository {
       if (!canInstall) {
         var status = await Permission.requestInstallPackages.request();
         if (!status.isGranted) {
-          print("Permiso para instalar APKs denegado");
+          if (kDebugMode) {
+            print("Permiso para instalar APKs denegado");
+          }
           return false;
         }
       }
@@ -25,7 +28,9 @@ class UpdateRepository {
     if (sdkVersion <= 28) {
       var status = await Permission.storage.request();
       if (!status.isGranted) {
-        print("Permiso de almacenamiento denegado");
+        if (kDebugMode) {
+          print("Permiso de almacenamiento denegado");
+        }
         return false;
       }
     }

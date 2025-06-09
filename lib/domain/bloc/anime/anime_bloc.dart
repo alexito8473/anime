@@ -6,9 +6,9 @@ import 'package:anime/data/model/episode.dart';
 import 'package:anime/data/model/gender_anime_page.dart';
 import 'package:anime/data/model/last_episode.dart';
 import 'package:anime/domain/repository/anime/anime_repository.dart';
-import 'package:anime/presentation/pages/detail_anime_page.dart';
 import 'package:anime/presentation/pages/gender_list_anime_page.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
@@ -18,6 +18,7 @@ import '../../../data/model/list_type_anime_page.dart';
 import '../../../presentation/pages/server_page.dart';
 
 part 'anime_event.dart';
+
 part 'anime_state.dart';
 
 class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
@@ -69,7 +70,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
     });
 
     on<ObtainData>((event, emit) async {
-      List<Future<Null>> listFutures = List.empty(growable: true);
+      final List<Future<Null>> listFutures = List.empty(growable: true);
       emit(state.copyWith(isObtainAllData: false, initLoad: true));
       await Future.wait([
         Future.microtask(() => state.listAnimes.clear()),
@@ -95,14 +96,14 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
           animeRepository.getLastAddedAnimes(),
           animeRepository.getAiringAnimes(),
           animeRepository.searchByType(
-              listTypeAnimePage: state.mapPageAnimes[TypeVersionAnime.OVA]!),
+              listTypeAnimePage: state.mapPageAnimes[TypeVersionAnime.ova]!),
           animeRepository.searchByType(
-              listTypeAnimePage: state.mapPageAnimes[TypeVersionAnime.MOVIE]!),
+              listTypeAnimePage: state.mapPageAnimes[TypeVersionAnime.movie]!),
           animeRepository.searchByType(
-              listTypeAnimePage: state.mapPageAnimes[TypeVersionAnime.TV]!),
+              listTypeAnimePage: state.mapPageAnimes[TypeVersionAnime.tv]!),
           animeRepository.searchByType(
               listTypeAnimePage:
-                  state.mapPageAnimes[TypeVersionAnime.SPECIAL]!),
+                  state.mapPageAnimes[TypeVersionAnime.special]!),
         ]);
         await Future.wait([
           Future.microtask(() => state.lastEpisodes
@@ -112,16 +113,16 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
           Future.microtask(() => state.listAringAnime
               .addAll(results[2].map((e) => BasicAnime.fromJson(e)).toList())),
           Future.microtask(() => state
-              .mapPageAnimes[TypeVersionAnime.OVA]?.listAnime
+              .mapPageAnimes[TypeVersionAnime.ova]?.listAnime
               .addAll(Anime.listDynamicToListAnime(results[3]))),
           Future.microtask(() => state
-              .mapPageAnimes[TypeVersionAnime.MOVIE]?.listAnime
+              .mapPageAnimes[TypeVersionAnime.movie]?.listAnime
               .addAll(Anime.listDynamicToListAnime(results[4]))),
           Future.microtask(() => state
-              .mapPageAnimes[TypeVersionAnime.TV]?.listAnime
+              .mapPageAnimes[TypeVersionAnime.tv]?.listAnime
               .addAll(Anime.listDynamicToListAnime(results[5]))),
           Future.microtask(() => state
-              .mapPageAnimes[TypeVersionAnime.SPECIAL]?.listAnime
+              .mapPageAnimes[TypeVersionAnime.special]?.listAnime
               .addAll(Anime.listDynamicToListAnime(results[6]))),
           Future.microtask(() {
             state.mapPageAnimes.updateAll((key, value) {
@@ -132,7 +133,9 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
         emit(state.copyWith(isObtainAllData: true, initLoad: false));
         await Future.wait(listFutures);
       } catch (e) {
-        print("Error en el proceso de carga masiva de animes: $e");
+        if (kDebugMode) {
+          print('Error en el proceso de carga masiva de animes: $e');
+        }
       }
       emit(state.copyWith(isObtainAllData: true, initLoad: false));
     }, transformer: restartable());
@@ -170,10 +173,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
               }),
             // Navegación
             if (event.context.mounted)
-              Future.microtask(() => navigationAnimated(
-                  context: event.context,
-                  navigateWidget:
-                      DetailAnimePage(tag: event.tag, idAnime: value.id)))
+              Future.microtask(() => event.navigationPage())
           ]);
         });
       } catch (e) {}
@@ -267,7 +267,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
           emit(state.copyWith(initLoad: false));
         },
       );
-    },transformer: restartable());
+    }, transformer: restartable());
     on<ObtainVideoSever>((event, emit) async {
       if (event.episode.servers.isEmpty) {
         emit(state.copyWith(initLoad: true));
@@ -298,21 +298,11 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
           listAnimeState.sort((a, b) => a.title.compareTo(b.title));
         }
       } catch (e) {
-        print("Error al obtener anime con ID $id: $e");
+        if (kDebugMode) {
+          print('Error al obtener anime con ID $id: $e');
+        }
       }
     }).toList();
-  }
-
-  Future<void> navigationFuture(
-      {required BuildContext context,
-      required Widget navigateWidget,
-      bool isReplacement = false}) {
-    return Future.microtask(
-      () => navigationAnimated(
-          context: context,
-          navigateWidget: navigateWidget,
-          isReplacement: isReplacement),
-    );
   }
 
   void navigationAnimated(

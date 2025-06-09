@@ -7,12 +7,14 @@ class ObtainDataAnime extends AnimeEvent {
   final String id;
   final BuildContext context;
   final String? tag;
+  final void Function() navigationPage;
 
   ObtainDataAnime(
       {required this.context,
       required this.title,
       required this.id,
-      required this.tag});
+      required this.tag,
+      required this.navigationPage});
 }
 
 class SearchAnime extends AnimeEvent {
@@ -39,16 +41,17 @@ class ObtainDataType extends AnimeEvent {
 class ObtainDataGender extends AnimeEvent {
   final BuildContext context;
   final Gender gender;
-  ObtainDataGender(
-      {required this.context, required this.gender});
+
+  ObtainDataGender({required this.context, required this.gender});
 }
+
 class LoadMoreGender extends AnimeEvent {
   final BuildContext context;
   final Gender gender;
 
-  LoadMoreGender(
-      {required this.context, required this.gender});
+  LoadMoreGender({required this.context, required this.gender});
 }
+
 class ObtainVideoSever extends AnimeEvent {
   final Episode episode;
   final CompleteAnime anime;

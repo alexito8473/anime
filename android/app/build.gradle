@@ -1,7 +1,6 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
-    id 'com.google.gms.google-services'
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
 }
@@ -31,6 +30,7 @@ android {
         targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -45,6 +45,7 @@ flutter {
     source = "../.."
 }
 dependencies {
+    implementation 'androidx.multidex:multidex:2.0.1'
     // For AGP 7.4+
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
     // For AGP 7.3

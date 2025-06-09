@@ -9,6 +9,8 @@ class GenderListAnimeScreen extends StatelessWidget {
   final GenderAnimeForPage genderAnimeForPage;
   final bool isCollapsed;
   final Function goUp;
+  final void Function({required String id, String? tag, required String title})
+      onTapElement;
 
   const GenderListAnimeScreen(
       {super.key,
@@ -16,11 +18,15 @@ class GenderListAnimeScreen extends StatelessWidget {
       required this.scrollController,
       required this.genderAnimeForPage,
       required this.isCollapsed,
-      required this.goUp});
+      required this.goUp,
+      required this.onTapElement});
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
+    final Size size = MediaQuery.sizeOf(context);
+    final ThemeData theme = Theme.of(context);
+    final bool isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
     return Scaffold(
         body: CustomScrollView(controller: scrollController, slivers: [
       SliverAppBar.large(
@@ -39,7 +45,7 @@ class GenderListAnimeScreen extends StatelessWidget {
                       tag: genderAnimeForPage.typeVersionAnime.name,
                       child: ShaderMask(
                           shaderCallback: (bounds) {
-                            return LinearGradient(
+                            return const LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
@@ -59,15 +65,19 @@ class GenderListAnimeScreen extends StatelessWidget {
             vertical: size.height * 0.005,
           ),
           sliver: SliverGrid.builder(
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 150,
                   mainAxisExtent: 300,
                   crossAxisSpacing: 10),
               itemCount: genderAnimeForPage.listAnime.length,
               itemBuilder: (context, index) {
                 return BannerAnime(
+                    size: size,
+                    theme: theme,
+                    isPortrait: isPortrait,
                     anime: genderAnimeForPage.listAnime[index],
-                    tag: "${genderAnimeForPage.listAnime[index].title} $index");
+                    tag: '${genderAnimeForPage.listAnime[index].title} $index',
+                    onTapElement: onTapElement);
               })),
     ]));
   }

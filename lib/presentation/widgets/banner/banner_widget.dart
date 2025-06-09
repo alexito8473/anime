@@ -24,58 +24,62 @@ class BannerWidget extends StatelessWidget {
   final List<LastEpisode> lastEpisodes;
   final Size size;
   final Orientation orientation;
+  final void Function({required String id, String? tag, required String title})
+      onTapElement;
 
   const BannerWidget(
       {super.key,
       required this.lastEpisodes,
       required this.size,
-      required this.orientation});
+      required this.orientation,
+      required this.onTapElement});
 
   @override
   Widget build(BuildContext context) {
-    double height =
-        orientation == Orientation.portrait ? size.height * 0.4 : 300;
+    final double height =
+        orientation == Orientation.portrait ? size.height * 0.5 : 300;
     if (lastEpisodes.isEmpty) {
       return SliverToBoxAdapter(
           child: Container(
               constraints: const BoxConstraints(minHeight: 300),
-              height: size.height * 0.3,
+              height: height,
               child: Stack(children: [
-                FlutterCarousel(
-                    items: Gender.values.sublist(1, 7).map((gender) {
-                      return ShaderMask(
-                          shaderCallback: (bounds) {
-                            return LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.transparent,
-                                  Colors.black54,
-                                  Colors.black
-                                ]).createShader(bounds);
-                          },
-                          blendMode: BlendMode.darken,
-                          child: ImageFiltered(
-                              imageFilter: ImageFilter.blur(
-                                  tileMode: TileMode.decal,
-                                  sigmaX: 4,
-                                  sigmaY: 4),
-                              child: Image.asset(gender.getImage(),
-                                  filterQuality: FilterQuality.none,
-                                  isAntiAlias: false,
-                                  color: Colors.black.withAlpha(130),
-                                  width: size.width,
-                                  colorBlendMode: BlendMode.darken,
-                                  fit: BoxFit.cover)));
-                    }).toList(),
-                    options: FlutterCarouselOptions(
-                        enableInfiniteScroll: true,
-                        autoPlay: true,
-                        viewportFraction: 1,
-                        autoPlayCurve: Curves.linear,
-                        allowImplicitScrolling: true,
-                        height: height,
-                        showIndicator: true)),
+                Positioned.fill(
+                    child: FlutterCarousel(
+                        items: Gender.values.sublist(1, 7).map((gender) {
+                          return ShaderMask(
+                              shaderCallback: (bounds) {
+                                return const LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      Colors.black54,
+                                      Colors.black
+                                    ]).createShader(bounds);
+                              },
+                              blendMode: BlendMode.darken,
+                              child: ImageFiltered(
+                                  imageFilter: ImageFilter.blur(
+                                      tileMode: TileMode.decal,
+                                      sigmaX: 4,
+                                      sigmaY: 4),
+                                  child: Image.asset(gender.getImage(),
+                                      filterQuality: FilterQuality.none,
+                                      isAntiAlias: false,
+                                      color: Colors.black.withAlpha(130),
+                                      width: size.width,
+                                      colorBlendMode: BlendMode.darken,
+                                      fit: BoxFit.cover)));
+                        }).toList(),
+                        options: FlutterCarouselOptions(
+                            enableInfiniteScroll: true,
+                            autoPlay: true,
+                            viewportFraction: 1,
+                            autoPlayCurve: Curves.linear,
+                            allowImplicitScrolling: true,
+                            height: height,
+                            showIndicator: true))),
                 Positioned(
                     child: SafeArea(
                         child: Padding(
@@ -83,7 +87,7 @@ class BannerWidget extends StatelessWidget {
                                 left: size.width * 0.05,
                                 top: size.height * 0.01),
                             child: const TitleBannerWidget(
-                                title: "Últimos episodeos agregados",
+                                title: 'Últimos episódeos agregados',
                                 color: Colors.orange,
                                 shadows: [
                                   Shadow(
@@ -98,13 +102,15 @@ class BannerWidget extends StatelessWidget {
     return SliverToBoxAdapter(
         child: Container(
             constraints: const BoxConstraints(minHeight: 300),
-            height: size.height * 0.3,
+            height: height,
             child: Stack(children: [
               Positioned.fill(
                   child: FlutterCarousel(
                       items: lastEpisodes
-                          .map((lastEpisode) =>
-                              BannerCarrouselAnime(lastEpisode: lastEpisode))
+                          .map((lastEpisode) => RepaintBoundary(
+                              child: BannerCarrouselAnime(
+                                  lastEpisode: lastEpisode,
+                                  onTapElement: onTapElement)))
                           .toList(),
                       options: FlutterCarouselOptions(
                           enableInfiniteScroll: true,
@@ -135,21 +141,20 @@ class BannerWidget extends StatelessWidget {
 
 class BannerCarrouselAnime extends StatelessWidget {
   final LastEpisode lastEpisode;
+  final void Function({required String id, String? tag, required String title})
+      onTapElement;
 
-  const BannerCarrouselAnime({super.key, required this.lastEpisode});
-
-  void obtainData({required BuildContext context}) =>
-      context.read<AnimeBloc>().add(ObtainDataAnime(
-          context: context,
-          title: lastEpisode.getTitle(),
-          id: lastEpisode.idAnime(),
-          tag: null));
+  const BannerCarrouselAnime(
+      {super.key, required this.lastEpisode, required this.onTapElement});
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
+    final Size size = MediaQuery.sizeOf(context);
     return GestureDetector(
-        onTap: () => obtainData(context: context),
+        onTap: () => onTapElement(
+            id: lastEpisode.idAnime(),
+            title: lastEpisode.getTitle(),
+            tag: null),
         child: Stack(children: [
           Positioned.fill(
               child: ShaderMask(
@@ -184,7 +189,7 @@ class BannerCarrouselAnime extends StatelessWidget {
                         child: Text(lastEpisode.anime,
                             style: Theme.of(context).textTheme.titleMedium,
                             softWrap: true)),
-                    Text("Episodeo : ${lastEpisode.episode}",
+                    Text('Episodeo : ${lastEpisode.episode}',
                         style: Theme.of(context).textTheme.titleMedium)
                   ]))
         ]));
@@ -198,6 +203,8 @@ class ListBannerAnime extends StatelessWidget {
   final String title;
   final TypeAnime typeAnime;
   final Color colorTitle;
+  final void Function({required String id, String? tag, required String title})
+      onTapElement;
 
   const ListBannerAnime(
       {super.key,
@@ -206,10 +213,15 @@ class ListBannerAnime extends StatelessWidget {
       required this.tag,
       required this.title,
       required this.typeAnime,
-      required this.colorTitle});
+      required this.colorTitle,
+      required this.onTapElement});
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.sizeOf(context);
+    final ThemeData theme = Theme.of(context);
+    final bool isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
     return SliverToBoxAdapter(
         child: Column(
             spacing: 20,
@@ -227,7 +239,7 @@ class ListBannerAnime extends StatelessWidget {
                   children: [
                     TitleBannerWidget(
                         tag: tag, title: title, color: colorTitle),
-                    ButtonNavigateListAnime(
+                    ButtonNavigateListAnimeWidget(
                         color: colorTitle,
                         animes: listAnime,
                         tag: tag,
@@ -242,74 +254,76 @@ class ListBannerAnime extends StatelessWidget {
                       horizontal: size.width * 0.05),
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    spacing: size.width * 0.05,
-                    children: Gender.values.sublist(9, 12).map(
-                      (gender) {
-                        return ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: ImageFiltered(
-                                imageFilter: ImageFilter.blur(
-                                    tileMode: TileMode.decal,
-                                    sigmaX: 6,
-                                    sigmaY: 6),
-                                child: Container(
-                                    constraints:
-                                        const BoxConstraints(minWidth: 150),
-                                    width: size.width * 0.45,
-                                    child: Column(
-                                        spacing: size.height * 0.005,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                              height: 180,
-                                              child: Stack(children: [
-                                                Positioned(
-                                                    top: 0,
-                                                    left: 0,
-                                                    right: 0,
-                                                    bottom: 0,
-                                                    child: Image.asset(
-                                                        gender.getImage(),
-                                                        fit: BoxFit.cover,
-                                                        filterQuality:
-                                                            FilterQuality
-                                                                .high)),
-                                                Positioned(
-                                                    top: 15,
-                                                    left: 8,
-                                                    child: Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              3),
-                                                      decoration: BoxDecoration(
-                                                          color: Colors.black,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      20)),
-                                                      child: Text("5.0",
-                                                          style: Theme.of(
-                                                                  context)
-                                                              .textTheme
-                                                              .labelLarge
-                                                              ?.copyWith(
-                                                                  color: Colors
-                                                                      .yellow)),
-                                                    ))
-                                              ]))
-                                        ]))));
-                      },
-                    ).toList(),
-                  ),
-                )
+                      spacing: size.width * 0.05,
+                      children: Gender.values.sublist(9, 12).map(
+                        (gender) {
+                          return ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: ImageFiltered(
+                                  imageFilter: ImageFilter.blur(
+                                      tileMode: TileMode.decal,
+                                      sigmaX: 6,
+                                      sigmaY: 6),
+                                  child: Container(
+                                      constraints:
+                                          const BoxConstraints(minWidth: 150),
+                                      width: size.width * 0.45,
+                                      child: Column(
+                                          spacing: size.height * 0.005,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(
+                                                height: 180,
+                                                child: Stack(children: [
+                                                  Positioned(
+                                                      top: 0,
+                                                      left: 0,
+                                                      right: 0,
+                                                      bottom: 0,
+                                                      child: Image.asset(
+                                                          gender.getImage(),
+                                                          fit: BoxFit.cover,
+                                                          filterQuality:
+                                                              FilterQuality
+                                                                  .high)),
+                                                  Positioned(
+                                                      top: 15,
+                                                      left: 8,
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(3),
+                                                        decoration: BoxDecoration(
+                                                            color: Colors.black,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20)),
+                                                        child: Text('5.0',
+                                                            style: theme
+                                                                .textTheme
+                                                                .labelLarge
+                                                                ?.copyWith(
+                                                                    color: Colors
+                                                                        .yellow)),
+                                                      ))
+                                                ]))
+                                          ]))));
+                        },
+                      ).toList()))
               : kIsWeb || Platform.isWindows || Platform.isMacOS
                   ? SizedBox(
                       width: size.width,
                       height: 300,
-                      child: DragCarousel(listAnime: listAnime, tag: tag))
+                      child: DragCarousel(
+                        listAnime: listAnime,
+                        tag: tag,
+                        onTapElement: (String id, String? tag) =>
+                            onTapElement(id: id, tag: tag, title: title),
+                      ))
                   : SingleChildScrollView(
                       padding: EdgeInsets.symmetric(
                           vertical: size.height * 0.05,
@@ -319,8 +333,16 @@ class ListBannerAnime extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: size.width * 0.05,
                           children: listAnime
-                              .map((lastAnime) =>
-                                  BannerAnime(anime: lastAnime, tag: tag))
+                              .map((lastAnime) => BannerAnime(
+                                  anime: lastAnime,
+                                  theme: theme,
+                                  isPortrait: isPortrait,
+                                  size: size,
+                                  tag: tag,
+                                  onTapElement: (
+                                          {required id, tag, required title}) =>
+                                      onTapElement(
+                                          id: id, tag: tag, title: title)))
                               .toList()))
         ]));
   }
@@ -334,30 +356,24 @@ class BannerBlur extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      Positioned.fill(
-          child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: Colors.white24)),
-              child: ClipRRect(
-                  borderRadius: BorderRadius.circular(30),
-                  child: ImageFiltered(
-                      imageFilter: ImageFilter.blur(
-                          tileMode: TileMode.decal, sigmaX: 1, sigmaY: 1),
-                      child: Image.asset(image,
-                          filterQuality: FilterQuality.none,
-                          isAntiAlias: false,
-                          color: Colors.black.withAlpha(130),
-                          colorBlendMode: BlendMode.darken,
-                          fit: BoxFit.cover))))),
-      Positioned.fill(
-          child: Center(
-              child: Text(text,
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelLarge
-                      ?.copyWith(fontWeight: FontWeight.bold))))
+    return Stack(alignment: Alignment.center, children: [
+      ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+              child: Image.asset(image,
+                  width: double.infinity,
+                  height: double.infinity,
+                  filterQuality: FilterQuality.none,
+                  isAntiAlias: false,
+                  color: Colors.black.withAlpha(130),
+                  colorBlendMode: BlendMode.darken,
+                  fit: BoxFit.cover))),
+      Text(text,
+          style: Theme.of(context)
+              .textTheme
+              .labelLarge
+              ?.copyWith(fontWeight: FontWeight.bold))
     ]);
   }
 }
@@ -365,22 +381,27 @@ class BannerBlur extends StatelessWidget {
 class BannerAnime extends StatelessWidget {
   final Anime anime;
   final String? tag;
+  final Size size;
+  final ThemeData theme;
+  final bool isPortrait;
+  final void Function({required String id, String? tag, required String title})
+      onTapElement;
 
-  const BannerAnime({super.key, required this.anime, required this.tag});
-
-  void onTap({required BuildContext context}) =>
-      context.read<AnimeBloc>().add(ObtainDataAnime(
-          tag: tag,
-          context: context,
-          id: anime.idAnime(),
-          title: anime.getTitle()));
+  const BannerAnime(
+      {super.key,
+      required this.anime,
+      required this.tag,
+      required this.size,
+      required this.theme,
+      required this.isPortrait,
+      required this.onTapElement});
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
-    Orientation orientation = MediaQuery.orientationOf(context);
+    final Orientation orientation = MediaQuery.orientationOf(context);
+    final BorderRadius borderRadius = BorderRadius.circular(20);
     return GestureDetector(
-        onTap: () => onTap(context: context),
+        onTap: () => onTapElement(id: anime.id, tag: tag, title: anime.title),
         child: Container(
             constraints: const BoxConstraints(minWidth: 150),
             width: orientation == Orientation.portrait
@@ -403,7 +424,7 @@ class BannerAnime extends StatelessWidget {
                                 tag: tag,
                                 heroTag: anime.poster,
                                 child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: borderRadius,
                                     child: CachedNetworkImage(
                                         imageUrl: anime.poster,
                                         fit: BoxFit.cover,
@@ -415,25 +436,23 @@ class BannerAnime extends StatelessWidget {
                         Positioned(
                             top: 15,
                             left: 8,
-                            child: HeroAnimationWidget(
-                                tag: tag,
-                                heroTag: anime.rating + anime.title,
-                                child: Container(
-                                  padding: const EdgeInsets.all(3),
-                                  decoration: BoxDecoration(
-                                      color: Colors.black,
-                                      borderRadius: BorderRadius.circular(20)),
-                                  child: Text(anime.rating,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelLarge
-                                          ?.copyWith(color: Colors.yellow)),
-                                )))
+                            child: Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: borderRadius),
+                              child: AutoSizeText(anime.rating,
+                                  maxLines: 3,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelLarge
+                                      ?.copyWith(color: Colors.yellow)),
+                            ))
                       ])),
                   TitleWidget(
                       title: anime.title,
                       maxLines: 3,
-                      textStyle: Theme.of(context).textTheme.titleSmall!,
+                      textStyle: theme.textTheme.titleSmall!,
                       tag: tag)
                 ])));
   }
@@ -442,16 +461,13 @@ class BannerAnime extends StatelessWidget {
 class BannerAnimeAndEpisodes extends StatelessWidget {
   final CompleteAnime completeAnime;
   final String? tag;
+  final void Function({required String id, String? tag, required String title}) onTapElement;
 
   const BannerAnimeAndEpisodes(
-      {super.key, required this.completeAnime, required this.tag});
-
-  void onTap({required BuildContext context}) =>
-      context.read<AnimeBloc>().add(ObtainDataAnime(
-          tag: tag,
-          context: context,
-          id: completeAnime.idAnime(),
-          title: completeAnime.getTitle()));
+      {super.key,
+      required this.completeAnime,
+      required this.tag,
+      required this.onTapElement});
 
   int calculateEpisodeView({required BuildContext context}) {
     return completeAnime.episodes
@@ -465,10 +481,10 @@ class BannerAnimeAndEpisodes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
-    Orientation orientation = MediaQuery.orientationOf(context);
+    final Size size = MediaQuery.sizeOf(context);
+    final Orientation orientation = MediaQuery.orientationOf(context);
     return GestureDetector(
-        onTap: () => onTap(context: context),
+        onTap: () => onTapElement(id:completeAnime.id,tag: tag,title: completeAnime.title),
         child: Container(
             constraints: const BoxConstraints(minWidth: 150),
             width: orientation == Orientation.portrait
@@ -520,7 +536,7 @@ class BannerAnimeAndEpisodes extends StatelessWidget {
                       ])),
                   Wrap(children: [
                     TitleWidget(
-                        title: "Episodeos vistos: ",
+                        title: 'Episodeos vistos: ',
                         maxLines: 1,
                         textStyle: Theme.of(context)
                             .textTheme
@@ -529,7 +545,7 @@ class BannerAnimeAndEpisodes extends StatelessWidget {
                         tag: null),
                     TitleWidget(
                         title:
-                            "${calculateEpisodeView(context: context)} / ${completeAnime.episodes.length}",
+                            '${calculateEpisodeView(context: context)} / ${completeAnime.episodes.length}',
                         maxLines: 1,
                         textStyle: Theme.of(context)
                             .textTheme
@@ -586,19 +602,19 @@ class BannerAnimeReload extends StatelessWidget {
 }
 
 class BannerAiringAnime extends StatelessWidget {
-  final BasicAnime aringAnime;
+  final BasicAnime airingAnime;
   final Size size;
+  final void Function({required String id, String? tag, required String title}) onTap;
 
   const BannerAiringAnime(
-      {super.key, required this.aringAnime, required this.size});
+      {super.key,
+      required this.airingAnime,
+      required this.size,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-      onTap: () => context.read<AnimeBloc>().add(ObtainDataAnime(
-          title: aringAnime.title,
-          id: aringAnime.id,
-          context: context,
-          tag: null)),
+      onTap: () => onTap(title: airingAnime.title,id: airingAnime.id),
       child: Card(
           color: Colors.grey.withOpacity(0.2),
           child: Padding(
@@ -606,10 +622,10 @@ class BannerAiringAnime extends StatelessWidget {
                   horizontal: size.width * 0.05, vertical: size.height * 0.01),
               child: Row(spacing: 10, children: [
                 Expanded(
-                    child: AutoSizeText(aringAnime.title,
+                    child: AutoSizeText(airingAnime.title,
                         style: Theme.of(context).textTheme.labelLarge,
                         maxLines: 3)),
-                AutoSizeText("(${aringAnime.type})",
+                AutoSizeText('(${airingAnime.type})',
                     style: Theme.of(context)
                         .textTheme
                         .labelLarge
@@ -622,9 +638,13 @@ class BannerAiringAnime extends StatelessWidget {
 class ListAiringAnime extends StatelessWidget {
   final List<BasicAnime> listAringAnime;
   final Size size;
+  final void Function({required String id, String? tag, required String title}) onTapElement;
 
   const ListAiringAnime(
-      {super.key, required this.listAringAnime, required this.size});
+      {super.key,
+      required this.listAringAnime,
+      required this.size,
+      required this.onTapElement});
 
   @override
   Widget build(BuildContext context) {
@@ -635,7 +655,9 @@ class ListAiringAnime extends StatelessWidget {
             bottom: size.height * 0.1),
         sliver: SliverList.builder(
             itemBuilder: (context, index) => BannerAiringAnime(
-                size: size, aringAnime: listAringAnime[index]),
+                size: size,
+                airingAnime: listAringAnime[index],
+                onTap: onTapElement),
             itemCount: listAringAnime.length));
   }
 }
@@ -643,8 +665,13 @@ class ListAiringAnime extends StatelessWidget {
 class DragCarousel extends StatefulWidget {
   final List<Anime> listAnime;
   final String? tag;
+  final void Function(String id, String? tag) onTapElement;
 
-  const DragCarousel({super.key, required this.listAnime, required this.tag});
+  const DragCarousel(
+      {super.key,
+      required this.listAnime,
+      required this.tag,
+      required this.onTapElement});
 
   @override
   State<DragCarousel> createState() => _DragCarouselState();
@@ -658,7 +685,10 @@ class _DragCarouselState extends State<DragCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
+    final Size size = MediaQuery.sizeOf(context);
+    final ThemeData theme = Theme.of(context);
+    final bool isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
     return Listener(
         onPointerDown: (event) {
           // Guarda la posición inicial del clic y el desplazamiento actual del scroll
@@ -708,7 +738,13 @@ class _DragCarouselState extends State<DragCarousel> {
             },
             itemBuilder: (context, index) {
               return BannerAnime(
-                  anime: widget.listAnime[index], tag: widget.tag);
+                size: size,
+                isPortrait: isPortrait,
+                theme: theme,
+                anime: widget.listAnime[index],
+                tag: widget.tag,
+                onTapElement: ({required id, tag, required title}) {},
+              );
             }));
   }
 }

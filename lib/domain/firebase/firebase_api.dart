@@ -18,16 +18,20 @@ class FirebaseApi {
   final localNotification = FlutterLocalNotificationsPlugin();
 
   static Future<void> handleBackgroundMessage(RemoteMessage message) async {
-    print("title :${message.notification?.title}");
-    print("body :${message.notification?.body}");
-    print("data :${message.data}");
+    if (kDebugMode) {
+      print("title :${message.notification?.title}");
+      print("body :${message.notification?.body}");
+      print("data :${message.data}");
+    }
   }
 
   static Future<void> handleMessage(RemoteMessage? message) async {
     if (message == null) return;
-    print("title :${message.notification?.title}");
-    print("body :${message.notification?.body}");
-    print("data :${message.data}");
+    if (kDebugMode) {
+      print("title :${message.notification?.title}");
+      print("body :${message.notification?.body}");
+      print("data :${message.data}");
+    }
   }
 
   @pragma('vm:entry-point')
@@ -93,9 +97,7 @@ class FirebaseApi {
     FirebaseMessaging.onMessageOpenedApp.listen(
       (event) {
         final notification = event.notification;
-        print("hola aqui llega");
         if (notification == null) return;
-        print("hola aqui llega 1");
         localNotification.show(
             notification.hashCode,
             notification.title,
@@ -109,9 +111,7 @@ class FirebaseApi {
     );
     FirebaseMessaging.onMessage.listen((message) {
       final notification = message.notification;
-      print("hola aqui llega 2");
       if (notification == null) return;
-      print("hola aqui llega 3");
       localNotification.show(
           notification.hashCode,
           notification.title,

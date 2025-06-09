@@ -1,7 +1,7 @@
 enum TypesVision {
-  ALL("Todo"),
-  NO_VISION("No visto"),
-  VISION("Visto");
+  all("Todo"),
+  noVision("No visto"),
+  vision("Visto");
 
   final String content;
   const TypesVision(this.content);

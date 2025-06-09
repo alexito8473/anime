@@ -127,14 +127,14 @@ class BannerEpisode extends StatelessWidget {
   }
 }
 
-class ListEpisodes extends StatelessWidget {
+class ListEpisodesWidget extends StatelessWidget {
   final CompleteAnime anime;
   final List<Episode> episodes;
   final TextEditingController textController;
   final Function onTapSaveEpisode;
   final Widget? action;
 
-  const ListEpisodes(
+  const ListEpisodesWidget(
       {super.key,
       required this.anime,
       required this.episodes,

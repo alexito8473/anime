@@ -8,20 +8,24 @@ class ExploreScreen extends StatelessWidget {
   final TextEditingController controller;
   final Function onSubmit;
   final List<Anime> listAnime;
+  final void Function({required String id, String? tag, required String title}) onTapElement;
   const ExploreScreen(
       {super.key,
       required this.controller,
       required this.onSubmit,
-      required this.listAnime});
+      required this.listAnime, required this.onTapElement});
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
+    final Size size = MediaQuery.sizeOf(context);
+    final ThemeData theme = Theme.of(context);
+    final bool isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
     return Scaffold(
       body: CustomScrollView(slivers: [
         SliverAppBar(
             backgroundColor: Colors.grey.shade900,
-            title: const AutoSizeText("Buscador de anime")),
+            title: const AutoSizeText('Buscador de anime')),
         SliverPadding(
             padding: EdgeInsets.only(top: size.height * 0.01),
             sliver: SliverAppBarSearch(
@@ -42,7 +46,10 @@ class ExploreScreen extends StatelessWidget {
                 delegate: SliverChildBuilderDelegate(
                     childCount: listAnime.length, (context, index) {
                   return BannerAnime(
-                      anime: listAnime[index], tag: 'animeSearch');
+                      size: size,
+                      theme: theme,
+                      isPortrait: isPortrait,
+                      anime: listAnime[index], tag: 'animeSearch', onTapElement:onTapElement);
                 }),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     crossAxisSpacing: 10,

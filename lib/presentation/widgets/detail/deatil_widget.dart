@@ -1,4 +1,3 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,91 +12,88 @@ class AppBarDetailAnime extends StatelessWidget {
   final String? tag;
   final Widget safeAnime;
 
-  const AppBarDetailAnime(
-      {super.key,
-      required this.anime,
-      required this.tag,
-      required this.safeAnime});
+  const AppBarDetailAnime({
+    super.key,
+    required this.anime,
+    required this.tag,
+    required this.safeAnime,
+  });
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
-    Orientation orientation = MediaQuery.orientationOf(context);
+    final size = MediaQuery.of(context).size;
+    final orientation = MediaQuery.of(context).orientation;
+    final imageUrl = anime.isNotBannerCorrect ? anime.poster : anime.banner;
+
     return SliverAppBar.large(
         leading: IconButton(
             onPressed: () => Navigator.pop(context),
             icon: const Icon(CupertinoIcons.back, color: Colors.white)),
         actions: [safeAnime],
-        collapsedHeight: size.height*0.1,
+        collapsedHeight: size.height * 0.1,
         expandedHeight: size.height * 0.45,
-        title: Text(anime.title,style: Theme.of(context).textTheme.titleLarge),
-        flexibleSpace:FlexibleSpaceBar(
-          background: Stack(children: [
-            Positioned.fill(
-                child: ShaderMask(
-                        shaderCallback: (Rect bounds) {
-                          return RadialGradient(
-                              center: Alignment.topRight,
-                              radius: 1.05,
-                              colors: [
-                                Colors.transparent,
-                                Colors.transparent,
-                                Colors.black38,
-                                Colors.black54,
-                                Colors.black
-                              ]).createShader(bounds);
-                        },
-                        blendMode: BlendMode.darken,
-                        child: CachedNetworkImage(
-                            alignment: Alignment.topCenter,
-                            color: Colors.black12,
-                            colorBlendMode: BlendMode.darken,
-                            imageUrl: anime.isNotBannerCorrect
-                                ? anime.poster
-                                : anime.banner,
-                            filterQuality: FilterQuality.high,
-                            fit: BoxFit.cover))),
-            Positioned.fill(
-                child: Container(
-                    height: size.height * 0.4,
-                    width: size.width,
-                    padding: EdgeInsets.only(
+        title: Text(anime.title, style: Theme.of(context).textTheme.titleLarge),
+        flexibleSpace: FlexibleSpaceBar(
+            collapseMode: CollapseMode.pin,
+            background: Stack(children: [
+              Positioned.fill(
+                  child: ShaderMask(
+                      shaderCallback: (Rect bounds) => const RadialGradient(
+                            center: Alignment.topRight,
+                            radius: 1.05,
+                            colors: [
+                              Colors.transparent,
+                              Colors.transparent,
+                              Colors.black38,
+                              Colors.black54,
+                              Colors.black,
+                            ],
+                          ).createShader(bounds),
+                      blendMode: BlendMode.darken,
+                      child: CachedNetworkImage(
+                          alignment: Alignment.topCenter,
+                          color: Colors.black12,
+                          colorBlendMode: BlendMode.darken,
+                          imageUrl: imageUrl,
+                          filterQuality: FilterQuality.high,
+                          fit: BoxFit.cover))),
+              Positioned.fill(
+                  child: Container(
+                      padding: EdgeInsets.only(
                         top: size.height * 0.1,
                         bottom: size.height * 0.02,
                         right: size.width * .05,
-                        left: size.width * .05),
-                    child: Row(
-                        spacing: size.width * .04,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        verticalDirection: VerticalDirection.down,
-                        children: [
-                          HeroAnimationWidget(
+                        left: size.width * .05,
+                      ),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            HeroAnimationWidget(
                               tag: tag,
                               heroTag: anime.poster,
                               child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: CachedNetworkImage(
-                                    imageUrl: anime.poster,
-                                    filterQuality: FilterQuality.high,
-                                    fit: BoxFit.contain,
-                                    height: orientation == Orientation.portrait
-                                        ? size.height * 0.27
-                                        : size.height * 0.5,
-                                  ))),
-                          Expanded(
-                              child:
-                              TitleWidget(
-                                  title: anime.title,
-                                  maxLines: 8,
-                                  textStyle:
-                                  Theme.of(context).textTheme.titleLarge!,
-                                  tag: tag)
-                          )
-                        ])))
-          ]),
-        ) );
+                                borderRadius: BorderRadius.circular(20),
+                                child: CachedNetworkImage(
+                                  imageUrl: anime.poster,
+                                  filterQuality: FilterQuality.high,
+                                  fit: BoxFit.contain,
+                                  height: orientation == Orientation.portrait
+                                      ? size.height * 0.27
+                                      : size.height * 0.5,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                                child: TitleWidget(
+                                    title: anime.title,
+                                    maxLines: 8,
+                                    textStyle:
+                                        Theme.of(context).textTheme.titleLarge!,
+                                    tag: tag))
+                          ])))
+            ])));
   }
 }
 
@@ -109,17 +105,17 @@ class SynopsysWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         child: Column(
             spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text("Synopsis",
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(color: Colors.blue)),
-              AutoSizeText(title, style: Theme.of(context).textTheme.labelLarge)
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue)),
+              AutoSizeText(title, style: TextStyle(fontSize: 16))
             ]));
   }
 }

@@ -24,6 +24,8 @@ class ServerListPage extends StatefulWidget {
 class _ServerListPageState extends State<ServerListPage> {
   int _currentPage = 0;
   bool onFullScreen = false;
+  late CompleteAnime anime;
+  late Episode episode;
   InAppWebViewController? webViewController;
   final List<String> list = List.unmodifiable(
       ["hlsflast.com", "streamwish", "yourupload", "ok.ru", "rapidplayers"]);
@@ -55,6 +57,13 @@ class _ServerListPageState extends State<ServerListPage> {
 
   @override
   void initState() {
+     anime = context
+        .read<AnimeBloc>()
+        .state
+        .listAnimes
+        .firstWhere((element) => element.id == widget.idAnime);
+    episode =
+        anime.episodes.firstWhere((element) => element.id == widget.idEpisode);
     task();
     super.initState();
   }
@@ -63,7 +72,6 @@ class _ServerListPageState extends State<ServerListPage> {
     setState(() {
       _currentPage = index;
     });
-
     await webViewController?.loadUrl(
         urlRequest: URLRequest(
             allowsExpensiveNetworkAccess: true,
@@ -72,13 +80,6 @@ class _ServerListPageState extends State<ServerListPage> {
   }
 
   void task() async {
-    CompleteAnime anime = context
-        .read<AnimeBloc>()
-        .state
-        .listAnimes
-        .firstWhere((element) => element.id == widget.idAnime);
-    Episode episode =
-        anime.episodes.firstWhere((element) => element.id == widget.idEpisode);
     await webViewController?.loadUrl(
         urlRequest: URLRequest(
             allowsExpensiveNetworkAccess: true,
@@ -96,18 +97,21 @@ class _ServerListPageState extends State<ServerListPage> {
   }
 
   void onTapLeft() {
-    CompleteAnime anime = context
-        .read<AnimeBloc>()
-        .state
-        .listAnimes
-        .firstWhere((element) => element.id == widget.idAnime);
-    Episode episode =
-        anime.episodes.firstWhere((element) => element.id == widget.idEpisode);
-    context.read<AnimeBloc>().add(ObtainVideoSever(
-        context: context,
-        anime: anime,
-        episode: anime.episodes[episode.episode - 2],
-        isNavigationReplacement: true));
+    if (anime.episodes.first.episode == 1) {
+      context.read<AnimeBloc>().add(ObtainVideoSever(
+          context: context,
+          anime: anime,
+          episode: anime.episodes[episode.episode - 2],
+          isNavigationReplacement: true));
+    } else {
+      int episode = anime.episodes
+          .indexWhere((element) => element.id == widget.idEpisode);
+      context.read<AnimeBloc>().add(ObtainVideoSever(
+          context: context,
+          anime: anime,
+          episode: anime.episodes[episode + 1],
+          isNavigationReplacement: true));
+    }
   }
 
   void onTapSaveEpisode(bool isSave, Episode episode) {
@@ -117,29 +121,36 @@ class _ServerListPageState extends State<ServerListPage> {
   }
 
   void onTapRight() {
-    CompleteAnime anime = context
-        .read<AnimeBloc>()
-        .state
-        .listAnimes
-        .firstWhere((element) => element.id == widget.idAnime);
-    Episode episode =
-        anime.episodes.firstWhere((element) => element.id == widget.idEpisode);
-    context.read<AnimeBloc>().add(ObtainVideoSever(
-        context: context,
-        anime: anime,
-        episode: anime.episodes[episode.episode],
-        isNavigationReplacement: true));
+    if (anime.episodes.first.episode == 1) {
+      context.read<AnimeBloc>().add(ObtainVideoSever(
+          context: context,
+          anime: anime,
+          episode: anime.episodes[episode.episode],
+          isNavigationReplacement: true));
+    } else {
+      int episode = anime.episodes
+          .indexWhere((element) => element.id == widget.idEpisode);
+      context.read<AnimeBloc>().add(ObtainVideoSever(
+          context: context,
+          anime: anime,
+          episode: anime.episodes[episode - 1],
+          isNavigationReplacement: true));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
     return AnimationLoadPage(
-        child: BlocBuilder<AnimeBloc, AnimeState>(builder: (context, state) {
-      CompleteAnime anime = state.listAnimes
+        child: BlocConsumer<AnimeBloc, AnimeState>(listener: (context, state) {
+      CompleteAnime animeNew = state.listAnimes
           .firstWhere((element) => element.id == widget.idAnime);
-      Episode episode = anime.episodes
-          .firstWhere((element) => element.id == widget.idEpisode);
+      setState(() {
+        anime=animeNew;
+        episode = animeNew.episodes
+            .firstWhere((element) => element.id == widget.idEpisode);
+      });
+    }, builder: (context, state) {
       return ServerScreen(
           episode: episode,
           currentPage: _currentPage,

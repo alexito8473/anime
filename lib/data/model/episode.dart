@@ -14,7 +14,7 @@ class Episode {
       this.part});
   int compareTo(Episode other) {
     // Comparar por edad de forma ascendente
-    return this.episode.compareTo(other.episode);
+    return episode.compareTo(other.episode);
   }
   factory Episode.fromJson(Map<String, dynamic> json) {
     dynamic jsonValue = json['episode'];

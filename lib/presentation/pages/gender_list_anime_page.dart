@@ -1,11 +1,13 @@
 import 'package:anime/data/enums/gender.dart';
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/model/gender_anime_page.dart';
 import '../screens/gender_list_anime_screen.dart';
 import '../widgets/load/load_widget.dart';
+import 'detail_anime_page.dart';
 
 class GenderListAnimePage extends StatefulWidget {
   final Gender gender;
@@ -47,7 +49,7 @@ class _GenderListAnimePageState extends State<GenderListAnimePage> {
 
   void _scrollToTop() {
     _controller.animateTo(0, // Ir al inicio
-        duration: Duration(milliseconds: 800), // Duración de la animación
+        duration: const Duration(milliseconds: 800), // Duración de la animación
         curve: Curves.easeInOut // Curva de animación
         );
   }
@@ -72,6 +74,35 @@ class _GenderListAnimePageState extends State<GenderListAnimePage> {
           .add(LoadMoreGender(gender: widget.gender, context: context));
     }
   }
+  void navigation({required String id, String? tag, required String title}) {
+    context.read<AnimeBloc>().add(ObtainDataAnime(
+        context: context,
+        id: id,
+        navigationPage: () {
+          Navigator.push(
+              context,
+              PageRouteBuilder(
+                  allowSnapshotting: true,
+                  barrierColor: Colors.black38,
+                  opaque: true,
+                  barrierDismissible: true,
+                  reverseTransitionDuration: const Duration(milliseconds: 600),
+                  transitionDuration: const Duration(milliseconds: 600),
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      DetailAnimePage(idAnime: id, tag: tag),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(
+                        opacity: CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.decelerate,
+                            reverseCurve: Curves.decelerate),
+                        child: child);
+                  }));
+        },
+        tag: tag,
+        title: title));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +118,7 @@ class _GenderListAnimePageState extends State<GenderListAnimePage> {
                 scrollController: _controller,
                 targetKey: key,
                 isCollapsed: isCollapsed,
-                goUp: _scrollToTop));
+                goUp: _scrollToTop, onTapElement: navigation,));
       },
     );
   }

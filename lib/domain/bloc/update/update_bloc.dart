@@ -1,6 +1,7 @@
 import 'package:anime/domain/repository/update/update_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:open_file/open_file.dart';
 
 part 'update_event.dart';
@@ -20,8 +21,11 @@ class UpdateBloc extends Bloc<UpdateEvent, UpdateState> {
         }
       }
       String versionUltima = ultimaVersion['tag_name'];
-      print("version. " + versionInstalada);
-      print("version. " + versionUltima);
+
+      if (kDebugMode) {
+        print("version instalada. $versionInstalada");
+        print("version última. $versionUltima");
+      }
       if (versionInstalada != versionUltima) {
         emit(state.copyWith(canUpdate: true, urlApk: url));
       }
@@ -58,14 +62,20 @@ class UpdateBloc extends Bloc<UpdateEvent, UpdateState> {
         final result = await OpenFile.open(filePath);
         if (result.type == ResultType.error) {
           emit(state.copyWith(isError: true));
-          print("Error al abrir la APK: ${result.message}");
+          if (kDebugMode) {
+            print("Error al abrir la APK: ${result.message}");
+          }
         } else {
           emit(state.copyWith(isError: false));
-          print("APK abierta correctamente para instalación");
+          if (kDebugMode) {
+            print("APK abierta correctamente para instalación");
+          }
         }
       } catch (e) {
         emit(state.copyWith(isError: true));
-        print("Error al descargar la APK: $e");
+        if (kDebugMode) {
+          print("Error al descargar la APK: $e");
+        }
       }
     });
   }

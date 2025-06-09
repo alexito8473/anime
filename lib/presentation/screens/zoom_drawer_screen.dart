@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ZoomDrawerScreen extends StatelessWidget {
-  final Function changeIndex;
+  final Function(int index) changeIndex;
 
   const ZoomDrawerScreen({super.key, required this.changeIndex});
 
@@ -16,7 +16,7 @@ class ZoomDrawerScreen extends StatelessWidget {
     return Padding(
         padding:  EdgeInsets.only(left: size.width*0.01),
         child: ElevatedButton(
-            onPressed: () => changeIndex(index: current),
+            onPressed: () => changeIndex(current),
             style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey.withAlpha(50),
                     padding: const EdgeInsets.symmetric(
@@ -33,7 +33,7 @@ class ZoomDrawerScreen extends StatelessWidget {
               }
               return null;
             })),
-            child:  Row(
+            child: Row(
                   spacing: 10,
                   children: [
                     Icon(icon,color: Colors.white,),
@@ -56,15 +56,14 @@ class ZoomDrawerScreen extends StatelessWidget {
               Container(
                   padding: const EdgeInsets.only(top: 50, left: 10),
                   alignment: Alignment.centerLeft,
-                  child: SafeArea(
-                      child: CircleAvatar(
+                  child: CircleAvatar(
                           maxRadius: 45,
                           minRadius: 40,
                           backgroundImage: Image.asset(context
-                                  .watch<ConfigurationBloc>()
-                                  .state
-                                  .imagePerson)
-                              .image))),
+                              .watch<ConfigurationBloc>()
+                              .state
+                              .imagePerson)
+                              .image)),
               createButtonDrawer(
                 icon: Icons.home,
                   title: "Inicio", current: 0, size: size, context: context),

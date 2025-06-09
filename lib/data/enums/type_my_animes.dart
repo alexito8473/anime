@@ -1,5 +1,4 @@
-import 'package:anime/constans.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:anime/constansT.dart';
 import 'package:flutter/material.dart';
 
 enum TypeMyAnimes {

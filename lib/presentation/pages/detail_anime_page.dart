@@ -23,82 +23,73 @@ class DetailAnimePage extends StatefulWidget {
 
 class _DetailAnimePageState extends State<DetailAnimePage> {
   final TextEditingController _controller = TextEditingController();
-  TypesVision typesVision = TypesVision.ALL;
-  late TypeMyAnimes miAnime = TypeMyAnimes.NONE;
+  late CompleteAnime anime;
+  late bool isSave;
+  TypesVision typesVision = TypesVision.all;
+  late TypeMyAnimes miAnime;
   int _currentPage = 0;
 
   @override
   void initState() {
-    miAnime = checkTypeAnime();
-    _controller.addListener(() {
-      setState(() {});
-    });
     super.initState();
+    anime = context
+        .read<AnimeBloc>()
+        .state
+        .listAnimes
+        .firstWhere((anime) => anime.id == widget.idAnime);
+    miAnime = checkTypeAnime();
+    isSave = miAnime != TypeMyAnimes.NONE;
+    _controller.addListener(() => setState(() {}));
   }
 
   TypeMyAnimes checkTypeAnime() {
-    List<TypeMyAnimes> typeMyAnimes = TypeMyAnimes.values
-        .where((element) => context
-            .read<AnimeBloc>()
-            .state
-            .mapAnimesLoad[element]!
-            .map((e) => e.id)
-            .contains(widget.idAnime))
-        .toList();
-    return typeMyAnimes.isEmpty ? TypeMyAnimes.NONE : typeMyAnimes.first;
+    final animeBloc = context.read<AnimeBloc>().state.mapAnimesLoad;
+    return TypeMyAnimes.values.firstWhere(
+      (type) =>
+          animeBloc[type]?.any((anime) => anime.id == widget.idAnime) ?? false,
+      orElse: () => TypeMyAnimes.NONE,
+    );
   }
 
   List<Episode> filteredList(List<Episode> list, String text, bool isConfig) {
-    List<Episode> listFiltered = List.empty(growable: true);
-    listFiltered.addAll(text.isEmpty
+    final filtered = text.isEmpty
         ? list
-        : list
-            .where((element) => element.episode.toString().contains(text))
-            .toList());
-    listFiltered.sort((a, b) => isConfig ? a.compareTo(b) : b.compareTo(a));
-    return typesVision == TypesVision.NO_VISION
-        ? listFiltered
-            .where((element) => !context
-                .watch<AnimeBloc>()
-                .state
-                .listEpisodesView
-                .contains(element.id))
-            .toList()
-        : typesVision == TypesVision.VISION
-            ? listFiltered
-                .where((element) => context
-                    .watch<AnimeBloc>()
-                    .state
-                    .listEpisodesView
-                    .contains(element.id))
-                .toList()
-            : listFiltered;
+        : list.where((ep) => ep.episode.toString().contains(text)).toList();
+
+    filtered.sort((a, b) => isConfig ? a.compareTo(b) : b.compareTo(a));
+
+    final watchedEpisodes = context.watch<AnimeBloc>().state.listEpisodesView;
+    return typesVision == TypesVision.noVision
+        ? filtered.where((ep) => !watchedEpisodes.contains(ep.id)).toList()
+        : typesVision == TypesVision.vision
+            ? filtered.where((ep) => watchedEpisodes.contains(ep.id)).toList()
+            : filtered;
   }
 
-  void saveAnime(
-          {required bool isSave,
-          required CompleteAnime anime,
-          required TypeMyAnimes typeMyAnimes}) =>
-      context.read<AnimeBloc>().add(
-          SaveAnime(anime: anime, isSave: isSave, typeMyAnimes: typeMyAnimes));
+  void saveAnime(bool isSave, CompleteAnime anime, TypeMyAnimes typeMyAnimes) {
+    context.read<AnimeBloc>().add(
+        SaveAnime(anime: anime, isSave: isSave, typeMyAnimes: typeMyAnimes));
+  }
 
-  void onTapSaveEpisode(bool isSave, Episode episode) => context
-      .read<AnimeBloc>()
-      .add(SaveEpisode(episode: episode, isSave: isSave));
+  void onTapSaveEpisode(bool isSave, Episode episode) {
+    context
+        .read<AnimeBloc>()
+        .add(SaveEpisode(episode: episode, isSave: isSave));
+  }
 
-  Future<void> openDialog(
-      {required CompleteAnime anime, required bool isSave}) async {
+  Future<void> openDialog(CompleteAnime anime) async {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-            title: Text('¿Cual es su categoría?',
+            title: Text('¿Cuál es su categoría?',
                 style: Theme.of(context).textTheme.titleLarge),
             backgroundColor: Colors.grey.shade800,
             content: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                    color: Colors.grey.shade900,
-                    borderRadius: BorderRadius.circular(10)),
+                  color: Colors.grey.shade900,
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: DropdownButton<TypeMyAnimes>(
                     value: miAnime,
                     underline: const SizedBox(),
@@ -112,17 +103,15 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
                         color: Colors.orange),
                     items: TypeMyAnimes.values
                         .map((vision) => DropdownMenuItem(
-                            value: vision,
-                            child: Text(vision.name,
-                                style: const TextStyle(color: Colors.white))))
+                              value: vision,
+                              child: Text(vision.name,
+                                  style: const TextStyle(color: Colors.white)),
+                            ))
                         .toList(),
                     onChanged: (value) {
-                      if (miAnime == value || value == null) {
-                        return;
-                      }
+                      if (value == null || miAnime == value) return;
                       setState(() => miAnime = value);
-                      saveAnime(
-                          anime: anime, isSave: isSave, typeMyAnimes: value);
+                      saveAnime(isSave, anime, value);
                       Navigator.of(context).pop();
                     }))));
   }
@@ -131,97 +120,110 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return BlocBuilder<ConfigurationBloc, ConfigurationState>(
         builder: (context, stateConfig) {
-      return BlocBuilder<AnimeBloc, AnimeState>(builder: (context, state) {
-        CompleteAnime anime = state.listAnimes
-            .firstWhere((element) => element.id == widget.idAnime);
-        bool isSave = miAnime != TypeMyAnimes.NONE;
+      return BlocConsumer<AnimeBloc, AnimeState>(listener: (context, state) {
+        setState(() {
+          anime = context
+              .read<AnimeBloc>()
+              .state
+              .listAnimes
+              .firstWhere((anime) => anime.id == widget.idAnime);
+          miAnime = checkTypeAnime();
+          isSave = miAnime != TypeMyAnimes.NONE;
+        });
+      }, builder: (context, state) {
         return AnimationLoadPage(
-            child: DetailAnimeScreen(
-                size: MediaQuery.sizeOf(context),
-                anime: anime,
-                onTap: onTap,
-                currentPage: _currentPage,
-                listAnimeFilter: filteredList(
-                    anime.episodes, _controller.text, stateConfig.isUpwardList),
-                textController: _controller,
-                tag: widget.tag,
-                onTapSaveEpisode: onTapSaveEpisode,
-                safeAnime: Row(children: [
-                  if (miAnime != TypeMyAnimes.NONE)
-                    Container(
-                        decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(20)),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 3),
-                        child: Text(miAnime.name,
+            child: Scaffold(
+                backgroundColor: Colors.black,
+                body: DetailAnimeScreen(
+                  size: size,
+                  anime: anime,
+                  onTap: onTap,
+                  currentPage: _currentPage,
+                  listAnimeFilter: filteredList(anime.episodes,
+                      _controller.text, stateConfig.isUpwardList),
+                  textController: _controller,
+                  tag: widget.tag,
+                  onTapSaveEpisode: onTapSaveEpisode,
+                  safeAnime: Row(children: [
+                    if (isSave)
+                      Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 3),
+                          decoration: BoxDecoration(
+                              color: Colors.black,
+                              borderRadius: BorderRadius.circular(20)),
+                          child: Text(
+                            miAnime.name,
                             style: Theme.of(context)
                                 .textTheme
-                                .titleMedium!
-                                .copyWith(
+                                .titleMedium
+                                ?.copyWith(
                                     color: Colors.green,
-                                    fontWeight: FontWeight.bold))),
-                  IconButton(
-                      onPressed: () async =>
-                          await openDialog(isSave: isSave, anime: anime),
-                      isSelected: isSave,
-                      style: const ButtonStyle(
-                          elevation: WidgetStatePropertyAll(200)),
-                      selectedIcon:
-                          const Icon(Icons.autorenew, color: Colors.orange),
-                      icon:
-                          const Icon(CupertinoIcons.heart, color: Colors.white))
-                ]),
-                action: Row(children: [
-                  Container(
+                                    fontWeight: FontWeight.bold),
+                          )),
+                    IconButton(
+                        onPressed: () => openDialog(anime),
+                        isSelected: isSave,
+                        style: const ButtonStyle(
+                            elevation: WidgetStatePropertyAll(200)),
+                        selectedIcon:
+                            const Icon(Icons.autorenew, color: Colors.orange),
+                        icon: const Icon(CupertinoIcons.heart,
+                            color: Colors.white))
+                  ]),
+                  action: Row(children: [
+                    Container(
                       margin: const EdgeInsets.only(right: 5),
                       padding: const EdgeInsets.symmetric(horizontal: 5),
                       decoration: BoxDecoration(
                           color: Colors.grey.shade900,
                           borderRadius: BorderRadius.circular(15)),
                       child: IconButton(
-                          onPressed: () => context
-                              .read<ConfigurationBloc>()
-                              .add(ChangeOrderList()),
-                          color: Colors.white,
-                          isSelected: context
-                              .read<ConfigurationBloc>()
-                              .state
-                              .isUpwardList,
-                          icon: const Icon(Icons.arrow_downward),
-                          selectedIcon: const Icon(Icons.arrow_upward))),
-                  Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                          color: Colors.grey.shade900,
-                          borderRadius: BorderRadius.circular(15)),
-                      child: DropdownButton<TypesVision>(
-                          value: typesVision,
-                          underline: const SizedBox(),
-                          style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500),
-                          borderRadius: BorderRadius.circular(15),
-                          dropdownColor: Colors.grey.shade900,
-                          icon: const Icon(Icons.keyboard_arrow_down,
-                              color: Colors.orange),
-                          items: TypesVision.values
-                              .map((vision) => DropdownMenuItem(
-                                  value: vision,
-                                  child: Text(vision.content,
-                                      style: const TextStyle(
-                                          color: Colors.white))))
-                              .toList(),
-                          onChanged: (value) {
-                            if (typesVision == value || value == null) {
-                              return;
-                            }
-                            setState(() => typesVision = value);
-                          }))
-                ])));
+                        onPressed: () => context
+                            .read<ConfigurationBloc>()
+                            .add(ChangeOrderList()),
+                        color: Colors.white,
+                        isSelected: context
+                            .read<ConfigurationBloc>()
+                            .state
+                            .isUpwardList,
+                        icon: const Icon(Icons.arrow_downward),
+                        selectedIcon: const Icon(Icons.arrow_upward),
+                      ),
+                    ),
+                    Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                            color: Colors.grey.shade900,
+                            borderRadius: BorderRadius.circular(15)),
+                        child: DropdownButton<TypesVision>(
+                            value: typesVision,
+                            underline: const SizedBox(),
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500),
+                            borderRadius: BorderRadius.circular(15),
+                            dropdownColor: Colors.grey.shade900,
+                            icon: const Icon(Icons.keyboard_arrow_down,
+                                color: Colors.orange),
+                            items: TypesVision.values
+                                .map((vision) => DropdownMenuItem(
+                                    value: vision,
+                                    child: Text(vision.content,
+                                        style: const TextStyle(
+                                            color: Colors.white))))
+                                .toList(),
+                            onChanged: (value) {
+                              if (value == null || typesVision == value) return;
+                              setState(() => typesVision = value);
+                            }))
+                  ]),
+                  onTapElement: (String id, String? tag) {},
+                )));
       });
     });
   }

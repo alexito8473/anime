@@ -1,6 +1,6 @@
 enum TypeAnime {
-  ADD,
-  SAVE;
+  add,
+  save;
 
-  bool isAdd() => this == TypeAnime.ADD;
+  bool isAdd() => this == TypeAnime.add;
 }

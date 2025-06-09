@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../data/model/anime.dart';
 
-class ButtonNavigateListAnime extends StatelessWidget {
+class ButtonNavigateListAnimeWidget extends StatelessWidget {
   final Color color;
   final List<Anime> animes;
   final String tag;
@@ -12,36 +12,36 @@ class ButtonNavigateListAnime extends StatelessWidget {
   final Color colorTitle;
   final TypeAnime typeAnime;
 
-  const ButtonNavigateListAnime(
-      {super.key,
-      required this.color,
-      required this.animes,
-      required this.tag,
-      required this.title,
-      required this.colorTitle,
-      required this.typeAnime});
+  const ButtonNavigateListAnimeWidget({
+    super.key,
+    required this.color,
+    required this.animes,
+    required this.tag,
+    required this.title,
+    required this.colorTitle,
+    required this.typeAnime,
+  });
 
-  void navigateListAnime({required BuildContext context}) {
+  void navigateListAnime(BuildContext context) {
     Navigator.push(
         context,
         PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 600),
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                ListAnimePage(
-                    tag: tag,
-                    title: title,
-                    colorTitle: colorTitle,
-                    typeAnime: typeAnime),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) =>
-                    FadeTransition(opacity: animation, child: child)));
+            pageBuilder: (_, __, ___) => ListAnimePage(
+                  tag: tag,
+                  title: title,
+                  colorTitle: colorTitle,
+                  typeAnime: typeAnime,
+                ),
+            transitionsBuilder: (_, animation, __, child) =>
+                FadeTransition(opacity: animation, child: child)));
   }
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-        style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(color)),
-        onPressed: () => navigateListAnime(context: context),
+        style: ButtonStyle(backgroundColor: WidgetStateProperty.all(color)),
+        onPressed: () => navigateListAnime(context),
         child: const Text("Ver todos"));
   }
 }

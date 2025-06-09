@@ -1,7 +1,7 @@
 import 'package:anime/data/interface/anime_interface.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../constans.dart';
+import '../../constanst.dart';
 
 class LastEpisode implements AnimeInterface {
   final String anime;

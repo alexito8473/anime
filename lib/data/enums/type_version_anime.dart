@@ -1,35 +1,35 @@
-import 'package:anime/constans.dart';
+import 'package:anime/constanst.dart';
 
 enum TypeVersionAnime {
-  TV('tv'),
-  OVA('ova'),
-  MOVIE('movie'),
-  SPECIAL('special');
+  tv('tv'),
+  ova('ova'),
+  movie('movie'),
+  special('special');
 
   final String value;
   const TypeVersionAnime(this.value);
   String getImage() {
     switch (this) {
-      case TypeVersionAnime.TV:
+      case TypeVersionAnime.tv:
         return Constants.urlAssetImagePageTV;
-      case TypeVersionAnime.OVA:
+      case TypeVersionAnime.ova:
         return Constants.urlAssetImagePageOva;
-      case TypeVersionAnime.MOVIE:
+      case TypeVersionAnime.movie:
         return Constants.urlAssetImagePageSerie;
-      case TypeVersionAnime.SPECIAL:
+      case TypeVersionAnime.special:
         return Constants.urlAssetImagePageSpecial;
     }
   }
 
   String getTitle() {
     switch (this) {
-      case TypeVersionAnime.TV:
+      case TypeVersionAnime.tv:
         return "Televisión";
-      case TypeVersionAnime.OVA:
+      case TypeVersionAnime.ova:
         return "Ova";
-      case TypeVersionAnime.MOVIE:
+      case TypeVersionAnime.movie:
         return "Películas";
-      case TypeVersionAnime.SPECIAL:
+      case TypeVersionAnime.special:
         return "Especiales";
     }
   }

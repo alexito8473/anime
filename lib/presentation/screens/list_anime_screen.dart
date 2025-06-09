@@ -10,17 +10,23 @@ class ListAnimeScreen extends StatelessWidget {
   final Color colorTitle;
   final List<Anime> listAnime;
   final TextEditingController controller;
+  final void Function(String id, String? tag) onTapElement;
+
   const ListAnimeScreen(
       {super.key,
       required this.tag,
       required this.title,
       required this.colorTitle,
       required this.controller,
-      required this.listAnime});
+      required this.listAnime,
+      required this.onTapElement});
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
+    final Size size = MediaQuery.sizeOf(context);
+    final ThemeData theme = Theme.of(context);
+    final bool isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
     return Scaffold(
         body: CustomScrollView(slivers: [
       SliverAppBar(
@@ -35,8 +41,14 @@ class ListAnimeScreen extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
           sliver: SliverGrid.builder(
               itemCount: listAnime.length,
-              itemBuilder: (context, index) =>
-                  BannerAnime(anime: listAnime[index], tag: tag),
+              itemBuilder: (context, index) => BannerAnime(
+                    size: size,
+                    theme: theme,
+                    isPortrait: isPortrait,
+                    anime: listAnime[index],
+                    tag: tag,
+                    onTapElement: ({required id, tag, required title}) =>
+                        onTapElement(id, tag)),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   crossAxisSpacing: 20,
                   mainAxisSpacing: 20,
