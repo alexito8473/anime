@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:math';
+
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:anime/domain/bloc/update/update_bloc.dart';
 import 'package:anime/presentation/pages/home_page.dart';
@@ -10,16 +13,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'domain/bloc/configuration/configuration_bloc.dart';
-
 final navigatorKey = GlobalKey<NavigatorState>();
-
 void main() async {
   final List<String> listEpisodesView = List.empty(growable: true);
   WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // await FirebaseApi().initNotifications();
-  // FirebaseMessaging.instance.subscribeToTopic("global");
-  SystemChrome.setPreferredOrientations(DeviceOrientation.values);
   HydratedBloc.storage = await HydratedStorage.build(
       storageDirectory: kIsWeb
           ? HydratedStorageDirectory.web
@@ -59,22 +56,18 @@ class MyApp extends StatelessWidget {
                 primary: Color(0xFF1C2833),
                 // Azul noche anime
                 onPrimary: Colors.white,
-
                 // ✨ Colores secundarios
                 secondary: Color(0xFFD4AC0D),
                 // Dorado anime
                 onSecondary: Colors.black,
                 // Mejor contraste
-
                 // ❌ Errores
                 error: Color(0xFFCF6679),
                 onError: Colors.black,
-
                 // 🧱 Fondo general
                 background: Color(0xFF121212),
                 // Fondo oscuro elegante
                 onBackground: Color(0xFFEAECEE),
-
                 // 🖼️ Superficies como tarjetas, diálogos
                 surface:  Colors.black,
                 // Leve contraste con background

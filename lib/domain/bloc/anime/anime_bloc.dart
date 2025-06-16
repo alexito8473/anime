@@ -6,6 +6,7 @@ import 'package:anime/data/model/episode.dart';
 import 'package:anime/data/model/gender_anime_page.dart';
 import 'package:anime/data/model/last_episode.dart';
 import 'package:anime/domain/repository/anime/anime_repository.dart';
+import 'package:anime/presentation/pages/detail_anime_page.dart';
 import 'package:anime/presentation/pages/gender_list_anime_page.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter/foundation.dart';
@@ -34,25 +35,28 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
     });
 
     on<SaveAnime>((event, emit) async {
-      state.mapAnimesLoad.updateAll((key, value) {
-        value.removeWhere((element) => element.id == event.anime.id);
+      // Clonar los mapas para mantener inmutabilidad
+      final newMapAnimesLoad = state.mapAnimesLoad.map((key, value) {
+        final newList = List<CompleteAnime>.from(value);
+        newList.removeWhere((element) => element.id == event.anime.id);
         if (key == event.typeMyAnimes) {
-          value.add(event.anime);
-          value.sort((a, b) => a.title.compareTo(b.title));
+          newList.add(event.anime);
+          newList.sort((a, b) => a.title.compareTo(b.title));
         }
-        return value;
+        return MapEntry(key, newList);
       });
-      state.mapAnimesSave.updateAll((key, value) {
-        value.removeWhere((element) => element == event.anime.id);
+
+      final newMapAnimesSave = state.mapAnimesSave.map((key, value) {
+        final newList = List<String>.from(value);
+        newList.removeWhere((id) => id == event.anime.id);
         if (key == event.typeMyAnimes) {
-          value.add(event.anime.id);
+          newList.add(event.anime.id);
         }
-        return value;
+        return MapEntry(key, newList);
       });
-      // Más adelante e optimizara
+
       emit(state.copyWith(
-          mapAnimesLoad: state.mapAnimesLoad,
-          mapPageAnimes: state.mapPageAnimes));
+          mapAnimesLoad: newMapAnimesLoad, mapAnimesSave: newMapAnimesSave));
     });
 
     on<SaveEpisode>((event, emit) async {
@@ -173,7 +177,11 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
               }),
             // Navegación
             if (event.context.mounted)
-              Future.microtask(() => event.navigationPage())
+              Future.microtask(() => navigationAnimated(
+                  context: event.context,
+                  isReplacement: false,
+                  navigateWidget:
+                      DetailAnimePage(idAnime: event.id, tag: event.tag)))
           ]);
         });
       } catch (e) {}
@@ -207,13 +215,21 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
 
     on<SearchAnime>((event, emit) async {
       emit(state.copyWith(initLoad: true));
-      await animeRepository.search(event.query).then((value) {
-        state.listSearchAnime.clear();
-        state.listSearchAnime
-            .addAll(value.map((e) => Anime.fromJson(e)).toList());
-      });
-      emit(state.copyWith(initLoad: false));
+
+      try {
+        final response = await animeRepository.search(event.query);
+        final searchResults = response.map((e) => Anime.fromJson(e)).toList();
+
+        emit(state.copyWith(
+          initLoad: false,
+          listSearchAnime: searchResults,
+        ));
+      } catch (e) {
+        // Aquí puedes manejar errores si lo necesitas
+        emit(state.copyWith(initLoad: false));
+      }
     });
+
     on<ObtainDataGender>((event, emit) async {
       if (state.mapGeneresAnimes[event.gender]!.listAnime.isNotEmpty) {
         navigationAnimated(
@@ -268,6 +284,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
         },
       );
     }, transformer: restartable());
+
     on<ObtainVideoSever>((event, emit) async {
       if (event.episode.servers.isEmpty) {
         emit(state.copyWith(initLoad: true));

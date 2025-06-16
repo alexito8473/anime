@@ -28,7 +28,7 @@ class _ServerListPageState extends State<ServerListPage> {
   late Episode episode;
   InAppWebViewController? webViewController;
   final List<String> list = List.unmodifiable(
-      ["hlsflast.com", "streamwish", "yourupload", "ok.ru", "rapidplayers"]);
+      ['hlsflast.com', 'streamwish', 'yourupload', 'ok.ru', 'rapidplayers']);
   final InAppWebViewSettings inAppWebViewSettings = InAppWebViewSettings(
       allowFileAccess: true,
       useHybridComposition: true,
@@ -104,7 +104,7 @@ class _ServerListPageState extends State<ServerListPage> {
           episode: anime.episodes[episode.episode - 2],
           isNavigationReplacement: true));
     } else {
-      int episode = anime.episodes
+      final int episode = anime.episodes
           .indexWhere((element) => element.id == widget.idEpisode);
       context.read<AnimeBloc>().add(ObtainVideoSever(
           context: context,
@@ -128,7 +128,7 @@ class _ServerListPageState extends State<ServerListPage> {
           episode: anime.episodes[episode.episode],
           isNavigationReplacement: true));
     } else {
-      int episode = anime.episodes
+      final int episode = anime.episodes
           .indexWhere((element) => element.id == widget.idEpisode);
       context.read<AnimeBloc>().add(ObtainVideoSever(
           context: context,
@@ -140,10 +140,10 @@ class _ServerListPageState extends State<ServerListPage> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
+    final Size size = MediaQuery.sizeOf(context);
     return AnimationLoadPage(
         child: BlocConsumer<AnimeBloc, AnimeState>(listener: (context, state) {
-      CompleteAnime animeNew = state.listAnimes
+      final CompleteAnime animeNew = state.listAnimes
           .firstWhere((element) => element.id == widget.idAnime);
       setState(() {
         anime=animeNew;

@@ -13,10 +13,10 @@ class ConfigurationState {
       required this.imagePerson});
 
   factory ConfigurationState.init() => const ConfigurationState(
-      version: "",
+      version: '',
       isUpwardList: false,
-      imageBackGround: "assets/backgroundImage/wallpaper1.jpg",
-      imagePerson: "assets/wallpaper/saitama.webp");
+      imageBackGround: 'assets/backgroundImage/wallpaper1.jpg',
+      imagePerson: 'assets/wallpaper/saitama.webp');
 
   ConfigurationState copyWith(
       {String? version,

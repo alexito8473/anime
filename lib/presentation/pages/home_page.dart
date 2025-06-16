@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:anime/domain/bloc/update/update_bloc.dart';
-import 'package:anime/presentation/pages/detail_anime_page.dart';
 import 'package:anime/presentation/pages/explore_page.dart';
 import 'package:anime/presentation/screens/home/types_anime_screen.dart';
 import 'package:anime/presentation/screens/home/save_screen.dart';
@@ -99,11 +98,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void changeIndexTypeAnimePage({required int index}) {
-    if (_currentIndexTypeAnimePage == index) {
-      moveScroll(_targetKeyList[index]);
-    } else {
-      setState(() => _currentIndexTypeAnimePage = index);
-    }
+    _currentIndexTypeAnimePage == index
+        ? moveScroll(_targetKeyList[index])
+        : setState(() => _currentIndexTypeAnimePage = index);
   }
 
   void navigateToSearch() {
@@ -127,33 +124,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void navigation({required String id, String? tag, required String title}) {
-    context.read<AnimeBloc>().add(ObtainDataAnime(
-        context: context,
-        id: id,
-        navigationPage: () {
-          Navigator.push(
-              context,
-              PageRouteBuilder(
-                  allowSnapshotting: true,
-                  barrierColor: Colors.black38,
-                  opaque: true,
-                  barrierDismissible: true,
-                  reverseTransitionDuration: const Duration(milliseconds: 600),
-                  transitionDuration: const Duration(milliseconds: 600),
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      DetailAnimePage(idAnime: id, tag: tag),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                    return FadeTransition(
-                        opacity: CurvedAnimation(
-                            parent: animation,
-                            curve: Curves.decelerate,
-                            reverseCurve: Curves.decelerate),
-                        child: child);
-                  }));
-        },
-        tag: tag,
-        title: title));
+    context
+        .read<AnimeBloc>()
+        .add(ObtainDataAnime(context: context, id: id, tag: tag, title: title));
   }
 
   void showModelUpdate(BuildContext context) {
@@ -197,67 +170,77 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     final orientation = MediaQuery.orientationOf(context);
-    return BlocConsumer<UpdateBloc, UpdateState>(listener: (context, state) {
-      if (state.canUpdate) {
-        showModelUpdate(context);
-      }
-    }, builder: (context, state) {
-      return AnimationLoadPage(
-          child: Stack(children: [
-        Positioned.fill(
-            child: Image.asset(
-                context.watch<ConfigurationBloc>().state.imageBackGround,
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.none,
-                colorBlendMode: BlendMode.darken,
-                color: Colors.black54,
-                alignment: Alignment.topCenter)),
-        ZoomDrawer(
-            controller: zoomDrawerController,
-            drawerShadowsBackgroundColor: Colors.grey.shade800,
-            slideWidth: orientation == Orientation.portrait
-                ? size.width * 0.65
-                : size.width * 0.35,
-            angle: 0.0,
-            menuBackgroundColor: Colors.transparent,
-            disableDragGesture: false,
-            closeCurve: Curves.linear,
-            overlayBlend: BlendMode.darken,
-            openCurve: Curves.linear,
-            showShadow: true,
-            menuScreen:
-                ZoomDrawerScreen(changeIndex: (index) => changeIndex(index)),
-            mainScreen: Scaffold(
-                appBar: AppBar(
-                    title: context.watch<UpdateBloc>().state.isUpdating
-                        ? Text(
-                            'Descargando : ${context.read<UpdateBloc>().state.advance}%')
-                        : null,
-                    shadowColor: Colors.transparent,
-                    surfaceTintColor: Colors.transparent,
-                    leading: IconButton(onPressed: () => zoomDrawerController.toggle?.call(), icon: const Icon(Icons.menu)),
-                    actions: [
-                      IconButton(
-                          onPressed: () => navigateToSearch(),
-                          icon: const Icon(Icons.search))
-                    ]),
-                body: [
-                  HomeScreen(onTapElement: navigation),
-                  SaveScreen(
-                      onTapElement: navigation,
-                      animeTypes: animeTypes,
-                      tabController: tabController),
-                  TypesAnimePage(
-                      currentIndex: _currentIndexTypeAnimePage,
-                      listScreenTypePage: listScreenTypePage,
-                      changeIndex: changeIndexTypeAnimePage,
-                      canUpdate: _canUpdate,
-                      scrollControllers: _scrollControllers,
-                      loadMore: loadMore),
-                  const GenderAnimeScreen(),
-                  const ConfigurationScreen()
-                ][_currentIndex]))
-      ]));
-    });
+    return BlocListener<UpdateBloc, UpdateState>(
+        listener: (context, state) {
+          if (state.canUpdate) {
+            showModelUpdate(context);
+          }
+        },
+        child: AnimationLoadPage(
+            child: Stack(children: [
+          BlocSelector<ConfigurationBloc, ConfigurationState, String>(
+            selector: (state) => state.imageBackGround,
+            builder: (context, state) {
+              return Positioned.fill(
+                  child: Image.asset(state,
+                      fit: BoxFit.cover,
+                      filterQuality: FilterQuality.none,
+                      colorBlendMode: BlendMode.darken,
+                      color: Colors.black54,
+                      alignment: Alignment.topCenter));
+            },
+          ),
+          ZoomDrawer(
+              controller: zoomDrawerController,
+              drawerShadowsBackgroundColor: Colors.grey.shade800,
+              slideWidth: orientation == Orientation.portrait
+                  ? size.width * 0.65
+                  : size.width * 0.35,
+              angle: 0.0,
+              menuBackgroundColor: Colors.transparent,
+              disableDragGesture: false,
+              closeCurve: Curves.linear,
+              overlayBlend: BlendMode.darken,
+              openCurve: Curves.linear,
+              showShadow: true,
+              menuScreen:
+                  ZoomDrawerScreen(changeIndex: (index) => changeIndex(index)),
+              mainScreen: Scaffold(
+                  appBar: AppBar(
+                      title: BlocSelector<UpdateBloc, UpdateState, String>(
+                          selector: (state) => state.advance,
+                          builder: (context, state) {
+                            return state!=''
+                                ? Text(
+                                    'Descargando : $state%')
+                                : const Text('');
+                          }),
+                      shadowColor: Colors.transparent,
+                      surfaceTintColor: Colors.transparent,
+                      leading: IconButton(
+                          onPressed: () => zoomDrawerController.toggle?.call(),
+                          icon: const Icon(Icons.menu)),
+                      actions: [
+                        IconButton(
+                            onPressed: () => navigateToSearch(),
+                            icon: const Icon(Icons.search))
+                      ]),
+                  body: [
+                    HomeScreen(onTapElement: navigation),
+                    SaveScreen(
+                        onTapElement: navigation,
+                        animeTypes: animeTypes,
+                        tabController: tabController),
+                    TypesAnimePage(
+                        currentIndex: _currentIndexTypeAnimePage,
+                        listScreenTypePage: listScreenTypePage,
+                        changeIndex: changeIndexTypeAnimePage,
+                        canUpdate: _canUpdate,
+                        scrollControllers: _scrollControllers,
+                        loadMore: loadMore),
+                    const GenderAnimeScreen(),
+                    const ConfigurationScreen()
+                  ][_currentIndex]))
+        ])));
   }
 }

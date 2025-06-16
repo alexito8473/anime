@@ -14,22 +14,22 @@ class UpdateRepository {
 
   Future<bool> obtainPermissionAndroid(int sdkVersion) async {
     if (Platform.isAndroid) {
-      bool canInstall = await Permission.requestInstallPackages.isGranted;
+      final bool canInstall = await Permission.requestInstallPackages.isGranted;
       if (!canInstall) {
-        var status = await Permission.requestInstallPackages.request();
+        final status = await Permission.requestInstallPackages.request();
         if (!status.isGranted) {
           if (kDebugMode) {
-            print("Permiso para instalar APKs denegado");
+            print('Permiso para instalar APKs denegado');
           }
           return false;
         }
       }
     }
     if (sdkVersion <= 28) {
-      var status = await Permission.storage.request();
+      final status = await Permission.storage.request();
       if (!status.isGranted) {
         if (kDebugMode) {
-          print("Permiso de almacenamiento denegado");
+          print('Permiso de almacenamiento denegado');
         }
         return false;
       }
@@ -39,9 +39,9 @@ class UpdateRepository {
 
   Future<String> obtainPathAndroid(int sdkVersion) async {
     if (sdkVersion >= 29) {
-      return "/storage/emulated/0/Download/update${DateTime.now().hour}.apk";
+      return '/storage/emulated/0/Download/update${DateTime.now().hour}.apk';
     } else {
-      return "${(await getExternalStorageDirectory())!.path}/update${DateTime.now().hour}.apk";
+      return '${(await getExternalStorageDirectory())!.path}/update${DateTime.now().hour}.apk';
     }
   }
 

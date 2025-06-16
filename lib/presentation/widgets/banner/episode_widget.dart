@@ -144,8 +144,8 @@ class ListEpisodesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
-    Orientation orientation = MediaQuery.orientationOf(context);
+    final Size size = MediaQuery.sizeOf(context);
+    final Orientation orientation = MediaQuery.orientationOf(context);
     return CustomScrollView(
       slivers: [
         SliverAppBarSearch(controller: textController),

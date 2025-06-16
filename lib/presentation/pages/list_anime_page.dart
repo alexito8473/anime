@@ -51,14 +51,18 @@ class _ListAnimePageState extends State<ListAnimePage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Anime> listAnime =
-        filterAnime(listAnime: context.watch<AnimeBloc>().state.lastAnimesAdd);
     return AnimationLoadPage(
-        child: ListAnimeScreen(
-            tag: widget.tag,
-            title: widget.title,
-            colorTitle: widget.colorTitle,
-            controller: controller,
-            listAnime: listAnime, onTapElement: (String id, String? tag) {  },));
+        child: BlocSelector<AnimeBloc, AnimeState, List<Anime>>(
+            selector: (state) => state.lastAnimesAdd,
+            builder: (context, state) {
+              final List<Anime> listAnime = filterAnime(listAnime: state);
+              return ListAnimeScreen(
+                  tag: widget.tag,
+                  title: widget.title,
+                  colorTitle: widget.colorTitle,
+                  controller: controller,
+                  listAnime: listAnime,
+                  onTapElement: (String id, String? tag) {});
+            }));
   }
 }

@@ -21,16 +21,16 @@ class ConfigurationBloc
 
   @override
   ConfigurationState? fromJson(Map<String, dynamic> json) => ConfigurationState(
-      imagePerson: json["imagePerson"],
-      version: json["version"],
-      isUpwardList: json["isUpwardList"] as bool,
-      imageBackGround: json["imageBackGround"]);
+      imagePerson: json['imagePerson'],
+      version: json['version'],
+      isUpwardList: json['isUpwardList'] as bool,
+      imageBackGround: json['imageBackGround']);
 
   @override
   Map<String, dynamic>? toJson(ConfigurationState state) => {
-        "version": state.version,
-        "imagePerson": state.imagePerson,
-        "isUpwardList": state.isUpwardList,
-        "imageBackGround": state.imageBackGround
+        'version': state.version,
+        'imagePerson': state.imagePerson,
+        'isUpwardList': state.isUpwardList,
+        'imageBackGround': state.imageBackGround
       };
 }

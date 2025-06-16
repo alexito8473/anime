@@ -7,14 +7,11 @@ class ObtainDataAnime extends AnimeEvent {
   final String id;
   final BuildContext context;
   final String? tag;
-  final void Function() navigationPage;
-
   ObtainDataAnime(
       {required this.context,
       required this.title,
       required this.id,
-      required this.tag,
-      required this.navigationPage});
+      required this.tag});
 }
 
 class SearchAnime extends AnimeEvent {

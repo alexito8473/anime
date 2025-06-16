@@ -1,13 +1,11 @@
 import 'package:anime/data/enums/type_my_animes.dart';
 import 'package:anime/data/enums/types_vision.dart';
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/model/complete_anime.dart';
 import '../../data/model/episode.dart';
-import '../../domain/bloc/configuration/configuration_bloc.dart';
 import '../screens/detail_anime_screen.dart';
 import '../widgets/load/load_widget.dart';
 
@@ -42,6 +40,12 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
     _controller.addListener(() => setState(() {}));
   }
 
+  void navigation({required String id, String? tag, required String title}) {
+    context
+        .read<AnimeBloc>()
+        .add(ObtainDataAnime(context: context, id: id, tag: tag, title: title));
+  }
+
   TypeMyAnimes checkTypeAnime() {
     final animeBloc = context.read<AnimeBloc>().state.mapAnimesLoad;
     return TypeMyAnimes.values.firstWhere(
@@ -51,7 +55,17 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
     );
   }
 
-  List<Episode> filteredList(List<Episode> list, String text, bool isConfig) {
+  void changeTypeVision({required TypesVision? type}) {
+    if (type == null || typesVision == type) {
+      return;
+    }
+    setState(() => typesVision = type);
+  }
+
+  List<Episode> filteredList(
+      {required List<Episode> list,
+      required String text,
+      required bool isConfig}) {
     final filtered = text.isEmpty
         ? list
         : list.where((ep) => ep.episode.toString().contains(text)).toList();
@@ -77,7 +91,7 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
         .add(SaveEpisode(episode: episode, isSave: isSave));
   }
 
-  Future<void> openDialog(CompleteAnime anime) async {
+  Future<void> openDialog({required CompleteAnime anime}) async {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -120,111 +134,36 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    return BlocBuilder<ConfigurationBloc, ConfigurationState>(
-        builder: (context, stateConfig) {
-      return BlocConsumer<AnimeBloc, AnimeState>(listener: (context, state) {
-        setState(() {
-          anime = context
-              .read<AnimeBloc>()
-              .state
-              .listAnimes
-              .firstWhere((anime) => anime.id == widget.idAnime);
-          miAnime = checkTypeAnime();
-          isSave = miAnime != TypeMyAnimes.NONE;
-        });
-      }, builder: (context, state) {
-        return AnimationLoadPage(
+    return BlocListener<AnimeBloc, AnimeState>(
+        listener: (context, state) {
+          setState(() {
+            anime = context
+                .read<AnimeBloc>()
+                .state
+                .listAnimes
+                .firstWhere((anime) => anime.id == widget.idAnime);
+            miAnime = checkTypeAnime();
+            isSave = miAnime != TypeMyAnimes.NONE;
+          });
+        },
+        child: AnimationLoadPage(
             child: Scaffold(
                 backgroundColor: Colors.black,
                 body: DetailAnimeScreen(
-                  size: size,
-                  anime: anime,
-                  onTap: onTap,
-                  currentPage: _currentPage,
-                  listAnimeFilter: filteredList(anime.episodes,
-                      _controller.text, stateConfig.isUpwardList),
-                  textController: _controller,
-                  tag: widget.tag,
-                  onTapSaveEpisode: onTapSaveEpisode,
-                  safeAnime: Row(children: [
-                    if (isSave)
-                      Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 3),
-                          decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.circular(20)),
-                          child: Text(
-                            miAnime.name,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold),
-                          )),
-                    IconButton(
-                        onPressed: () => openDialog(anime),
-                        isSelected: isSave,
-                        style: const ButtonStyle(
-                            elevation: WidgetStatePropertyAll(200)),
-                        selectedIcon:
-                            const Icon(Icons.autorenew, color: Colors.orange),
-                        icon: const Icon(CupertinoIcons.heart,
-                            color: Colors.white))
-                  ]),
-                  action: Row(children: [
-                    Container(
-                      margin: const EdgeInsets.only(right: 5),
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      decoration: BoxDecoration(
-                          color: Colors.grey.shade900,
-                          borderRadius: BorderRadius.circular(15)),
-                      child: IconButton(
-                        onPressed: () => context
-                            .read<ConfigurationBloc>()
-                            .add(ChangeOrderList()),
-                        color: Colors.white,
-                        isSelected: context
-                            .read<ConfigurationBloc>()
-                            .state
-                            .isUpwardList,
-                        icon: const Icon(Icons.arrow_downward),
-                        selectedIcon: const Icon(Icons.arrow_upward),
-                      ),
-                    ),
-                    Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                            color: Colors.grey.shade900,
-                            borderRadius: BorderRadius.circular(15)),
-                        child: DropdownButton<TypesVision>(
-                            value: typesVision,
-                            underline: const SizedBox(),
-                            style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500),
-                            borderRadius: BorderRadius.circular(15),
-                            dropdownColor: Colors.grey.shade900,
-                            icon: const Icon(Icons.keyboard_arrow_down,
-                                color: Colors.orange),
-                            items: TypesVision.values
-                                .map((vision) => DropdownMenuItem(
-                                    value: vision,
-                                    child: Text(vision.content,
-                                        style: const TextStyle(
-                                            color: Colors.white))))
-                                .toList(),
-                            onChanged: (value) {
-                              if (value == null || typesVision == value) return;
-                              setState(() => typesVision = value);
-                            }))
-                  ]),
-                  onTapElement: (String id, String? tag) {},
-                )));
-      });
-    });
+                    anime: anime,
+                    currentPage: _currentPage,
+                    allEpisode: anime.episodes,
+                    textController: _controller,
+                    tag: widget.tag,
+                    typesVision: typesVision,
+                    miAnime: miAnime,
+                    textFiltered: _controller.text,
+                    isSave: isSave,
+                    navigation: navigation,
+                    onTap: onTap,
+                    filteredList: filteredList,
+                    onTapSaveEpisode: onTapSaveEpisode,
+                    changeTypeVision: changeTypeVision,
+                    openDialog: openDialog))));
   }
 }

@@ -30,7 +30,9 @@ class AnimationLoadPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isLoading = context.watch<AnimeBloc>().state.initLoad;
-    return Stack(children: [child, if (isLoading) const LoadWidget()]);
+    return BlocSelector<AnimeBloc, AnimeState, bool>(
+        selector: (state) => state.initLoad,
+        builder: (context, state) =>
+            Stack(children: [child, if (state) const LoadWidget()]));
   }
 }
