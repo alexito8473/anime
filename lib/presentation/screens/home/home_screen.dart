@@ -18,8 +18,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.sizeOf(context);
-    final Orientation orientation = MediaQuery.orientationOf(context);
     return RefreshIndicator(
         onRefresh: () {
           context.read<AnimeBloc>().add(ObtainData(context: context));
@@ -28,29 +26,34 @@ class HomeScreen extends StatelessWidget {
         child: CustomScrollView(slivers: [
           BlocSelector<AnimeBloc, AnimeState, List<LastEpisode>>(
               selector: (state) => state.lastEpisodes,
-              builder: (context, state) => BannerWidget(
-                  key: targetKey,
-                  lastEpisodes: state,
-                  size: size,
-                  orientation: orientation,
+              builder: (context, state) => SliverMainImage(
+                    anime: state.first,
+                    key: targetKey,
+                    onTapElement: onTapElement,
+                  )),
+          BlocSelector<AnimeBloc, AnimeState, List<LastEpisode>>(
+              selector: (state) => state.lastEpisodes,
+              builder: (context, state) => ListBannerAnime(
+                  listAnime: state.sublist(1),
+                  tag: 'episodeos',
+                  title: 'Últimos episódeos agregados',
+                  typeAnime: TypeAnime.episode,
+                  colorTitle: Colors.orange,
                   onTapElement: onTapElement)),
           BlocSelector<AnimeBloc, AnimeState, List<Anime>>(
               selector: (state) => state.lastAnimesAdd,
               builder: (context, state) => ListBannerAnime(
                   listAnime: state,
-                  size: size,
                   tag: 'agregados',
                   title: 'Últimos animes agregados',
-                  typeAnime: TypeAnime.add,
+                  typeAnime: TypeAnime.anime,
                   colorTitle: Colors.blueAccent,
                   onTapElement: onTapElement)),
           const SliverTitle(),
           BlocSelector<AnimeBloc, AnimeState, List<BasicAnime>>(
               selector: (state) => state.listAringAnime,
               builder: (context, state) => ListAiringAnime(
-                  listAringAnime: state,
-                  size: size,
-                  onTapElement: onTapElement))
+                  listAringAnime: state, onTapElement: onTapElement))
         ]));
   }
 }

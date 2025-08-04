@@ -9,6 +9,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import '../screens/server_screen.dart';
 import '../widgets/load/load_widget.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ServerListPage extends StatefulWidget {
   final String idAnime;
@@ -57,6 +58,7 @@ class _ServerListPageState extends State<ServerListPage> {
 
   @override
   void initState() {
+     WakelockPlus.enabled;
      anime = context
         .read<AnimeBloc>()
         .state
@@ -90,6 +92,7 @@ class _ServerListPageState extends State<ServerListPage> {
   @override
   void dispose() {
     super.dispose();
+    WakelockPlus.disable();
   }
 
   void onWebViewCreated(InAppWebViewController controller) {

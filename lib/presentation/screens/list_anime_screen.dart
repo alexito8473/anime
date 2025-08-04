@@ -1,5 +1,5 @@
+import 'package:anime/data/interface/anime_interface.dart';
 import 'package:flutter/material.dart';
-import '../../data/model/anime.dart';
 import '../widgets/banner/banner_widget.dart';
 import '../widgets/sliver/sliver_widget.dart';
 import '../widgets/title/title_widget.dart';
@@ -8,9 +8,10 @@ class ListAnimeScreen extends StatelessWidget {
   final String? tag;
   final String title;
   final Color colorTitle;
-  final List<Anime> listAnime;
+  final List<AnimeBanner> listAnime;
   final TextEditingController controller;
-  final void Function(String id, String? tag) onTapElement;
+  final void Function({required String id, String? tag, required String title})
+  onTapElement;
 
   const ListAnimeScreen(
       {super.key,
@@ -47,8 +48,7 @@ class ListAnimeScreen extends StatelessWidget {
                     isPortrait: isPortrait,
                     anime: listAnime[index],
                     tag: tag,
-                    onTapElement: ({required id, tag, required title}) =>
-                        onTapElement(id, tag)),
+                    onTapElement: onTapElement),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   crossAxisSpacing: 20,
                   mainAxisSpacing: 20,

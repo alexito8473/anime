@@ -1,8 +1,9 @@
 import 'package:anime/data/model/basic_anime.dart';
 
+import '../interface/anime_banner.dart';
 import '../interface/anime_interface.dart';
 
-class Anime extends BasicAnime implements AnimeInterface {
+class Anime extends BasicAnime implements AnimeInterface, AnimeBanner {
   final String poster;
   final String banner;
   final String synopsis;
@@ -45,5 +46,15 @@ class Anime extends BasicAnime implements AnimeInterface {
 
   static List<Anime> listDynamicToListAnime(List<dynamic> listDynamic) {
     return listDynamic.map((e) => Anime.fromJson(e)).toList();
+  }
+
+  @override
+  String getImage() {
+   return poster;
+  }
+
+  @override
+  String getRating() {
+    return rating;
   }
 }

@@ -21,8 +21,8 @@ class AppBarDetailAnime extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final orientation = MediaQuery.of(context).orientation;
+    final size = MediaQuery.sizeOf(context);
+    final orientation = MediaQuery.orientationOf(context);
     final imageUrl = anime.isNotBannerCorrect ? anime.poster : anime.banner;
 
     return SliverAppBar.large(
@@ -38,22 +38,19 @@ class AppBarDetailAnime extends StatelessWidget {
             background: Stack(children: [
               Positioned.fill(
                   child: ShaderMask(
-                      shaderCallback: (Rect bounds) => const RadialGradient(
-                            center: Alignment.topRight,
-                            radius: 1.05,
+                      shaderCallback: (Rect bounds) => const LinearGradient(
+                          begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
                             colors: [
                               Colors.transparent,
-                              Colors.transparent,
-                              Colors.black38,
                               Colors.black54,
+                              Colors.black87,
                               Colors.black,
                             ],
                           ).createShader(bounds),
                       blendMode: BlendMode.darken,
                       child: CachedNetworkImage(
                           alignment: Alignment.topCenter,
-                          color: Colors.black12,
-                          colorBlendMode: BlendMode.darken,
                           imageUrl: imageUrl,
                           filterQuality: FilterQuality.high,
                           fit: BoxFit.cover))),

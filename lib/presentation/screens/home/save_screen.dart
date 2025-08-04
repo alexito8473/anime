@@ -6,6 +6,7 @@ import '../../../data/enums/type_my_animes.dart';
 import '../../../data/model/complete_anime.dart';
 import '../../../domain/bloc/anime/anime_bloc.dart';
 import '../../widgets/banner/banner_widget.dart';
+import 'package:lottie/lottie.dart';
 
 class SaveScreen extends StatelessWidget {
   final void Function({required String id, String? tag, required String title})
@@ -47,6 +48,22 @@ class SaveScreen extends StatelessWidget {
                       controller: tabController,
                       children: animeTypes.map((e) {
                         final animeList = state[e] ?? [];
+                        if(animeList.isEmpty){
+                          return Padding(padding: EdgeInsets.symmetric(
+                            horizontal: size.width*0.1,
+                            vertical: size.height*0.1
+                          ),
+                          child: Column(
+                            children: [
+                              Text('No tienes animes guardados en ${e.name}',
+
+                              style: Theme.of(context).textTheme.labelLarge),
+                              Lottie.asset('assets/lottie/animeLoading.json',
+                                  height: size.height*0.3),
+
+                            ],
+                          ));
+                        }
                         return GridView.builder(
                             padding: EdgeInsets.symmetric(
                               horizontal: size.width * 0.05,

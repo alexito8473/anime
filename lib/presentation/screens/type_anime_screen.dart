@@ -11,7 +11,8 @@ class ListTypeScreen extends StatelessWidget {
   final GlobalKey? targetKey;
   final TypeVersionAnime type;
   final ScrollController scrollController;
-  final void Function({required String id, String? tag, required String title}) onTapElement;
+  final void Function({required String id, String? tag, required String title})
+      onTapElement;
 
   const ListTypeScreen(
       {super.key,
@@ -20,7 +21,7 @@ class ListTypeScreen extends StatelessWidget {
       required this.type,
       required this.onTapElement});
 
-  final String tag = "typeScreen";
+  final String tag = 'typeScreen';
 
   @override
   Widget build(BuildContext context) {
@@ -32,27 +33,24 @@ class ListTypeScreen extends StatelessWidget {
         MediaQuery.orientationOf(context) == Orientation.portrait;
 
     return CustomScrollView(controller: scrollController, slivers: [
-      SliverToBoxAdapter(key:targetKey),
+      SliverToBoxAdapter(key: targetKey),
       SliverAppBar.large(
           centerTitle: true,
           expandedHeight: size.height * 0.18,
-          flexibleSpace:FlexibleSpaceBar(
-            collapseMode: CollapseMode.parallax,
-            stretchModes: StretchMode.values,
-            background: ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black]).createShader(bounds),
-                blendMode: BlendMode.darken,
-                child: Image.asset(type.getImage(),
-                    filterQuality: FilterQuality.none, fit: BoxFit.cover)),
+          flexibleSpace: FlexibleSpaceBar(
+              collapseMode: CollapseMode.parallax,
+              stretchModes: StretchMode.values,
+              background: ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.transparent, Colors.black])
+                      .createShader(bounds),
+                  blendMode: BlendMode.darken,
+                  child: Image.asset(type.getImage(),
+                      filterQuality: FilterQuality.none, fit: BoxFit.cover)),
               title: Text(listTypeAnimePage.typeVersionAnime.getTitle(),
-                  style: theme
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontSize: 20))
-          ) ),
+                  style: theme.textTheme.titleLarge?.copyWith(fontSize: 20)))),
       SliverPadding(
           padding: EdgeInsets.symmetric(
               horizontal: size.width * 0.05, vertical: size.height * 0.05),
@@ -65,12 +63,12 @@ class ListTypeScreen extends StatelessWidget {
                   crossAxisSpacing: 10,
                   maxCrossAxisExtent: 130),
               itemBuilder: (context, index) => BannerAnime(
-                    size: size,
-                    theme: theme,
-                    isPortrait: isPortrait,
-                    anime: listTypeAnimePage.listAnime[index],
-                    tag: tag,
-                    onTapElement: onTapElement)))
+                  size: size,
+                  theme: theme,
+                  isPortrait: isPortrait,
+                  anime: listTypeAnimePage.listAnime[index],
+                  tag: tag,
+                  onTapElement: onTapElement)))
     ]);
   }
 }

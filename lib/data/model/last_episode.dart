@@ -1,9 +1,7 @@
-import 'package:anime/data/interface/anime_interface.dart';
-import 'package:flutter/foundation.dart';
+import '../interface/anime_banner.dart';
+import '../interface/anime_interface.dart';
 
-import '../../constanst.dart';
-
-class LastEpisode implements AnimeInterface {
+class LastEpisode implements AnimeInterface, AnimeBanner {
   final String anime;
   final String episode;
   final String id;
@@ -20,9 +18,7 @@ class LastEpisode implements AnimeInterface {
         anime: json['anime'],
         episode: json['episode'],
         id: json['id'],
-        imagePreview: kIsWeb
-            ? Constants.corsFilter2 + json['imagePreview']
-            : json['imagePreview']);
+        imagePreview: json['imagePreview']);
   }
 
   Map<String, dynamic> toJson() {
@@ -42,5 +38,15 @@ class LastEpisode implements AnimeInterface {
   @override
   String getTitle() {
     return anime;
+  }
+
+  @override
+  String getImage() {
+    return imagePreview;
+  }
+
+  @override
+  String getRating() {
+    return "0";
   }
 }

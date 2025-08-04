@@ -1,17 +1,15 @@
-import 'dart:io';
 import 'dart:ui';
-
 import 'package:anime/data/enums/type_data.dart';
 import 'package:anime/data/model/complete_anime.dart';
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 
 import '../../../data/enums/gender.dart';
+import '../../../data/interface/anime_interface.dart';
 import '../../../data/model/anime.dart';
 import '../../../data/model/basic_anime.dart';
 import '../../../data/model/last_episode.dart';
@@ -19,6 +17,84 @@ import '../animation/hero_animation_widget.dart';
 import '../button/button_widget.dart';
 import '../load/load_widget.dart';
 import '../title/title_widget.dart';
+
+class SliverMainImage extends StatelessWidget {
+  final AnimeBanner anime;
+  final void Function({required String id, String? tag, required String title})
+      onTapElement;
+
+  const SliverMainImage(
+      {super.key, required this.anime, required this.onTapElement});
+
+  @override
+  Widget build(BuildContext context) {
+    final Size size = MediaQuery.sizeOf(context);
+    return SliverToBoxAdapter(
+      child: Container(
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+          margin: EdgeInsets.only(
+              bottom: size.height * 0.05,
+              left: size.width * 0.1,
+              right: size.width * 0.1),
+          width: size.width,
+          height: size.height * 0.6,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: ShaderMask(
+                          shaderCallback: (bounds) {
+                            return const LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [Colors.transparent, Colors.black])
+                                .createShader(bounds);
+                          },
+                          blendMode: BlendMode.darken,
+                          child: CachedNetworkImage(
+                              imageUrl: anime.getImage(),
+                              fit: BoxFit.cover,
+                              progressIndicatorBuilder:
+                                  (context, url, progress) {
+                                return const LoadWidget();
+                              },
+                              filterQuality: FilterQuality.high)))),
+              Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    spacing: 20,
+                    children: [
+                      ElevatedButton(
+                              style: const ButtonStyle(
+                                  backgroundColor:
+                                      WidgetStatePropertyAll(Colors.white70)),
+                              onPressed: () => {
+                                    onTapElement(
+                                        title: anime.getTitle(),
+                                        id: anime.idAnime(),
+                                        tag: null)
+                                  },
+                              child: const AutoSizeText('Ver ultimo anime')),
+                      Padding(
+                          padding: EdgeInsets.only(
+                              left: size.width * 0.1, right: size.width * 0.1),
+                          child: SizedBox(
+
+                            child: AutoSizeText(anime.getTitle(),
+                                style: Theme.of(context).textTheme.titleLarge,
+                                maxLines: 3),
+                          )),
+                    ],
+                  ))
+            ],
+          )),
+    );
+  }
+}
 
 class BannerWidget extends StatelessWidget {
   final List<LastEpisode> lastEpisodes;
@@ -126,7 +202,7 @@ class BannerWidget extends StatelessWidget {
                           padding: EdgeInsets.only(
                               left: size.width * 0.05, top: size.height * 0.01),
                           child: const TitleBannerWidget(
-                              title: "Últimos episodeos agregados",
+                              title: 'Últimos episodeos agregados',
                               color: Colors.orange,
                               shadows: [
                                 Shadow(
@@ -197,8 +273,7 @@ class BannerCarrouselAnime extends StatelessWidget {
 }
 
 class ListBannerAnime extends StatelessWidget {
-  final List<Anime> listAnime;
-  final Size size;
+  final List<AnimeBanner> listAnime;
   final String tag;
   final String title;
   final TypeAnime typeAnime;
@@ -209,7 +284,6 @@ class ListBannerAnime extends StatelessWidget {
   const ListBannerAnime(
       {super.key,
       required this.listAnime,
-      required this.size,
       required this.tag,
       required this.title,
       required this.typeAnime,
@@ -231,7 +305,7 @@ class ListBannerAnime extends StatelessWidget {
               padding: EdgeInsets.only(
                   right: size.width * 0.05,
                   left: size.width * 0.05,
-                  top: size.height * 0.1),
+                  top: size.height * 0.01),
               child: Wrap(
                   alignment: WrapAlignment.spaceBetween,
                   direction: Axis.horizontal,
@@ -314,36 +388,23 @@ class ListBannerAnime extends StatelessWidget {
                                           ]))));
                         },
                       ).toList()))
-              : kIsWeb || Platform.isWindows || Platform.isMacOS
-                  ? SizedBox(
-                      width: size.width,
-                      height: 300,
-                      child: DragCarousel(
-                        listAnime: listAnime,
-                        tag: tag,
-                        onTapElement: (String id, String? tag) =>
-                            onTapElement(id: id, tag: tag, title: title),
-                      ))
-                  : SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                          vertical: size.height * 0.05,
-                          horizontal: size.width * 0.05),
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: size.width * 0.05,
-                          children: listAnime
-                              .map((lastAnime) => BannerAnime(
-                                  anime: lastAnime,
-                                  theme: theme,
-                                  isPortrait: isPortrait,
-                                  size: size,
-                                  tag: tag,
-                                  onTapElement: (
-                                          {required id, tag, required title}) =>
-                                      onTapElement(
-                                          id: id, tag: tag, title: title)))
-                              .toList()))
+              : SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(
+                      vertical: size.height * 0.01,
+                      horizontal: size.width * 0.05),
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: size.width * 0.05,
+                      children: listAnime
+                          .map((lastAnime) => BannerAnime(
+                              anime: lastAnime,
+                              theme: theme,
+                              isPortrait: isPortrait,
+                              size: size,
+                              tag: tag,
+                              onTapElement: onTapElement))
+                          .toList()))
         ]));
   }
 }
@@ -379,7 +440,7 @@ class BannerBlur extends StatelessWidget {
 }
 
 class BannerAnime extends StatelessWidget {
-  final Anime anime;
+  final AnimeBanner anime;
   final String? tag;
   final Size size;
   final ThemeData theme;
@@ -401,7 +462,8 @@ class BannerAnime extends StatelessWidget {
     final Orientation orientation = MediaQuery.orientationOf(context);
     final BorderRadius borderRadius = BorderRadius.circular(20);
     return GestureDetector(
-        onTap: () => onTapElement(id: anime.id, tag: tag, title: anime.title),
+        onTap: () => onTapElement(
+            id: anime.idAnime(), tag: tag, title: anime.getTitle()),
         child: Container(
             constraints: const BoxConstraints(minWidth: 150),
             width: orientation == Orientation.portrait
@@ -422,35 +484,36 @@ class BannerAnime extends StatelessWidget {
                             bottom: 0,
                             child: HeroAnimationWidget(
                                 tag: tag,
-                                heroTag: anime.poster,
+                                heroTag: anime.getImage(),
                                 child: ClipRRect(
                                     borderRadius: borderRadius,
                                     child: CachedNetworkImage(
-                                        imageUrl: anime.poster,
+                                        imageUrl: anime.getImage(),
                                         fit: BoxFit.cover,
                                         progressIndicatorBuilder:
                                             (context, url, progress) {
                                           return const LoadWidget();
                                         },
                                         filterQuality: FilterQuality.high)))),
-                        Positioned(
-                            top: 15,
-                            left: 8,
-                            child: Container(
-                              padding: const EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                  color: Colors.black,
-                                  borderRadius: borderRadius),
-                              child: AutoSizeText(anime.rating,
-                                  maxLines: 3,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelLarge
-                                      ?.copyWith(color: Colors.yellow)),
-                            ))
+                        if (!(anime.getRating() == '0'))
+                          Positioned(
+                              top: 15,
+                              left: 8,
+                              child: Container(
+                                padding: const EdgeInsets.all(3),
+                                decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: borderRadius),
+                                child: AutoSizeText(anime.getRating(),
+                                    maxLines: 3,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(color: Colors.yellow)),
+                              ))
                       ])),
                   TitleWidget(
-                      title: anime.title,
+                      title: anime.getTitle(),
                       maxLines: 3,
                       textStyle: theme.textTheme.titleSmall!,
                       tag: tag)
@@ -461,7 +524,8 @@ class BannerAnime extends StatelessWidget {
 class BannerAnimeAndEpisodes extends StatelessWidget {
   final CompleteAnime completeAnime;
   final String? tag;
-  final void Function({required String id, String? tag, required String title}) onTapElement;
+  final void Function({required String id, String? tag, required String title})
+      onTapElement;
 
   const BannerAnimeAndEpisodes(
       {super.key,
@@ -484,7 +548,8 @@ class BannerAnimeAndEpisodes extends StatelessWidget {
     final Size size = MediaQuery.sizeOf(context);
     final Orientation orientation = MediaQuery.orientationOf(context);
     return GestureDetector(
-        onTap: () => onTapElement(id:completeAnime.id,tag: tag,title: completeAnime.title),
+        onTap: () => onTapElement(
+            id: completeAnime.id, tag: tag, title: completeAnime.title),
         child: Container(
             constraints: const BoxConstraints(minWidth: 150),
             width: orientation == Orientation.portrait
@@ -604,7 +669,8 @@ class BannerAnimeReload extends StatelessWidget {
 class BannerAiringAnime extends StatelessWidget {
   final BasicAnime airingAnime;
   final Size size;
-  final void Function({required String id, String? tag, required String title}) onTap;
+  final void Function({required String id, String? tag, required String title})
+      onTap;
 
   const BannerAiringAnime(
       {super.key,
@@ -614,7 +680,7 @@ class BannerAiringAnime extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-      onTap: () => onTap(title: airingAnime.title,id: airingAnime.id),
+      onTap: () => onTap(title: airingAnime.title, id: airingAnime.id),
       child: Card(
           color: Colors.grey.withOpacity(0.2),
           child: Padding(
@@ -637,17 +703,15 @@ class BannerAiringAnime extends StatelessWidget {
 
 class ListAiringAnime extends StatelessWidget {
   final List<BasicAnime> listAringAnime;
-  final Size size;
-  final void Function({required String id, String? tag, required String title}) onTapElement;
+  final void Function({required String id, String? tag, required String title})
+      onTapElement;
 
   const ListAiringAnime(
-      {super.key,
-      required this.listAringAnime,
-      required this.size,
-      required this.onTapElement});
+      {super.key, required this.listAringAnime, required this.onTapElement});
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.sizeOf(context);
     return SliverPadding(
         padding: EdgeInsets.only(
             left: size.width * 0.05,

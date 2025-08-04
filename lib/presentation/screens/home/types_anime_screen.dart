@@ -44,14 +44,13 @@ class TypesAnimePage extends StatelessWidget {
                 backgroundColor: Colors.grey.shade900,
                 snakeShape: SnakeShape.rectangle,
                 shape: RoundedRectangleBorder(
-                    side: BorderSide(
-                      color: Colors.white.withAlpha(20),
-                      width: 1,
-                    ),
+                    side:
+                        BorderSide(color: Colors.white.withAlpha(20), width: 1),
                     borderRadius: BorderRadius.circular(40)),
                 onTap: (value) => changeIndex(index: value),
-                padding: EdgeInsets.symmetric(horizontal: size.width * 0.02,
-                vertical: size.height*0.003),
+                padding: EdgeInsets.symmetric(
+                    horizontal: size.width * 0.02,
+                    vertical: size.height * 0.003),
                 items: const [
                   BottomNavigationBarItem(
                       activeIcon: Icon(Icons.movie, color: Colors.white),

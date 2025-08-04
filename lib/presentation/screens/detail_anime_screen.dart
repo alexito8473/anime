@@ -136,122 +136,124 @@ class DetailAnimeScreen extends StatelessWidget {
                                   size: size)
                           ])))
             ],
-        body: SafeArea(
-            minimum: EdgeInsets.only(top: size.height * 0.1),
-            child: DefaultTabController(
-                length: countTabBar(),
-                initialIndex: currentPage,
-                child: Column(children: [
-                  Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: size.width * 0.05),
-                      child: TabBar(
-                          onTap: (value) => onTap(value),
-                          dividerColor: Colors.transparent,
-                          labelColor: Colors.white,
-                          // Color del texto seleccionado
-                          unselectedLabelColor: Colors.grey.withAlpha(80),
-                          // Color del texto no seleccionado
-                          tabs: [
-                            Tab(
-                                icon: const Icon(Icons.tv),
-                                text: 'Episodios (${anime.episodes.length})'),
-                            if (anime.synopsis.isNotEmpty)
-                              const Tab(
-                                  icon: Icon(Icons.description_sharp),
-                                  text: 'Synopsis'),
-                            if (anime.listAnimeRelated.isNotEmpty)
-                              const Tab(
-                                  icon: Icon(Icons.movie), text: 'Relacionados')
-                          ])),
-                  Expanded(
-                      child: TabBarView(children: [
-                    BlocSelector<ConfigurationBloc, ConfigurationState, bool>(
-                      selector: (state) => state.isUpwardList,
-                      builder: (context, state) {
-                        return ListEpisodesWidget(
-                            anime: anime,
-                            episodes: filteredList(
-                                text: textFiltered,
-                                isConfig: state,
-                                list: allEpisode),
-                            textController: textController,
-                            action: Row(children: [
-                              Container(
-                                margin: const EdgeInsets.only(right: 5),
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 5),
-                                decoration: BoxDecoration(
-                                    color: Colors.grey.shade900,
-                                    borderRadius: BorderRadius.circular(15)),
-                                child: IconButton(
-                                  onPressed: () => context
-                                      .read<ConfigurationBloc>()
-                                      .add(ChangeOrderList()),
-                                  color: Colors.white,
-                                  isSelected: context
-                                      .read<ConfigurationBloc>()
-                                      .state
-                                      .isUpwardList,
-                                  icon: const Icon(Icons.arrow_downward),
-                                  selectedIcon: const Icon(Icons.arrow_upward),
-                                ),
-                              ),
-                              Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16),
-                                  decoration: BoxDecoration(
-                                      color: Colors.grey.shade900,
-                                      borderRadius: BorderRadius.circular(15)),
-                                  child: DropdownButton<TypesVision>(
-                                      value: typesVision,
-                                      underline: const SizedBox(),
-                                      style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500),
-                                      borderRadius: BorderRadius.circular(15),
-                                      dropdownColor: Colors.grey.shade900,
-                                      icon: const Icon(
-                                          Icons.keyboard_arrow_down,
-                                          color: Colors.orange),
-                                      items: TypesVision.values
-                                          .map((vision) => DropdownMenuItem(
-                                              value: vision,
-                                              child: Text(vision.content,
-                                                  style: const TextStyle(
-                                                      color: Colors.white))))
-                                          .toList(),
-                                      onChanged: (value) =>
-                                          changeTypeVision(type: value)))
-                            ]),
-                            onTapSaveEpisode: onTapSaveEpisode);
-                      },
-                    ),
-                    if (anime.synopsis.isNotEmpty)
-                      SynopsysWidget(title: anime.synopsis),
-                    if (anime.listAnimeRelated.isNotEmpty)
-                      CustomScrollView(slivers: [
-                        SliverPadding(
-                            padding:
-                                EdgeInsets.symmetric(horizontal: padding08),
-                            sliver: SliverGrid.builder(
-                                gridDelegate:
-                                    const SliverGridDelegateWithMaxCrossAxisExtent(
-                                        maxCrossAxisExtent: 220,
-                                        crossAxisSpacing: 30,
-                                        mainAxisExtent: 280,
-                                        mainAxisSpacing: 30),
-                                itemCount: anime.listAnimeRelated.length,
-                                itemBuilder: (context, index) => BannerAnime(
-                                    size: size,
-                                    theme: theme,
-                                    isPortrait: isPortrait,
-                                    anime: anime.listAnimeRelated[index],
-                                    tag: 'animeSearch',
-                                    onTapElement: navigation)))
-                      ])
-                  ]))
-                ]))));
+        body:Material(
+          child: SafeArea(
+              minimum: EdgeInsets.only(top: size.height * 0.1),
+              child: DefaultTabController(
+                  length: countTabBar(),
+                  initialIndex: currentPage,
+                  child: Column(children: [
+                    Padding(
+                        padding:
+                        EdgeInsets.symmetric(horizontal: size.width * 0.05),
+                        child: TabBar(
+                            onTap: (value) => onTap(value),
+                            dividerColor: Colors.transparent,
+                            labelColor: Colors.white,
+                            // Color del texto seleccionado
+                            unselectedLabelColor: Colors.grey.withAlpha(80),
+                            // Color del texto no seleccionado
+                            tabs: [
+                              Tab(
+                                  icon: const Icon(Icons.tv),
+                                  text: 'Episodios (${anime.episodes.length})'),
+                              if (anime.synopsis.isNotEmpty)
+                                const Tab(
+                                    icon: Icon(Icons.description_sharp),
+                                    text: 'Synopsis'),
+                              if (anime.listAnimeRelated.isNotEmpty)
+                                const Tab(
+                                    icon: Icon(Icons.movie), text: 'Relacionados')
+                            ])),
+                    Expanded(
+                        child: TabBarView(children: [
+                          BlocSelector<ConfigurationBloc, ConfigurationState, bool>(
+                            selector: (state) => state.isUpwardList,
+                            builder: (context, state) {
+                              return ListEpisodesWidget(
+                                  anime: anime,
+                                  episodes: filteredList(
+                                      text: textFiltered,
+                                      isConfig: state,
+                                      list: allEpisode),
+                                  textController: textController,
+                                  action: Row(children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(right: 5),
+                                      padding:
+                                      const EdgeInsets.symmetric(horizontal: 5),
+                                      decoration: BoxDecoration(
+                                          color: Colors.grey.shade900,
+                                          borderRadius: BorderRadius.circular(15)),
+                                      child: IconButton(
+                                        onPressed: () => context
+                                            .read<ConfigurationBloc>()
+                                            .add(ChangeOrderList()),
+                                        color: Colors.white,
+                                        isSelected: context
+                                            .read<ConfigurationBloc>()
+                                            .state
+                                            .isUpwardList,
+                                        icon: const Icon(Icons.arrow_downward),
+                                        selectedIcon: const Icon(Icons.arrow_upward),
+                                      ),
+                                    ),
+                                    Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16),
+                                        decoration: BoxDecoration(
+                                            color: Colors.grey.shade900,
+                                            borderRadius: BorderRadius.circular(15)),
+                                        child: DropdownButton<TypesVision>(
+                                            value: typesVision,
+                                            underline: const SizedBox(),
+                                            style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500),
+                                            borderRadius: BorderRadius.circular(15),
+                                            dropdownColor: Colors.grey.shade900,
+                                            icon: const Icon(
+                                                Icons.keyboard_arrow_down,
+                                                color: Colors.orange),
+                                            items: TypesVision.values
+                                                .map((vision) => DropdownMenuItem(
+                                                value: vision,
+                                                child: Text(vision.content,
+                                                    style: const TextStyle(
+                                                        color: Colors.white))))
+                                                .toList(),
+                                            onChanged: (value) =>
+                                                changeTypeVision(type: value)))
+                                  ]),
+                                  onTapSaveEpisode: onTapSaveEpisode);
+                            },
+                          ),
+                          if (anime.synopsis.isNotEmpty)
+                            SynopsysWidget(title: anime.synopsis),
+                          if (anime.listAnimeRelated.isNotEmpty)
+                            CustomScrollView(slivers: [
+                              SliverPadding(
+                                  padding:
+                                  EdgeInsets.symmetric(horizontal: padding08),
+                                  sliver: SliverGrid.builder(
+                                      gridDelegate:
+                                      const SliverGridDelegateWithMaxCrossAxisExtent(
+                                          maxCrossAxisExtent: 220,
+                                          crossAxisSpacing: 30,
+                                          mainAxisExtent: 280,
+                                          mainAxisSpacing: 30),
+                                      itemCount: anime.listAnimeRelated.length,
+                                      itemBuilder: (context, index) => BannerAnime(
+                                          size: size,
+                                          theme: theme,
+                                          isPortrait: isPortrait,
+                                          anime: anime.listAnimeRelated[index],
+                                          tag: 'animeSearch',
+                                          onTapElement: navigation)))
+                            ])
+                        ]))
+                  ]))),
+        ) );
   }
 }

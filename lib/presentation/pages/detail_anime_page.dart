@@ -147,9 +147,7 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
           });
         },
         child: AnimationLoadPage(
-            child: Scaffold(
-                backgroundColor: Colors.black,
-                body: DetailAnimeScreen(
+            child: DetailAnimeScreen(
                     anime: anime,
                     currentPage: _currentPage,
                     allEpisode: anime.episodes,
@@ -164,6 +162,6 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
                     filteredList: filteredList,
                     onTapSaveEpisode: onTapSaveEpisode,
                     changeTypeVision: changeTypeVision,
-                    openDialog: openDialog))));
+                    openDialog: openDialog)));
   }
 }

@@ -1,6 +1,3 @@
-import 'dart:io';
-import 'dart:math';
-
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:anime/domain/bloc/update/update_bloc.dart';
 import 'package:anime/presentation/pages/home_page.dart';

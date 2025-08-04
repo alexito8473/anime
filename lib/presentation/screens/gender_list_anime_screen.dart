@@ -51,6 +51,8 @@ class GenderListAnimeScreen extends StatelessWidget {
                                 colors: [
                                   Colors.transparent,
                                   Colors.black26,
+                                  Colors.black54,
+                                  Colors.black87,
                                   Colors.black,
                                 ]).createShader(bounds);
                           },
@@ -62,7 +64,7 @@ class GenderListAnimeScreen extends StatelessWidget {
       SliverPadding(
           padding: EdgeInsets.symmetric(
             horizontal: size.width * 0.05,
-            vertical: size.height * 0.005,
+            vertical: size.height * 0.05,
           ),
           sliver: SliverGrid.builder(
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(

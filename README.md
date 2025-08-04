@@ -64,7 +64,7 @@ lib/
 
 ```bash
 git clone https://github.com/alexito8473/anime
-cd tu-repo
+cd anime
 flutter pub get
 flutter run
 ```
