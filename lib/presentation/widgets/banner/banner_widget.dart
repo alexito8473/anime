@@ -717,7 +717,10 @@ class ListAiringAnime extends StatelessWidget {
             left: size.width * 0.05,
             right: size.width * 0.05,
             bottom: size.height * 0.1),
-        sliver: SliverList.builder(
+        sliver:listAringAnime.isEmpty?
+            const Text('No se han podidio obtener sus datos')
+
+            : SliverList.builder(
             itemBuilder: (context, index) => BannerAiringAnime(
                 size: size,
                 airingAnime: listAringAnime[index],

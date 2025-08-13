@@ -10,7 +10,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'domain/bloc/configuration/configuration_bloc.dart';
-final navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   final List<String> listEpisodesView = List.empty(growable: true);
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,9 +29,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final AnimeBloc animeBloc;
-
   const MyApp({super.key, required this.animeBloc});
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -42,32 +39,21 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (context) => ConfigurationBloc(), lazy: false)
         ],
         child: MaterialApp(
-            navigatorKey: navigatorKey,
             theme: ThemeData.from(
               useMaterial3: true,
               textTheme:
                   GoogleFonts.notoSerifTextTheme(Typography.whiteRedwoodCity),
               colorScheme: const ColorScheme(
                 brightness: Brightness.dark,
-                // 🎯 Colores principales
                 primary: Color(0xFF1C2833),
-                // Azul noche anime
                 onPrimary: Colors.white,
-                // ✨ Colores secundarios
                 secondary: Color(0xFFD4AC0D),
-                // Dorado anime
                 onSecondary: Colors.black,
-                // Mejor contraste
-                // ❌ Errores
                 error: Color(0xFFCF6679),
                 onError: Colors.black,
-                // 🧱 Fondo general
                 background: Color(0xFF121212),
-                // Fondo oscuro elegante
                 onBackground: Color(0xFFEAECEE),
-                // 🖼️ Superficies como tarjetas, diálogos
                 surface:  Colors.black,
-                // Leve contraste con background
                 onSurface: Color(0xFFBDC3C7),
               ),
             ).copyWith(

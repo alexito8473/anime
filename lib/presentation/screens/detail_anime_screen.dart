@@ -67,8 +67,7 @@ class DetailAnimeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
     final ThemeData theme = Theme.of(context);
-    final bool isPortrait =
-        MediaQuery.orientationOf(context) == Orientation.portrait;
+    final bool isPortrait = MediaQuery.orientationOf(context) == Orientation.portrait;
     final double padding08 = size.width * 0.08;
     return NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
@@ -98,45 +97,42 @@ class DetailAnimeScreen extends StatelessWidget {
                             color: Colors.white))
                   ])),
               SliverToBoxAdapter(
-                  child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey.shade900,
-                          borderRadius: BorderRadius.circular(20)),
-                      margin:
-                          EdgeInsets.only(right: padding08, left: padding08),
-                      padding:
-                          EdgeInsets.only(right: padding08, left: padding08),
-                      child: Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          runAlignment: WrapAlignment.center,
-                          alignment: WrapAlignment.spaceBetween,
-                          direction: Axis.horizontal,
-                          spacing: 10,
-                          children: [
+                  child: Material(
+                child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.grey.shade900,
+                        borderRadius: BorderRadius.circular(20)),
+                    margin: EdgeInsets.only(right: padding08, left: padding08),
+                    padding: EdgeInsets.only(right: padding08, left: padding08),
+                    child: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        runAlignment: WrapAlignment.center,
+                        alignment: WrapAlignment.spaceBetween,
+                        direction: Axis.horizontal,
+                        spacing: 10,
+                        children: [
+                          SubTilesAnime(
+                              title: 'Estado',
+                              subtitle: anime.debut,
+                              size: size),
+                          SubTilesAnime(
+                              title: 'Tipo', subtitle: anime.type, size: size),
+                          HeroAnimationWidget(
+                              tag: tag,
+                              heroTag: anime.rating + anime.title,
+                              child: SubTilesAnime(
+                                  title: 'Valoración',
+                                  subtitle: anime.rating,
+                                  size: size)),
+                          if (anime.genres.isNotEmpty)
                             SubTilesAnime(
-                                title: 'Estado',
-                                subtitle: anime.debut,
-                                size: size),
-                            SubTilesAnime(
-                                title: 'Tipo',
-                                subtitle: anime.type,
-                                size: size),
-                            HeroAnimationWidget(
-                                tag: tag,
-                                heroTag: anime.rating + anime.title,
-                                child: SubTilesAnime(
-                                    title: 'Valoración',
-                                    subtitle: anime.rating,
-                                    size: size)),
-                            if (anime.genres.isNotEmpty)
-                              SubTilesAnime(
-                                  title: 'Géneros',
-                                  subtitle:
-                                      anime.genres.join(', ').toUpperCase(),
-                                  size: size)
-                          ])))
+                                title: 'Géneros',
+                                subtitle: anime.genres.join(', ').toUpperCase(),
+                                size: size)
+                        ])),
+              ))
             ],
-        body:Material(
+        body: Material(
           child: SafeArea(
               minimum: EdgeInsets.only(top: size.height * 0.1),
               child: DefaultTabController(
@@ -145,7 +141,7 @@ class DetailAnimeScreen extends StatelessWidget {
                   child: Column(children: [
                     Padding(
                         padding:
-                        EdgeInsets.symmetric(horizontal: size.width * 0.05),
+                            EdgeInsets.symmetric(horizontal: size.width * 0.05),
                         child: TabBar(
                             onTap: (value) => onTap(value),
                             dividerColor: Colors.transparent,
@@ -163,97 +159,100 @@ class DetailAnimeScreen extends StatelessWidget {
                                     text: 'Synopsis'),
                               if (anime.listAnimeRelated.isNotEmpty)
                                 const Tab(
-                                    icon: Icon(Icons.movie), text: 'Relacionados')
+                                    icon: Icon(Icons.movie),
+                                    text: 'Relacionados')
                             ])),
                     Expanded(
                         child: TabBarView(children: [
-                          BlocSelector<ConfigurationBloc, ConfigurationState, bool>(
-                            selector: (state) => state.isUpwardList,
-                            builder: (context, state) {
-                              return ListEpisodesWidget(
-                                  anime: anime,
-                                  episodes: filteredList(
-                                      text: textFiltered,
-                                      isConfig: state,
-                                      list: allEpisode),
-                                  textController: textController,
-                                  action: Row(children: [
-                                    Container(
-                                      margin: const EdgeInsets.only(right: 5),
-                                      padding:
+                      BlocSelector<ConfigurationBloc, ConfigurationState, bool>(
+                        selector: (state) => state.isUpwardList,
+                        builder: (context, state) {
+                          return ListEpisodesWidget(
+                              anime: anime,
+                              episodes: filteredList(
+                                  text: textFiltered,
+                                  isConfig: state,
+                                  list: allEpisode),
+                              textController: textController,
+                              action: Row(children: [
+                                Container(
+                                  margin: const EdgeInsets.only(right: 5),
+                                  padding:
                                       const EdgeInsets.symmetric(horizontal: 5),
-                                      decoration: BoxDecoration(
-                                          color: Colors.grey.shade900,
-                                          borderRadius: BorderRadius.circular(15)),
-                                      child: IconButton(
-                                        onPressed: () => context
-                                            .read<ConfigurationBloc>()
-                                            .add(ChangeOrderList()),
-                                        color: Colors.white,
-                                        isSelected: context
-                                            .read<ConfigurationBloc>()
-                                            .state
-                                            .isUpwardList,
-                                        icon: const Icon(Icons.arrow_downward),
-                                        selectedIcon: const Icon(Icons.arrow_upward),
-                                      ),
-                                    ),
-                                    Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 16),
-                                        decoration: BoxDecoration(
-                                            color: Colors.grey.shade900,
-                                            borderRadius: BorderRadius.circular(15)),
-                                        child: DropdownButton<TypesVision>(
-                                            value: typesVision,
-                                            underline: const SizedBox(),
-                                            style: const TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w500),
-                                            borderRadius: BorderRadius.circular(15),
-                                            dropdownColor: Colors.grey.shade900,
-                                            icon: const Icon(
-                                                Icons.keyboard_arrow_down,
-                                                color: Colors.orange),
-                                            items: TypesVision.values
-                                                .map((vision) => DropdownMenuItem(
+                                  decoration: BoxDecoration(
+                                      color: Colors.grey.shade900,
+                                      borderRadius: BorderRadius.circular(15)),
+                                  child: IconButton(
+                                    onPressed: () => context
+                                        .read<ConfigurationBloc>()
+                                        .add(ChangeOrderList()),
+                                    color: Colors.white,
+                                    isSelected: context
+                                        .read<ConfigurationBloc>()
+                                        .state
+                                        .isUpwardList,
+                                    icon: const Icon(Icons.arrow_downward),
+                                    selectedIcon:
+                                        const Icon(Icons.arrow_upward),
+                                  ),
+                                ),
+                                Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16),
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey.shade900,
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    child: DropdownButton<TypesVision>(
+                                        value: typesVision,
+                                        underline: const SizedBox(),
+                                        style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500),
+                                        borderRadius: BorderRadius.circular(15),
+                                        dropdownColor: Colors.grey.shade900,
+                                        icon: const Icon(
+                                            Icons.keyboard_arrow_down,
+                                            color: Colors.orange),
+                                        items: TypesVision.values
+                                            .map((vision) => DropdownMenuItem(
                                                 value: vision,
                                                 child: Text(vision.content,
                                                     style: const TextStyle(
                                                         color: Colors.white))))
-                                                .toList(),
-                                            onChanged: (value) =>
-                                                changeTypeVision(type: value)))
-                                  ]),
-                                  onTapSaveEpisode: onTapSaveEpisode);
-                            },
-                          ),
-                          if (anime.synopsis.isNotEmpty)
-                            SynopsysWidget(title: anime.synopsis),
-                          if (anime.listAnimeRelated.isNotEmpty)
-                            CustomScrollView(slivers: [
-                              SliverPadding(
-                                  padding:
+                                            .toList(),
+                                        onChanged: (value) =>
+                                            changeTypeVision(type: value)))
+                              ]),
+                              onTapSaveEpisode: onTapSaveEpisode);
+                        },
+                      ),
+                      if (anime.synopsis.isNotEmpty)
+                        SynopsysWidget(title: anime.synopsis),
+                      if (anime.listAnimeRelated.isNotEmpty)
+                        CustomScrollView(slivers: [
+                          SliverPadding(
+                              padding:
                                   EdgeInsets.symmetric(horizontal: padding08),
-                                  sliver: SliverGrid.builder(
-                                      gridDelegate:
+                              sliver: SliverGrid.builder(
+                                  gridDelegate:
                                       const SliverGridDelegateWithMaxCrossAxisExtent(
                                           maxCrossAxisExtent: 220,
                                           crossAxisSpacing: 30,
                                           mainAxisExtent: 280,
                                           mainAxisSpacing: 30),
-                                      itemCount: anime.listAnimeRelated.length,
-                                      itemBuilder: (context, index) => BannerAnime(
-                                          size: size,
-                                          theme: theme,
-                                          isPortrait: isPortrait,
-                                          anime: anime.listAnimeRelated[index],
-                                          tag: 'animeSearch',
-                                          onTapElement: navigation)))
-                            ])
-                        ]))
+                                  itemCount: anime.listAnimeRelated.length,
+                                  itemBuilder: (context, index) => BannerAnime(
+                                      size: size,
+                                      theme: theme,
+                                      isPortrait: isPortrait,
+                                      anime: anime.listAnimeRelated[index],
+                                      tag: 'animeSearch',
+                                      onTapElement: navigation)))
+                        ])
+                    ]))
                   ]))),
-        ) );
+        ));
   }
 }
