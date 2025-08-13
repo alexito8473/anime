@@ -30,69 +30,106 @@ class SliverMainImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
     return SliverToBoxAdapter(
-      child: Container(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-          margin: EdgeInsets.only(
-              bottom: size.height * 0.05,
-              left: size.width * 0.1,
-              right: size.width * 0.1),
-          width: size.width,
-          height: size.height * 0.6,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                  child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: ShaderMask(
-                          shaderCallback: (bounds) {
-                            return const LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [Colors.transparent, Colors.black])
-                                .createShader(bounds);
-                          },
-                          blendMode: BlendMode.darken,
+        child: SizedBox(
+      width: size.width,
+      height: size.height * 0.6,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          /// Fondo borroso con degradado
+          ///
+          Positioned.fill(
+              child: ShaderMask(
+                  shaderCallback: (bounds) {
+                    return const LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [Colors.black, Colors.transparent])
+                        .createShader(bounds);
+                  },
+                  blendMode: BlendMode.srcOver,
+                  child: Padding(
+                      padding:
+                          EdgeInsetsGeometry.only(bottom: size.height * 0.05),
+                      child: ImageFiltered(
+                          imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                           child: CachedNetworkImage(
                               imageUrl: anime.getImage(),
                               fit: BoxFit.cover,
-                              progressIndicatorBuilder:
-                                  (context, url, progress) {
-                                return const LoadWidget();
-                              },
-                              filterQuality: FilterQuality.high)))),
-              Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 20,
-                    children: [
-                      ElevatedButton(
-                              style: const ButtonStyle(
-                                  backgroundColor:
-                                      WidgetStatePropertyAll(Colors.white70)),
-                              onPressed: () => {
-                                    onTapElement(
-                                        title: anime.getTitle(),
-                                        id: anime.idAnime(),
-                                        tag: null)
-                                  },
-                              child: const AutoSizeText('Ver ultimo anime')),
-                      Padding(
-                          padding: EdgeInsets.only(
-                              left: size.width * 0.1, right: size.width * 0.1),
-                          child: SizedBox(
-
-                            child: AutoSizeText(anime.getTitle(),
+                              color: Colors.black45,
+                              colorBlendMode: BlendMode.darken,
+                              filterQuality: FilterQuality.high))))),
+          Container(
+              margin: EdgeInsets.only(
+                bottom: size.height * 0.05,
+                top: size.height * 0.05,
+                left: size.width * 0.1,
+                right: size.width * 0.1,
+              ),
+              width: size.width,
+              height: size.height * 0.6,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [
+                    BoxShadow(color: Colors.white, blurRadius: 10)
+                  ]),
+              child: ClipRRect(
+                borderRadius: BorderRadiusGeometry.circular(20),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                        child: CachedNetworkImage(
+                            imageUrl: anime.getImage(),
+                            fit: BoxFit.cover,
+                            filterQuality: FilterQuality.high)),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        spacing: 20,
+                        children: [
+                          ElevatedButton(
+                            style: const ButtonStyle(
+                              backgroundColor:
+                                  WidgetStatePropertyAll(Colors.white70),
+                            ),
+                            onPressed: () {
+                              onTapElement(
+                                title: anime.getTitle(),
+                                id: anime.idAnime(),
+                                tag: null,
+                              );
+                            },
+                            child: const AutoSizeText('Ver ultimo anime'),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                              bottom: size.height * 0.02,
+                              left: size.width * 0.1,
+                              right: size.width * 0.1,
+                            ),
+                            child: SizedBox(
+                              child: AutoSizeText(
+                                anime.getTitle(),
                                 style: Theme.of(context).textTheme.titleLarge,
-                                maxLines: 3),
-                          )),
-                    ],
-                  ))
-            ],
-          )),
-    );
+                                maxLines: 3,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ))
+
+          /// Imagen principal sin blur
+          ,
+        ],
+      ),
+    ));
   }
 }
 
@@ -702,12 +739,12 @@ class BannerAiringAnime extends StatelessWidget {
 }
 
 class ListAiringAnime extends StatelessWidget {
-  final List<BasicAnime> listAringAnime;
+  final List<BasicAnime> listAiringAnime;
   final void Function({required String id, String? tag, required String title})
       onTapElement;
 
   const ListAiringAnime(
-      {super.key, required this.listAringAnime, required this.onTapElement});
+      {super.key, required this.listAiringAnime, required this.onTapElement});
 
   @override
   Widget build(BuildContext context) {
@@ -717,15 +754,14 @@ class ListAiringAnime extends StatelessWidget {
             left: size.width * 0.05,
             right: size.width * 0.05,
             bottom: size.height * 0.1),
-        sliver:listAringAnime.isEmpty?
-            const Text('No se han podidio obtener sus datos')
-
+        sliver: listAiringAnime.isEmpty
+            ? const Text('No se han podidio obtener sus datos')
             : SliverList.builder(
-            itemBuilder: (context, index) => BannerAiringAnime(
-                size: size,
-                airingAnime: listAringAnime[index],
-                onTap: onTapElement),
-            itemCount: listAringAnime.length));
+                itemBuilder: (context, index) => BannerAiringAnime(
+                    size: size,
+                    airingAnime: listAiringAnime[index],
+                    onTap: onTapElement),
+                itemCount: listAiringAnime.length));
   }
 }
 

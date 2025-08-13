@@ -18,42 +18,35 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-        onRefresh: () {
-          context.read<AnimeBloc>().add(ObtainData(context: context));
-          return Future.value();
-        },
-        child: CustomScrollView(slivers: [
-          BlocSelector<AnimeBloc, AnimeState, List<LastEpisode>>(
-              selector: (state) => state.lastEpisodes,
-              builder: (context, state) => SliverMainImage(
-                    anime: state.first,
-                    key: targetKey,
-                    onTapElement: onTapElement,
-                  )),
-          BlocSelector<AnimeBloc, AnimeState, List<LastEpisode>>(
-              selector: (state) => state.lastEpisodes,
-              builder: (context, state) => ListBannerAnime(
-                  listAnime: state.sublist(1),
-                  tag: 'episodeos',
-                  title: 'Últimos episódeos agregados',
-                  typeAnime: TypeAnime.episode,
-                  colorTitle: Colors.orange,
-                  onTapElement: onTapElement)),
-          BlocSelector<AnimeBloc, AnimeState, List<Anime>>(
-              selector: (state) => state.lastAnimesAdd,
-              builder: (context, state) => ListBannerAnime(
-                  listAnime: state,
-                  tag: 'agregados',
-                  title: 'Últimos animes agregados',
-                  typeAnime: TypeAnime.anime,
-                  colorTitle: Colors.blueAccent,
-                  onTapElement: onTapElement)),
-          const SliverTitle(),
-          BlocSelector<AnimeBloc, AnimeState, List<BasicAnime>>(
-              selector: (state) => state.listAringAnime,
-              builder: (context, state) => ListAiringAnime(
-                  listAringAnime: state, onTapElement: onTapElement))
-        ]));
+    return CustomScrollView(slivers: [
+      BlocSelector<AnimeBloc, AnimeState, List<LastEpisode>>(
+          selector: (state) => state.lastEpisodes,
+          builder: (context, state) => SliverMainImage(
+              anime: state.first, key: targetKey, onTapElement: onTapElement)),
+      if (context.watch<AnimeBloc>().state.lastEpisodes.isNotEmpty)
+        BlocSelector<AnimeBloc, AnimeState, List<LastEpisode>>(
+            selector: (state) => state.lastEpisodes,
+            builder: (context, state) => ListBannerAnime(
+                listAnime: state.sublist(1),
+                tag: 'episodios',
+                title: 'Últimos episódeos agregados',
+                typeAnime: TypeAnime.episode,
+                colorTitle: Colors.orange,
+                onTapElement: onTapElement)),
+      BlocSelector<AnimeBloc, AnimeState, List<Anime>>(
+          selector: (state) => state.lastAnimesAdd,
+          builder: (context, state) => ListBannerAnime(
+              listAnime: state,
+              tag: 'agregados',
+              title: 'Últimos animes agregados',
+              typeAnime: TypeAnime.anime,
+              colorTitle: Colors.blueAccent,
+              onTapElement: onTapElement)),
+      const SliverTitle(),
+      BlocSelector<AnimeBloc, AnimeState, List<BasicAnime>>(
+          selector: (state) => state.listAringAnime,
+          builder: (context, state) => ListAiringAnime(
+              listAiringAnime: state, onTapElement: onTapElement))
+    ]);
   }
 }

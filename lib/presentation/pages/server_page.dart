@@ -58,7 +58,7 @@ class _ServerListPageState extends State<ServerListPage> {
 
   @override
   void initState() {
-     WakelockPlus.enabled;
+     WakelockPlus.enable();
      anime = context
         .read<AnimeBloc>()
         .state

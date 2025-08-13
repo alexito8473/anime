@@ -50,12 +50,12 @@ class AnimeRepository {
         listBasicAnime: _getAiringAnimes(res));
   }
 
-  Future<List> getLastAddedAnimes() async {
+  Future<List<Anime>> getLastAddedAnimes() async {
     return _getLastAddedAnimes(
         await http.Client().get(Uri.parse(Constants.baseUrl)));
   }
 
-  Future<List> getAiringAnimes() async {
+  Future<List<BasicAnime>> getAiringAnimes() async {
     return _getAiringAnimes(
         await http.Client().get(Uri.parse(Constants.baseUrl)));
   }
@@ -75,8 +75,8 @@ class AnimeRepository {
       {required ListTypeAnimePage listTypeAnimePage}) async {
     final res = await http.Client().get(
         Uri.parse(
-            "${Constants.searchUrlForType}${listTypeAnimePage.typeVersionAnime
-                .value}&page=${listTypeAnimePage.page}"),
+            '${Constants.searchUrlForType}${listTypeAnimePage.typeVersionAnime
+                .value}&page=${listTypeAnimePage.page}'),
         headers: {'Accept-Encoding': 'gzip'});
 
     if (res.statusCode != 200) return [];

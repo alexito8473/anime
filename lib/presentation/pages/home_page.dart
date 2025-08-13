@@ -17,7 +17,10 @@ import '../../domain/bloc/configuration/configuration_bloc.dart';
 import '../screens/home/configuration_screen.dart';
 import '../screens/home/gender_anime_screen.dart';
 import '../screens/type_anime_screen.dart';
+import '../widgets/dialog/alert_dialog_update_app_widget.dart';
+import '../widgets/image/image_backgorund_widget.dart';
 import '../widgets/load/load_widget.dart';
+import '../widgets/title/title_download_home_page_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -130,40 +133,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void showModelUpdate(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     showDialog(
         context: context,
         barrierColor: Colors.black87,
-        builder: (context) => AlertDialog(
-                backgroundColor: Colors.grey.shade900,
-                shadowColor: Colors.white54,
-                title: Text(
-                  'Nueva actualización disponible',
-                  style: theme.textTheme.titleLarge
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                content: Text(
-                  'Se ha encontrado una nueva versión de la aplicación. ¿Deseas actualizar ahora?',
-                  style: theme.textTheme.bodyMedium,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text('Más tarde',
-                        style: theme.textTheme.labelLarge!.copyWith(
-                            color: Colors.blueGrey,
-                            fontWeight: FontWeight.w600)),
-                  ),
-                  TextButton(
-                      onPressed: () {
-                        context.read<UpdateBloc>().add(UpdateMobileEvent());
-                        Navigator.of(context).pop();
-                      },
-                      child: Text('Actualizar',
-                          style: theme.textTheme.labelLarge?.copyWith(
-                              color: Colors.orangeAccent,
-                              fontWeight: FontWeight.bold)))
-                ]));
+        builder: (context) => const AlertDialogUpdateAppWidget());
   }
 
   @override
@@ -178,43 +151,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         },
         child: AnimationLoadPage(
             child: Stack(children: [
-          BlocSelector<ConfigurationBloc, ConfigurationState, String>(
-            selector: (state) => state.imageBackGround,
-            builder: (context, state) {
-              return Positioned.fill(
-                  child: Image.asset(state,
-                      fit: BoxFit.cover,
-                      filterQuality: FilterQuality.none,
-                      colorBlendMode: BlendMode.darken,
-                      color: Colors.black54,
-                      alignment: Alignment.topCenter));
-            },
-          ),
+          const Positioned.fill(child: ImageBackgroundWidget()),
           ZoomDrawer(
               controller: zoomDrawerController,
-              drawerShadowsBackgroundColor: Colors.grey.shade800,
-              slideWidth: orientation == Orientation.portrait
-                  ? size.width * 0.65
-                  : size.width * 0.35,
+              drawerShadowsBackgroundColor: Colors.grey.shade500,
               angle: 0.0,
-              menuBackgroundColor: Colors.transparent,
               disableDragGesture: false,
-              closeCurve: Curves.linear,
-              overlayBlend: BlendMode.darken,
-              openCurve: Curves.linear,
               showShadow: true,
               menuScreen:
                   ZoomDrawerScreen(changeIndex: (index) => changeIndex(index)),
               mainScreen: Scaffold(
                   appBar: AppBar(
-                      title: BlocSelector<UpdateBloc, UpdateState, String>(
-                          selector: (state) => state.advance,
-                          builder: (context, state) {
-                            return state!=''
-                                ? Text(
-                                    'Descargando : $state%')
-                                : const Text('');
-                          }),
+                      title: const TitleDownloadHomePageWidget(),
                       shadowColor: Colors.transparent,
                       surfaceTintColor: Colors.transparent,
                       leading: IconButton(

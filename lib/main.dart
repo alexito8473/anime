@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'domain/bloc/configuration/configuration_bloc.dart';
+
 void main() async {
   final List<String> listEpisodesView = List.empty(growable: true);
   WidgetsFlutterBinding.ensureInitialized();
