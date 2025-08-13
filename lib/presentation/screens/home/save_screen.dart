@@ -23,22 +23,25 @@ class SaveScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
+    final bool isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
     return DefaultTabController(
         length: tabController.length,
         initialIndex: tabController.index,
         child: Column(children: [
-          TabBar(
-              controller: tabController,
-              indicatorAnimation: TabIndicatorAnimation.linear,
-              physics: const ClampingScrollPhysics(),
-              isScrollable: true,
-              indicatorColor: Colors.orangeAccent,
-              tabAlignment: TabAlignment.start,
-              labelColor: Colors.yellowAccent,
-              dividerColor: Colors.orangeAccent.withAlpha(100),
-              tabs: animeTypes
-                  .map((e) => Tab(icon: Icon(e.getIcon()), text: e.name))
-                  .toList()),
+          SafeArea(
+              child: TabBar(
+                  controller: tabController,
+                  indicatorAnimation: TabIndicatorAnimation.linear,
+                  physics: const ClampingScrollPhysics(),
+                  isScrollable: true,
+                  indicatorColor: Colors.orangeAccent,
+                  tabAlignment: TabAlignment.start,
+                  labelColor: Colors.yellowAccent,
+                  dividerColor: Colors.orangeAccent.withAlpha(100),
+                  tabs: animeTypes
+                      .map((e) => Tab(icon: Icon(e.getIcon()), text: e.name))
+                      .toList())),
           BlocSelector<AnimeBloc, AnimeState,
               Map<TypeMyAnimes, List<CompleteAnime>>>(
             selector: (state) => state.mapAnimesLoad,
@@ -48,21 +51,23 @@ class SaveScreen extends StatelessWidget {
                       controller: tabController,
                       children: animeTypes.map((e) {
                         final animeList = state[e] ?? [];
-                        if(animeList.isEmpty){
-                          return Padding(padding: EdgeInsets.symmetric(
-                            horizontal: size.width*0.1,
-                            vertical: size.height*0.1
-                          ),
-                          child: Column(
-                            children: [
-                              Text('No tienes animes guardados en ${e.name}',
-
-                              style: Theme.of(context).textTheme.labelLarge),
-                              Lottie.asset('assets/lottie/animeLoading.json',
-                                  height: size.height*0.3),
-
-                            ],
-                          ));
+                        if (animeList.isEmpty) {
+                          return Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: size.width * 0.1,
+                                  vertical: size.height * 0.1),
+                              child: Column(
+                                children: [
+                                  Text(
+                                      'No tienes animes guardados en ${e.name}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge),
+                                  Lottie.asset(
+                                      'assets/lottie/animeLoading.json',
+                                      height: size.height * 0.3),
+                                ],
+                              ));
                         }
                         return GridView.builder(
                             padding: EdgeInsets.symmetric(

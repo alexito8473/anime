@@ -254,14 +254,14 @@ class ConfigurationScreen extends StatelessWidget {
     final Size size = MediaQuery.sizeOf(context);
     return BlocBuilder<ConfigurationBloc, ConfigurationState>(
         builder: (context, state) {
-      return Padding(
+      return SafeArea(child: Padding(
           padding: EdgeInsets.symmetric(horizontal: size.width * .1),
           child: CustomScrollView(slivers: [
             _buildVersionCard(context, state),
             _buildUpdateCard(context),
             _buildAvatarSection(context, state),
             _buildBackGroundSection(context, state),
-          ]));
+          ])));
     });
   }
 }

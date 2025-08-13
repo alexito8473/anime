@@ -17,11 +17,11 @@ class GenderAnimeScreen extends StatelessWidget {
           .read<AnimeBloc>()
           .add(ObtainDataGender(context: context, gender: gender));
     }
-    return CustomScrollView(slivers: [
+    return SafeArea(child: CustomScrollView(slivers: [
       SliverPadding(
           padding: EdgeInsets.symmetric(
             horizontal: size.width * 0.03,
-            vertical: size.height * 0.02,
+            vertical: size.height * 0.01,
           ),
           sliver: SliverGrid.builder(
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -38,6 +38,6 @@ class GenderAnimeScreen extends StatelessWidget {
                         child: BannerBlur(
                             image: gender.getImage(), text: gender.name)));
               }))
-    ]);
+    ]));
   }
 }

@@ -36,7 +36,7 @@ class ListTypeScreen extends StatelessWidget {
       SliverToBoxAdapter(key: targetKey),
       SliverAppBar.large(
           centerTitle: true,
-          expandedHeight: size.height * 0.18,
+          expandedHeight: size.height * 0.15,
           flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.parallax,
               stretchModes: StretchMode.values,

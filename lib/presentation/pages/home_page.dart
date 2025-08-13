@@ -141,8 +141,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-    final orientation = MediaQuery.orientationOf(context);
     return BlocListener<UpdateBloc, UpdateState>(
         listener: (context, state) {
           if (state.canUpdate) {
@@ -161,9 +159,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               menuScreen:
                   ZoomDrawerScreen(changeIndex: (index) => changeIndex(index)),
               mainScreen: Scaffold(
+                extendBodyBehindAppBar: true,
                   appBar: AppBar(
+                    backgroundColor: Colors.transparent,
+                      toolbarHeight: 50,
                       title: const TitleDownloadHomePageWidget(),
-                      shadowColor: Colors.transparent,
                       surfaceTintColor: Colors.transparent,
                       leading: IconButton(
                           onPressed: () => zoomDrawerController.toggle?.call(),

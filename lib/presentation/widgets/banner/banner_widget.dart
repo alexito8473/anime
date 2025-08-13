@@ -32,7 +32,7 @@ class SliverMainImage extends StatelessWidget {
     return SliverToBoxAdapter(
         child: SizedBox(
       width: size.width,
-      height: size.height * 0.6,
+      height: size.height * 0.7,
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -59,71 +59,72 @@ class SliverMainImage extends StatelessWidget {
                               color: Colors.black45,
                               colorBlendMode: BlendMode.darken,
                               filterQuality: FilterQuality.high))))),
-          Container(
-              margin: EdgeInsets.only(
-                bottom: size.height * 0.05,
-                top: size.height * 0.05,
-                left: size.width * 0.1,
-                right: size.width * 0.1,
-              ),
-              width: size.width,
-              height: size.height * 0.6,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.white, blurRadius: 10)
-                  ]),
-              child: ClipRRect(
-                borderRadius: BorderRadiusGeometry.circular(20),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                        child: CachedNetworkImage(
-                            imageUrl: anime.getImage(),
-                            fit: BoxFit.cover,
-                            filterQuality: FilterQuality.high)),
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        spacing: 20,
-                        children: [
-                          ElevatedButton(
-                            style: const ButtonStyle(
-                              backgroundColor:
-                                  WidgetStatePropertyAll(Colors.white70),
-                            ),
-                            onPressed: () {
-                              onTapElement(
-                                title: anime.getTitle(),
-                                id: anime.idAnime(),
-                                tag: null,
-                              );
-                            },
-                            child: const AutoSizeText('Ver ultimo anime'),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(
-                              bottom: size.height * 0.02,
-                              left: size.width * 0.1,
-                              right: size.width * 0.1,
-                            ),
-                            child: SizedBox(
-                              child: AutoSizeText(
-                                anime.getTitle(),
-                                style: Theme.of(context).textTheme.titleLarge,
-                                maxLines: 3,
+          SafeArea(
+              child: Container(
+                  margin: EdgeInsets.only(
+                    bottom: size.height * 0.05,
+                    left: size.width * 0.1,
+                    right: size.width * 0.1,
+                  ),
+                  width: size.width,
+                  height: size.height * 0.6,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: const [
+                        BoxShadow(color: Colors.white, blurRadius: 10)
+                      ]),
+                  child: ClipRRect(
+                    borderRadius: BorderRadiusGeometry.circular(20),
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                            child: CachedNetworkImage(
+                                imageUrl: anime.getImage(),
+                                fit: BoxFit.cover,
+                                filterQuality: FilterQuality.high)),
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            spacing: 20,
+                            children: [
+                              ElevatedButton(
+                                style: const ButtonStyle(
+                                  backgroundColor:
+                                      WidgetStatePropertyAll(Colors.white70),
+                                ),
+                                onPressed: () {
+                                  onTapElement(
+                                    title: anime.getTitle(),
+                                    id: anime.idAnime(),
+                                    tag: null,
+                                  );
+                                },
+                                child: const AutoSizeText('Ver ultimo anime'),
                               ),
-                            ),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: size.height * 0.02,
+                                  left: size.width * 0.1,
+                                  right: size.width * 0.1,
+                                ),
+                                child: SizedBox(
+                                  child: AutoSizeText(
+                                    anime.getTitle(),
+                                    style:
+                                        Theme.of(context).textTheme.titleLarge,
+                                    maxLines: 3,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ))
+                        )
+                      ],
+                    ),
+                  )))
 
           /// Imagen principal sin blur
           ,
