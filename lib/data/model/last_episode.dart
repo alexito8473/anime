@@ -47,6 +47,6 @@ class LastEpisode implements AnimeInterface, AnimeBanner {
 
   @override
   String getRating() {
-    return "0";
+    return '0';
   }
 }

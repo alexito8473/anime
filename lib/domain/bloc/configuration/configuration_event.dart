@@ -1,6 +1,5 @@
 part of 'configuration_bloc.dart';
 
-@immutable
 sealed class ConfigurationEvent {}
 
 class ObtainDataVersion extends ConfigurationEvent{}
@@ -12,4 +11,8 @@ class ChangeImagePerson extends ConfigurationEvent{
 class ChangeImageBackground extends ConfigurationEvent{
   final String image;
   ChangeImageBackground({required this.image});
+}
+class ChangeIndexHomePage extends ConfigurationEvent{
+  final int index;
+  ChangeIndexHomePage({required this.index});
 }

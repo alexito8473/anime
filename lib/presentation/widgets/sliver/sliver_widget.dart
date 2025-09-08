@@ -53,7 +53,7 @@ class SliverAppBarSearch extends StatelessWidget {
               ),
             ),
           ),
-          if (action != null) ...[SizedBox(width: 10), action!],
+          if (action != null) ...[const SizedBox(width: 10), action!],
         ],
       ),
     );

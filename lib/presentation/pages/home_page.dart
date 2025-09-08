@@ -31,7 +31,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final ZoomDrawerController zoomDrawerController = ZoomDrawerController();
-  int _currentIndex = 0;
   int _currentIndexTypeAnimePage = 0;
   final List<TypeMyAnimes> animeTypes = TypeMyAnimes.values.sublist(1);
   late final TabController tabController;
@@ -95,56 +94,48 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
-  void moveScroll(GlobalKey globalKey) {
-    Scrollable.ensureVisible(globalKey.currentContext!,
-        duration: const Duration(milliseconds: 500), curve: Curves.linear);
-  }
+  void moveScroll(GlobalKey globalKey) =>
+      Scrollable.ensureVisible(globalKey.currentContext!,
+          duration: const Duration(milliseconds: 500), curve: Curves.linear);
 
-  void changeIndexTypeAnimePage({required int index}) {
-    _currentIndexTypeAnimePage == index
-        ? moveScroll(_targetKeyList[index])
-        : setState(() => _currentIndexTypeAnimePage = index);
-  }
+  void changeIndexTypeAnimePage({required int index}) =>
+      _currentIndexTypeAnimePage == index
+          ? moveScroll(_targetKeyList[index])
+          : setState(() => _currentIndexTypeAnimePage = index);
 
-  void navigateToSearch() {
-    Navigator.push(
-        context,
-        PageRouteBuilder(
-            pageBuilder: (_, __, ___) => const ExplorePage(),
-            transitionsBuilder: (_, animation, __, child) {
-              return SlideTransition(
-                  position: animation.drive(
-                    Tween(begin: const Offset(-1.0, 0.0), end: Offset.zero)
-                        .chain(CurveTween(curve: Curves.linear)),
-                  ),
-                  child: child);
-            }));
-  }
+  void navigateToSearch() => Navigator.push(
+      context,
+      PageRouteBuilder(
+          pageBuilder: (_, __, ___) => const ExplorePage(),
+          transitionsBuilder: (_, animation, __, child) {
+            return SlideTransition(
+                position: animation.drive(
+                  Tween(begin: const Offset(-1.0, 0.0), end: Offset.zero)
+                      .chain(CurveTween(curve: Curves.linear)),
+                ),
+                child: child);
+          }));
 
   void changeIndex(int index) {
-    setState(() => _currentIndex = index);
+    context.read<ConfigurationBloc>().add(ChangeIndexHomePage(index: index));
     zoomDrawerController.toggle?.call();
   }
 
-  void navigation({required String id, String? tag, required String title}) {
-    context
-        .read<AnimeBloc>()
-        .add(ObtainDataAnime(context: context, id: id, tag: tag, title: title));
-  }
+  void navigation({required String id, String? tag, required String title}) =>
+      context.read<AnimeBloc>().add(
+          ObtainDataAnime(context: context, id: id, tag: tag, title: title));
 
-  void showModelUpdate(BuildContext context) {
-    showDialog(
-        context: context,
-        barrierColor: Colors.black87,
-        builder: (context) => const AlertDialogUpdateAppWidget());
-  }
+  void showModelUpdate() => showDialog(
+      context: context,
+      barrierColor: Colors.black87,
+      builder: (context) => const AlertDialogUpdateAppWidget());
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<UpdateBloc, UpdateState>(
         listener: (context, state) {
           if (state.canUpdate) {
-            showModelUpdate(context);
+            showModelUpdate();
           }
         },
         child: AnimationLoadPage(
@@ -159,9 +150,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               menuScreen:
                   ZoomDrawerScreen(changeIndex: (index) => changeIndex(index)),
               mainScreen: Scaffold(
-                extendBodyBehindAppBar: true,
+                  extendBodyBehindAppBar: true,
                   appBar: AppBar(
-                    backgroundColor: Colors.transparent,
+                      backgroundColor: Colors.transparent,
                       toolbarHeight: 50,
                       title: const TitleDownloadHomePageWidget(),
                       surfaceTintColor: Colors.transparent,
@@ -173,22 +164,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             onPressed: () => navigateToSearch(),
                             icon: const Icon(Icons.search))
                       ]),
-                  body: [
-                    HomeScreen(onTapElement: navigation),
-                    SaveScreen(
-                        onTapElement: navigation,
-                        animeTypes: animeTypes,
-                        tabController: tabController),
-                    TypesAnimePage(
-                        currentIndex: _currentIndexTypeAnimePage,
-                        listScreenTypePage: listScreenTypePage,
-                        changeIndex: changeIndexTypeAnimePage,
-                        canUpdate: _canUpdate,
-                        scrollControllers: _scrollControllers,
-                        loadMore: loadMore),
-                    const GenderAnimeScreen(),
-                    const ConfigurationScreen()
-                  ][_currentIndex]))
+                  body:
+                      BlocSelector<ConfigurationBloc, ConfigurationState, int>(
+                    selector: (state) => state.pageHomeIndex,
+                    builder: (context, state) {
+                      return [
+                        HomeScreen(onTapElement: navigation),
+                        SaveScreen(
+                            onTapElement: navigation,
+                            animeTypes: animeTypes,
+                            tabController: tabController),
+                        TypesAnimePage(
+                            currentIndex: _currentIndexTypeAnimePage,
+                            listScreenTypePage: listScreenTypePage,
+                            changeIndex: changeIndexTypeAnimePage,
+                            canUpdate: _canUpdate,
+                            scrollControllers: _scrollControllers,
+                            loadMore: loadMore),
+                        const GenderAnimeScreen(),
+                        const ConfigurationScreen()
+                      ][state];
+                    },
+                  )))
         ])));
   }
 }

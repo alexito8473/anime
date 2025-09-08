@@ -102,17 +102,17 @@ class SynopsysWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
             spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text("Synopsis",
+              const Text('Synopsis',
                   style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.blue)),
-              AutoSizeText(title, style: TextStyle(fontSize: 16))
+              AutoSizeText(title, style: const TextStyle(fontSize: 16))
             ]));
   }
 }

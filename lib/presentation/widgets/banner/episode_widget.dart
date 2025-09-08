@@ -27,7 +27,7 @@ class BannerEpisode extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isSave =
+    final bool isSave =
         context.watch<AnimeBloc>().state.listEpisodesView.contains(episode.id);
     return GestureDetector(
         onTap: () {
@@ -102,9 +102,9 @@ class BannerEpisode extends StatelessWidget {
                                 Theme.of(context).textTheme.titleMedium!),
                         Row(
                           children: [
-                            AutoSizeText("Episodeo : ${episode.episode}"),
+                            AutoSizeText('Episodio : ${episode.episode}'),
                             if (episode.part != null)
-                              AutoSizeText("Parte : ${episode.part}")
+                              AutoSizeText('Parte : ${episode.part}')
                           ],
                         ),
                       ])),

@@ -1,7 +1,6 @@
 import 'package:anime/data/enums/type_version_anime.dart';
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/model/list_type_anime_page.dart';

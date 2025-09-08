@@ -24,13 +24,13 @@ enum TypeVersionAnime {
   String getTitle() {
     switch (this) {
       case TypeVersionAnime.tv:
-        return "Televisión";
+        return 'Televisión';
       case TypeVersionAnime.ova:
-        return "Ova";
+        return 'Ova';
       case TypeVersionAnime.movie:
-        return "Películas";
+        return 'Películas';
       case TypeVersionAnime.special:
-        return "Especiales";
+        return 'Especiales';
     }
   }
 }

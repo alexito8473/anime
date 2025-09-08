@@ -1,3 +1,5 @@
+// ignore_for_file: empty_catches
+
 import 'package:anime/data/enums/gender.dart';
 import 'package:anime/data/model/anime.dart';
 import 'package:anime/data/model/basic_anime.dart';

@@ -1,7 +1,7 @@
 import 'package:anime/domain/repository/update/update_repository.dart';
-import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:open_file/open_file.dart';
 
 part 'update_event.dart';

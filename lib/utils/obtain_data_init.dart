@@ -28,8 +28,8 @@ List<Future<Null>> transformListStringToListFuture(
 }
 
 Future<void> extractDataSave(AnimeState animeState) async {
-  AnimeRepository animeRepository = AnimeRepository();
-  List<Future<Null>> listFutures = List.empty(growable: true);
+  final AnimeRepository animeRepository = AnimeRepository();
+  final List<Future<Null>> listFutures = List.empty(growable: true);
   for (TypeMyAnimes animes
       in TypeMyAnimes.values.where((element) => element != TypeMyAnimes.NONE)) {
     listFutures.addAll(transformListStringToListFuture(

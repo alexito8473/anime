@@ -27,6 +27,7 @@ class DetailAnimeScreen extends StatelessWidget {
   final TypeMyAnimes miAnime;
   final Future<void> Function({required CompleteAnime anime}) openDialog;
   final void Function({required TypesVision? type}) changeTypeVision;
+  final void Function() shareAnime;
   final void Function({required String id, String? tag, required String title})
       navigation;
   final List<Episode> Function(
@@ -50,7 +51,8 @@ class DetailAnimeScreen extends StatelessWidget {
       required this.changeTypeVision,
       required this.isSave,
       required this.openDialog,
-      required this.miAnime});
+      required this.miAnime,
+      required this.shareAnime});
 
   int countTabBar() {
     int count = 1;
@@ -67,7 +69,8 @@ class DetailAnimeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
     final ThemeData theme = Theme.of(context);
-    final bool isPortrait = MediaQuery.orientationOf(context) == Orientation.portrait;
+    final bool isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
     final double padding08 = size.width * 0.08;
     return NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
@@ -94,7 +97,9 @@ class DetailAnimeScreen extends StatelessWidget {
                         selectedIcon:
                             const Icon(Icons.autorenew, color: Colors.orange),
                         icon: const Icon(CupertinoIcons.heart,
-                            color: Colors.white))
+                            color: Colors.white)),
+                    IconButton(
+                        onPressed: shareAnime, icon: const Icon(Icons.share))
                   ])),
               SliverToBoxAdapter(
                   child: Material(

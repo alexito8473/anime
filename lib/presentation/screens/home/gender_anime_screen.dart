@@ -9,14 +9,15 @@ import '../../widgets/banner/banner_widget.dart';
 class GenderAnimeScreen extends StatelessWidget {
   const GenderAnimeScreen({super.key});
 
+  void navigatePage({required BuildContext context, required Gender gender}) {
+    context
+        .read<AnimeBloc>()
+        .add(ObtainDataGender(context: context, gender: gender));
+  }
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
-    void navigatePage(Gender gender) {
-      context
-          .read<AnimeBloc>()
-          .add(ObtainDataGender(context: context, gender: gender));
-    }
+
     return SafeArea(child: CustomScrollView(slivers: [
       SliverPadding(
           padding: EdgeInsets.symmetric(
@@ -32,7 +33,7 @@ class GenderAnimeScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 final gender = Gender.values[index];
                 return GestureDetector(
-                    onTap: () => navigatePage(gender),
+                    onTap: () => navigatePage(context: context,gender: gender),
                     child: Hero(
                         tag: gender.name,
                         child: BannerBlur(

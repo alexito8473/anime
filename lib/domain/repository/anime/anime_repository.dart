@@ -106,7 +106,7 @@ class AnimeRepository {
     return elements
         .map((element) {
       try {
-        var id = element
+        final id = element
             .find('div', class_: 'Description')
             ?.find('a', class_: 'Button')?['href'];
         return {
@@ -156,7 +156,7 @@ class AnimeRepository {
     if (res.statusCode == 200) {
       scripts = BeautifulSoup(utf8.decode(res.bodyBytes, allowMalformed: true))
           .findAll('script');
-      var servers = [];
+      final servers = [];
       for (var script in scripts) {
         final content = script.toString();
         if (content.contains('var videos = {')) {
@@ -171,12 +171,12 @@ class AnimeRepository {
   }
 
   List<BasicAnime> _getAiringAnimes(http.Response res) {
-    var airingAnimes = [];
+    final airingAnimes = [];
     List<Bs4Element> airingAnimesElements;
     try {
       if (res.statusCode == 200) {
         if (kIsWeb) {
-          airingAnimesElements = BeautifulSoup(jsonDecode(res.body)["contents"])
+          airingAnimesElements = BeautifulSoup(jsonDecode(res.body)['contents'])
               .findAll('', selector: '.ListSdbr li');
         } else {
           airingAnimesElements =
@@ -197,12 +197,13 @@ class AnimeRepository {
         }
         return airingAnimes.map((e) => BasicAnime.fromJson(e)).toList();
       }
+    // ignore: empty_catches
     } catch (e) {}
     return [];
   }
 
   List<Anime> _getLastAddedAnimes(http.Response res) {
-    var lastAnimes = [];
+    final lastAnimes = [];
     List<Bs4Element> lastAnimesElements;
     if (res.statusCode == 200) {
       lastAnimesElements =
@@ -259,7 +260,7 @@ class AnimeRepository {
 
   Future<List> _getAnimeEpisodesInfo(String animeId) async {
     final res = await http.Client().get(
-        Uri.parse("${Constants.baseUrl}/$animeId"),
+        Uri.parse('${Constants.baseUrl}/$animeId'),
         headers: {'Accept-Encoding': 'gzip'});
 
     if (res.statusCode != 200) return [];
@@ -300,8 +301,8 @@ class AnimeRepository {
     extraInfo['banner'] = extraInfo['poster']?.replaceAll('covers', 'banners');
 
     // Obtener géneros
-    var genres = [];
-    var elements = soup.findAll('', selector: '.Nvgnrs a');
+    final genres = [];
+    final elements = soup.findAll('', selector: '.Nvgnrs a');
     for (var element in elements) {
       if (element['href']!.contains('=')) {
         genres.add(element['href']?.split('=')[1]);
@@ -387,7 +388,7 @@ class AnimeRepository {
   }
 
   List<LastEpisode> _getLastEpisodes(http.Response res) {
-    var lastEpisodes = [];
+    final lastEpisodes = [];
     final List<Bs4Element> lastEpisodesElements;
     try {
       if (res.statusCode == 200) {
@@ -413,6 +414,7 @@ class AnimeRepository {
         return lastEpisodes.map((e) => LastEpisode.fromJson(e)).toList();
       }
       return [];
+    // ignore: empty_catches
     } catch (e) {}
     return [];
   }
@@ -504,6 +506,7 @@ class AnimeRepository {
           }
         }
         return ret;
+      // ignore: empty_catches
       } catch (e) {}
     }
     return [];

@@ -86,8 +86,8 @@ class ServerScreen extends StatelessWidget {
                           border:
                               Border.all(color: Colors.white.withAlpha(40))),
                       child: isSave
-                          ? const Text("Visto")
-                          : const Text("No visto"))),
+                          ? const Text('Visto')
+                          : const Text('No visto'))),
               if (anime.episodes.length > episode.episode)
                 navigatorButton(
                     size: size,
@@ -99,7 +99,7 @@ class ServerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
+    final Size size = MediaQuery.sizeOf(context);
     return Scaffold(
         appBar: AppBar(
             toolbarHeight: 100,
@@ -115,7 +115,7 @@ class ServerScreen extends StatelessWidget {
                   icon: const Icon(CupertinoIcons.heart, color: Colors.white))
             ],
             title: TitleWidget(
-                title: "${anime.title} - Episodeo: ${episode.episode}",
+                title: '${anime.title} - Episodio: ${episode.episode}',
                 maxLines: 3,
                 textStyle: Theme.of(context).textTheme.titleMedium!,
                 tag: episode.id)),

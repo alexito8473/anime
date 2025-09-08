@@ -104,8 +104,11 @@ class AnimeState {
   }
 
   factory AnimeState.fromJson(Map<String, dynamic> json) {
+    // ignore: prefer_collection_literals
     final Map<TypeVersionAnime, ListTypeAnimePage> mapPageAnimes = Map();
+    // ignore: prefer_collection_literals
     final Map<TypeMyAnimes, List<CompleteAnime>> mapAnimesLoad = Map();
+    // ignore: prefer_collection_literals
     final Map<Gender, GenderAnimeForPage> mapGeneresAnimes = Map();
     Map<TypeMyAnimes, List<String>> mapAnimesSave;
     for (TypeVersionAnime versionAnime in TypeVersionAnime.values) {

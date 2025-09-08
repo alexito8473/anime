@@ -28,8 +28,8 @@ class HomeScreen extends StatelessWidget {
             selector: (state) => state.lastEpisodes,
             builder: (context, state) => ListBannerAnime(
                 listAnime: state.sublist(1),
-                tag: 'episodios',
-                title: 'Últimos episódeos agregados',
+                tag: 'episodeos',
+                title: 'Últimos episodeos agregados',
                 typeAnime: TypeAnime.episode,
                 colorTitle: Colors.orange,
                 onTapElement: onTapElement)),

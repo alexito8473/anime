@@ -17,7 +17,7 @@ class Episode {
     return episode.compareTo(other.episode);
   }
   factory Episode.fromJson(Map<String, dynamic> json) {
-    dynamic jsonValue = json['episode'];
+    final jsonValue = json['episode'];
     int cantDecimalPat;
     String? partDecimal;
     if (jsonValue.toString().contains('.')) {

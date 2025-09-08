@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,14 +22,13 @@ class SaveScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final bool isPortrait =
-        MediaQuery.orientationOf(context) == Orientation.portrait;
     return DefaultTabController(
         length: tabController.length,
         initialIndex: tabController.index,
         child: Column(children: [
           SafeArea(
               child: TabBar(
+
                   controller: tabController,
                   indicatorAnimation: TabIndicatorAnimation.linear,
                   physics: const ClampingScrollPhysics(),
@@ -59,7 +57,7 @@ class SaveScreen extends StatelessWidget {
                               child: Column(
                                 children: [
                                   Text(
-                                      'No tienes animes guardados en ${e.name}',
+                                      'No tienes ánimes guardados en ${e.name}',
                                       style: Theme.of(context)
                                           .textTheme
                                           .labelLarge),
@@ -81,10 +79,16 @@ class SaveScreen extends StatelessWidget {
                                     crossAxisSpacing: 30,
                                     mainAxisExtent: 280),
                             itemBuilder: (context, index) {
-                              return BannerAnimeAndEpisodes(
-                                  completeAnime: animeList[index],
-                                  tag: 'animeSearch',
-                                  onTapElement: onTapElement);
+                              return BlocSelector<AnimeBloc, AnimeState, int>(
+                                selector: (state) =>
+                                    state.listEpisodesView.length,
+                                builder: (context, state) {
+                                  return BannerAnimeAndEpisodes(
+                                      completeAnime: animeList[index],
+                                      tag: 'animeSearch',
+                                      onTapElement: onTapElement);
+                                },
+                              );
                             });
                       }).toList()));
             },

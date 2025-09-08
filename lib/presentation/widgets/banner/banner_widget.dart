@@ -36,17 +36,13 @@ class SliverMainImage extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          /// Fondo borroso con degradado
-          ///
           Positioned.fill(
               child: ShaderMask(
-                  shaderCallback: (bounds) {
-                    return const LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [Colors.black, Colors.transparent])
-                        .createShader(bounds);
-                  },
+                  shaderCallback: (bounds) => const LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [Colors.black, Colors.transparent])
+                      .createShader(bounds),
                   blendMode: BlendMode.srcOver,
                   child: Padding(
                       padding:
@@ -95,28 +91,32 @@ class SliverMainImage extends StatelessWidget {
                                   backgroundColor:
                                       WidgetStatePropertyAll(Colors.white70),
                                 ),
-                                onPressed: () {
-                                  onTapElement(
-                                    title: anime.getTitle(),
-                                    id: anime.idAnime(),
-                                    tag: null,
-                                  );
-                                },
+                                onPressed: () => onTapElement(
+                                  title: anime.getTitle(),
+                                  id: anime.idAnime(),
+                                  tag: null,
+                                ),
                                 child: const AutoSizeText('Ver ultimo anime'),
                               ),
-                              Padding(
-                                padding: EdgeInsets.only(
+                              Container(
+                                margin: EdgeInsets.only(
                                   bottom: size.height * 0.02,
-                                  left: size.width * 0.1,
-                                  right: size.width * 0.1,
                                 ),
-                                child: SizedBox(
-                                  child: AutoSizeText(
-                                    anime.getTitle(),
-                                    style:
-                                        Theme.of(context).textTheme.titleLarge,
-                                    maxLines: 3,
-                                  ),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: size.width * 0.1,
+                                    vertical: size.height * 0.02),
+                                child: AutoSizeText(
+                                  anime.getTitle(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(shadows: [
+                                    const Shadow(
+                                        color: Colors.black,
+                                        blurRadius: 5,
+                                        offset: Offset(2, 2))
+                                  ]),
+                                  maxLines: 3,
                                 ),
                               ),
                             ],
@@ -459,20 +459,22 @@ class BannerBlur extends StatelessWidget {
       ClipRRect(
           borderRadius: BorderRadius.circular(30),
           child: ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+              imageFilter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
               child: Image.asset(image,
                   width: double.infinity,
                   height: double.infinity,
                   filterQuality: FilterQuality.none,
                   isAntiAlias: false,
-                  color: Colors.black.withAlpha(130),
+                  color: Colors.black.withAlpha(120),
                   colorBlendMode: BlendMode.darken,
                   fit: BoxFit.cover))),
       Text(text,
           style: Theme.of(context)
               .textTheme
-              .labelLarge
-              ?.copyWith(fontWeight: FontWeight.bold))
+              .titleMedium
+              ?.copyWith(fontWeight: FontWeight.bold,shadows: [
+                Shadow(color: Colors.black,blurRadius: 10)
+          ]),)
     ]);
   }
 }
@@ -670,8 +672,8 @@ class BannerAnimeReload extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
-    Orientation orientation = MediaQuery.orientationOf(context);
+    final Size size = MediaQuery.sizeOf(context);
+    final Orientation orientation = MediaQuery.orientationOf(context);
     return SizedBox(
       width: orientation == Orientation.portrait
           ? size.width * 0.3
@@ -694,11 +696,11 @@ class BannerAnimeReload extends StatelessWidget {
                   color: Colors.white,
                 ))),
             TitleWidget(
-                title: " ",
+                title: ' ',
                 maxLines: 3,
                 textStyle: Theme.of(context).textTheme.titleSmall!,
                 tag: null),
-            const Text("Rating : ")
+            const Text('Rating : ')
           ]),
     );
   }

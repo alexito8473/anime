@@ -35,7 +35,7 @@ class GenderListAnimeScreen extends StatelessWidget {
           expandedHeight: 250,
           actions: [
             if (isCollapsed)
-              IconButton(onPressed: () => goUp(), icon: Icon(Icons.move_up))
+              IconButton(onPressed: () => goUp(), icon: const Icon(Icons.move_up))
           ],
           title: Text(genderAnimeForPage.typeVersionAnime.name,
               style: Theme.of(context).textTheme.titleLarge),

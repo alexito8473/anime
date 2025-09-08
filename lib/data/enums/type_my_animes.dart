@@ -2,13 +2,13 @@ import 'package:anime/constansT.dart';
 import 'package:flutter/material.dart';
 
 enum TypeMyAnimes {
-  NONE(name:"No esta guardado"),
-  IN_PROGURESS(name: "En progresso"),
-  PLANNED(name:"Planeado"),
-  FILLED(name:"Compleado"),
-  FAVORITE(name:"Favorito"),
-  WAITING(name:"Es espera"),
-  ABANDONED(name:"Abandonado");
+  NONE(name:'No esta guardado'),
+  IN_PROGURESS(name: 'En progresso'),
+  PLANNED(name:'Planeado'),
+  FILLED(name:'Compleado'),
+  FAVORITE(name:'Favorito'),
+  WAITING(name:'Es espera'),
+  ABANDONED(name:'Abandonado');
 
   final String name;
   const TypeMyAnimes({required this.name});
@@ -46,7 +46,7 @@ enum TypeMyAnimes {
       case TypeMyAnimes.ABANDONED:
         return Constants.keySharedPreferencesListAnimeAbandoned;
       case TypeMyAnimes.NONE:
-        return "";
+        return '';
     }
   }
 }

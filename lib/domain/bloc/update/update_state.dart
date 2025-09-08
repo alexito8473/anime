@@ -17,9 +17,9 @@ class UpdateState {
   factory UpdateState.init() {
     return const UpdateState(
         canUpdate: false,
-        urlApk: "",
+        urlApk: '',
         isUpdating: false,
-        advance: "",
+        advance: '',
         isError: false);
   }
 

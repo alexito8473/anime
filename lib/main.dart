@@ -4,10 +4,10 @@ import 'package:anime/presentation/pages/home_page.dart';
 import 'package:anime/utils/obtain_data_init.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+// ignore: depend_on_referenced_packages
 import 'package:path_provider/path_provider.dart';
 import 'domain/bloc/configuration/configuration_bloc.dart';
 
@@ -25,6 +25,7 @@ void main() async {
   extractDataSave(animeBloc.state);
   await extractData(animeBloc.state)
       .then((value) => animeBloc.add(LoadNewState(animeState: value)));
+
   runApp(MyApp(animeBloc: animeBloc));
 }
 

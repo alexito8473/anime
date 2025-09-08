@@ -96,12 +96,12 @@ class SliverTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
+    final Size size = MediaQuery.sizeOf(context);
     return SliverToBoxAdapter(
         child: Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: size.width * 0.05, vertical: size.height * 0.05),
             child: const TitleBannerWidget(
-                title: "Animes en emisión", color: Colors.green)));
+                title: 'Animes en emisión', color: Colors.green)));
   }
 }
