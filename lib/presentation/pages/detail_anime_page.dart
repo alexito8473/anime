@@ -7,11 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+
 import '../../data/model/complete_anime.dart';
 import '../../data/model/episode.dart';
 import '../screens/detail_anime_screen.dart';
 import '../widgets/load/load_widget.dart';
-import 'package:share_plus/share_plus.dart';
 
 class DetailAnimePage extends StatefulWidget {
   final String idAnime;
@@ -135,8 +136,8 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
   }
 
   void onTap(int index) => setState(() => _currentPage = index);
-  void shareTextAndUrl() async{
 
+  void shareTextAndUrl() async {
     try {
       // 1. Descargar la imagen
       final response = await http.get(Uri.parse(anime.poster));
@@ -147,17 +148,19 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
       final file = File('${tempDir.path}/anime_image.png');
       await file.writeAsBytes(bytes);
 
+      final share = ShareParams(
+          files: [XFile(file.path)],
+          text:
+              'Hey mira este es el anime que te quiero compartir: "${anime.title}" '
+              'tiene un total de ${anime.episodes.length} episodios en estos momentos',
+          subject: 'Abrir mi app');
       // 3. Compartir la imagen junto con texto
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text: 'Hey mira este es el anime que te quiero compartir: "${anime.title}" '
-            'tiene un total de ${anime.episodes.length} episodios en estos momentos',
-        subject: 'Abrir mi app',
-      );
+      await SharePlus.instance.share(share);
     } catch (e) {
       print('Error compartiendo la imagen: $e');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AnimeBloc, AnimeState>(
@@ -174,21 +177,21 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
         },
         child: AnimationLoadPage(
             child: DetailAnimeScreen(
-                    anime: anime,
-                    currentPage: _currentPage,
-                    allEpisode: anime.episodes,
-                    textController: _controller,
-                    tag: widget.tag,
-                    typesVision: typesVision,
-                    miAnime: miAnime,
-                    textFiltered: _controller.text,
-                    isSave: isSave,
-                    navigation: navigation,
-                    shareAnime: shareTextAndUrl,
-                    onTap: onTap,
-                    filteredList: filteredList,
-                    onTapSaveEpisode: onTapSaveEpisode,
-                    changeTypeVision: changeTypeVision,
-                    openDialog: openDialog)));
+                anime: anime,
+                currentPage: _currentPage,
+                allEpisode: anime.episodes,
+                textController: _controller,
+                tag: widget.tag,
+                typesVision: typesVision,
+                miAnime: miAnime,
+                textFiltered: _controller.text,
+                isSave: isSave,
+                navigation: navigation,
+                shareAnime: shareTextAndUrl,
+                onTap: onTap,
+                filteredList: filteredList,
+                onTapSaveEpisode: onTapSaveEpisode,
+                changeTypeVision: changeTypeVision,
+                openDialog: openDialog)));
   }
 }

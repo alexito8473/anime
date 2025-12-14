@@ -1,3 +1,4 @@
+import 'package:anime/constanst.dart';
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:anime/domain/bloc/update/update_bloc.dart';
 import 'package:anime/presentation/pages/home_page.dart';
@@ -41,45 +42,7 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (context) => ConfigurationBloc(), lazy: false)
         ],
         child: MaterialApp(
-            theme: ThemeData.from(
-              useMaterial3: true,
-              textTheme:
-                  GoogleFonts.notoSerifTextTheme(Typography.whiteRedwoodCity),
-              colorScheme: const ColorScheme(
-                brightness: Brightness.dark,
-                primary: Color(0xFF1C2833),
-                onPrimary: Colors.white,
-                secondary: Color(0xFFD4AC0D),
-                onSecondary: Colors.black,
-                error: Color(0xFFCF6679),
-                onError: Colors.black,
-                background: Color(0xFF121212),
-                onBackground: Color(0xFFEAECEE),
-                surface:  Colors.black,
-                onSurface: Color(0xFFBDC3C7),
-              ),
-            ).copyWith(
-              scaffoldBackgroundColor: Colors.black,
-              appBarTheme: const AppBarTheme(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  elevation: 0),
-              bottomNavigationBarTheme: BottomNavigationBarThemeData(
-                backgroundColor: const Color(0xFF1C2833),
-                selectedItemColor: const Color(0xFFD4AC0D),
-                unselectedItemColor: const Color(0xFF7F8C8D),
-                selectedLabelStyle: GoogleFonts.poppins(
-                    fontSize: 14, fontWeight: FontWeight.bold),
-                unselectedLabelStyle: GoogleFonts.poppins(fontSize: 12),
-                elevation: 10,
-              ),
-              cardColor: const Color(0xFF212F3D),
-              // Azul oscuro para tarjetas
-              dialogBackgroundColor: const Color(0xFF1B2631),
-              // Fondo para diálogos
-              iconTheme: const IconThemeData(
-                  color: Color(0xFFD4AC0D)), // Íconos dorados
-            ),
+            theme: Constants.theme,
             title: 'Anime',
             home: const HomePage()));
   }

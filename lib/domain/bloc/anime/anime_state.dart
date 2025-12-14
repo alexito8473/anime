@@ -65,6 +65,11 @@ class AnimeState {
         mapGeneresAnimes: mapGeneresAnimes);
   }
 
+  @override
+  String toString() {
+    return 'AnimeState{listAnimes: $listAnimes, lastAnimesAdd: $lastAnimesAdd, lastEpisodes: $lastEpisodes, listAringAnime: $listAringAnime, mapAnimesLoad: $mapAnimesLoad, mapPageAnimes: $mapPageAnimes, mapGeneresAnimes: $mapGeneresAnimes, mapAnimesSave: $mapAnimesSave, listSearchAnime: $listSearchAnime, listFilmAnime: $listFilmAnime, listEpisodesView: $listEpisodesView, isObtainAllData: $isObtainAllData, initLoad: $initLoad}';
+  }
+
   AnimeState copyWith(
       {bool? isObtainAllData,
       List<Anime>? lastAnimesAdd,

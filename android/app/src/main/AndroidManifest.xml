@@ -31,18 +31,11 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="animetoguapo"
-                        android:host="detalle" /> <!-- opcional, puedes dejarlo vacío -->
-            </intent-filter>
         </activity>
         <!-- Forzar OpenGLES en lugar de Vulkan -->
         <meta-data
                 android:name="io.flutter.embedding.android.EnableImpeller"
-                android:value="false"/>
+                android:value="true"/>
         <meta-data
                 android:name="flutterEmbedding"
                 android:value="2"/>

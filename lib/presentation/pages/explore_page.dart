@@ -48,6 +48,6 @@ class _ExplorePage extends State<ExplorePage> {
                 onSubmit: onSubmit,
                 listAnime: state,
                 onTapElement: navigation));
-      },);
+      });
   }
 }

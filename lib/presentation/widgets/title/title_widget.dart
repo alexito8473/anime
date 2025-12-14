@@ -75,7 +75,7 @@ class SubTilesAnime extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 80),
+        constraints: const BoxConstraints(maxHeight: 90),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,

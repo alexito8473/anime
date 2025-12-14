@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 enum TypeMyAnimes {
   NONE(name:'No esta guardado'),
-  IN_PROGURESS(name: 'En progresso'),
+  IN_PROGURESS(name: 'En progreso'),
   PLANNED(name:'Planeado'),
   FILLED(name:'Compleado'),
   FAVORITE(name:'Favorito'),

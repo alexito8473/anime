@@ -25,7 +25,11 @@ class LoadNewState extends AnimeEvent {
 
   LoadNewState({required this.animeState});
 }
-
+class LoadDataAnimeEvent extends AnimeEvent{
+  final List<String> episodes;
+  final Map<TypeMyAnimes, List<String>> mapAnimes;
+  LoadDataAnimeEvent({required this.episodes, required this.mapAnimes});
+}
 class Reset extends AnimeEvent {}
 
 class ObtainDataType extends AnimeEvent {

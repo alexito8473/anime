@@ -1,267 +1,149 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:anime/domain/bloc/configuration/configuration_bloc.dart';
-import 'package:flutter/foundation.dart';
+import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../domain/bloc/update/update_bloc.dart';
+import '../../../utils/createFileSaveDataAnime.dart';
+import '../../widgets/card/update_card_widget.dart';
+import '../../widgets/card/version_card_widget.dart';
+import '../../widgets/section/avatar_section_widget.dart';
+import '../../widgets/section/background_section_widget.dart';
 
 class ConfigurationScreen extends StatelessWidget {
   const ConfigurationScreen({super.key});
 
-  void openImageSelector(BuildContext context, String imagePerson) {
+  @override
+  Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
-    showModalBottomSheet(
-        context: context,
-        backgroundColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-        builder: (context) {
-          return Container(
-              decoration: const BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.white70, blurRadius: 10, spreadRadius: -3)
-                  ]),
-              padding: EdgeInsets.only(
-                  top: 30, right: size.width * 0.05, left: size.width * 0.05),
-              height: size.height * 0.6,
-              child: Column(spacing: size.height * 0.02, children: [
-                Text('Selecciona una imagen',
-                    style: Theme.of(context).textTheme.titleLarge),
-                Expanded(
-                    child: GridView.count(
-                        crossAxisSpacing: size.width * 0.05,
-                        mainAxisSpacing: size.height * 0.02,
-                        crossAxisCount: 3,
-                        children: [
-                          'assets/wallpaper/saitama.webp',
-                          'assets/wallpaper/imagen2.webp',
-                          'assets/wallpaper/imagen3.webp',
-                          'assets/wallpaper/imagen4.jpg',
-                          'assets/wallpaper/imagen5.webp',
-                          'assets/wallpaper/imagen6.webp',
-                          'assets/wallpaper/imagen7.webp',
-                          'assets/wallpaper/imagen8.webp'
-                        ].map((imageUrl) {
-                          return GestureDetector(
-                              onTap: () {
-                                context
-                                    .read<ConfigurationBloc>()
-                                    .add(ChangeImagePerson(image: imageUrl));
-                                Navigator.pop(context);
-                              },
-                              child: Container(
-                                  decoration: BoxDecoration(
-                                    border: imageUrl == imagePerson
-                                        ? Border.all(
-                                            color: Colors.blueAccent, width: 3)
-                                        : null,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.asset(imageUrl,
-                                          fit: BoxFit.cover))));
-                        }).toList()))
-              ]));
-        });
-  }
-
-  void openImageBackGroundSelector(
-      BuildContext context, String imageCurrent) async {
-    final manifestContent = await rootBundle.loadString('AssetManifest.json');
-    final Map<String, dynamic> manifestMap = json.decode(manifestContent);
-
-    // Filtrar solo los archivos dentro del directorio deseado
-    final List<String> assets = manifestMap.keys
-        .where((key) => key.startsWith('assets/backgroundImage/'))
-        .toList();
-    final Size size = MediaQuery.sizeOf(context);
-    showModalBottomSheet(
-        context: context,
-        backgroundColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-        builder: (context) {
-          return Container(
-              decoration: const BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.white70, blurRadius: 10, spreadRadius: -3)
-                  ]),
-              padding: EdgeInsets.only(
-                  top: 30, right: size.width * 0.05, left: size.width * 0.05),
-              height: size.height * 0.6,
-              child: Column(spacing: size.height * 0.02, children: [
-                Text('Selecciona una imagen',
-                    style: Theme.of(context).textTheme.titleLarge),
-                Expanded(
-                    child: GridView.count(
-                        crossAxisSpacing: size.width * 0.05,
-                        mainAxisSpacing: size.height * 0.02,
-                        crossAxisCount: 3,
-                        children: assets.map((imageUrl) {
-                          return GestureDetector(
-                              onTap: () {
-                                context.read<ConfigurationBloc>().add(
-                                    ChangeImageBackground(image: imageUrl));
-                                Navigator.pop(context);
-                              },
-                              child: Container(
-                                  decoration: BoxDecoration(
-                                    border: imageUrl == imageCurrent
-                                        ? Border.all(
-                                            color: Colors.blueAccent, width: 3)
-                                        : null,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Image.asset(imageUrl,
-                                        fit: BoxFit.cover),
-                                  )));
-                        }).toList()))
-              ]));
-        });
-  }
-
-  Widget _buildVersionCard(BuildContext context, ConfigurationState state) {
-    return SliverToBoxAdapter(
-        child: Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade800,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10,
-                children: [
-                  Text('Versión Actual',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
-                  Text(state.version,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.orange, fontWeight: FontWeight.w600))
-                ])));
-  }
-
-  Widget _buildAvatarSection(BuildContext context, ConfigurationState state) {
-    return SliverToBoxAdapter(
+    return SafeArea(
         child: Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Column(spacing: 10, children: [
-              Text('Cambiar imagen del avatar',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(color: Colors.white)),
-              GestureDetector(
-                  onTap: () => openImageSelector(context, state.imagePerson),
-                  child: Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white10, width: 3),
-                          borderRadius: BorderRadius.circular(10)),
-                      width: 120,
-                      height: 120,
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(state.imagePerson,
-                              width: 120, height: 120, fit: BoxFit.cover))))
+            padding: EdgeInsets.symmetric(horizontal: size.width * .1,
+            vertical: size.height * .05),
+            child: const CustomScrollView(slivers: [
+              VersionCardWidget(),
+              UpdateCardWidget(),
+              CreateCopyAnimeWidget(),
+              LoadDataAnimeWidget(),
+              AvatarSectionWidget(),
+              BackgroundSectionWidget()
             ])));
   }
+}
 
-  Widget _buildBackGroundSection(
-      BuildContext context, ConfigurationState state) {
-    return SliverToBoxAdapter(
-        child: Column(spacing: 10, children: [
-      Text('Cambiar imagen del fondo',
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(color: Colors.white)),
-      GestureDetector(
-          onTap: () =>
-              openImageBackGroundSelector(context, state.imageBackGround),
-          child: Container(
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white10, width: 3),
-                  borderRadius: BorderRadius.circular(10)),
-              width: 120,
-              height: 120,
-              child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(state.imageBackGround,
-                      width: 120, height: 120, fit: BoxFit.cover))))
-    ]));
-  }
+class CreateCopyAnimeWidget extends StatelessWidget {
+  const CreateCopyAnimeWidget({super.key});
 
-  Widget _buildUpdateCard(BuildContext context) {
-    final bool canUpdate = context.watch<UpdateBloc>().state.canUpdate;
-    return SliverToBoxAdapter(
-        child: Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-          color: Colors.grey.shade800, borderRadius: BorderRadius.circular(20)),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            canUpdate
-                ? '¡Nueva versión disponible!'
-                : 'Tienes la última versión',
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: Colors.white),
-          ),
-          if (canUpdate)
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                ),
-                onPressed: () => {
-                  if (!kIsWeb && Platform.isAndroid)
-                    {context.read<UpdateBloc>().add(CanUpdateMobileEvent())}
-                },
-                child: const Text('Actualizar ahora',
-                    style: TextStyle(color: Colors.white)),
-              ),
-            ),
-        ],
+  void onSaveDataAnime(AnimeState animeState, BuildContext context) async {
+    final CreateFileSaveDataAnime createFileSaveDataAnime =
+        CreateFileSaveDataAnime();
+    print(animeState.mapAnimesSave);
+    await createFileSaveDataAnime.saveAllData(
+        episodes: animeState.listEpisodesView,
+        mapAnimes: animeState.mapAnimesSave);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Se ha realizado la copia de seguridad'),
       ),
-    ));
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.sizeOf(context);
-    return BlocBuilder<ConfigurationBloc, ConfigurationState>(
-        builder: (context, state) {
-      return SafeArea(child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: size.width * .1),
-          child: CustomScrollView(slivers: [
-            _buildVersionCard(context, state),
-            _buildUpdateCard(context),
-            _buildAvatarSection(context, state),
-            _buildBackGroundSection(context, state),
-          ])));
-    });
+    return SliverToBoxAdapter(
+        child: Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(
+                color: Colors.grey.shade800,
+                borderRadius: BorderRadius.circular(20)),
+            padding: const EdgeInsets.all(20),
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              children: [
+                const Text('Realizar una copia de seguridad de los datos'),
+                BlocBuilder<AnimeBloc, AnimeState>(
+                  builder: (context, state) {
+                    return ElevatedButton(
+                        style: const ButtonStyle(
+                            backgroundColor:
+                                WidgetStatePropertyAll(Colors.amberAccent)),
+                        onPressed: () => onSaveDataAnime(state, context),
+                        child: const Text("Copia de seguridad"));
+                  },
+                ),
+                IconButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'La copia consiste en guardar los animes que tengas guardados como los me gustas para evitar que se pierdan si limpias la cache de tu dispositivo'),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.info_rounded))
+              ],
+            )));
+  }
+}
+
+class LoadDataAnimeWidget extends StatelessWidget {
+  const LoadDataAnimeWidget({super.key});
+
+  void onLoadDataAnime(BuildContext context) async {
+    final CreateFileSaveDataAnime createFileSaveDataAnime =
+        CreateFileSaveDataAnime();
+    final (listEpisodesView, mapAnimes) =
+        await createFileSaveDataAnime.loadAllData();
+    print((listEpisodesView, mapAnimes));
+    if (mapAnimes.isEmpty && listEpisodesView.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No se encontraron datos para cargar'),
+        ),
+      );
+    } else {
+      context.read<AnimeBloc>().add(
+          LoadDataAnimeEvent(episodes: listEpisodesView, mapAnimes: mapAnimes));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cargando los datos anteriormente almacenado'),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+        child: Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(
+                color: Colors.grey.shade800,
+                borderRadius: BorderRadius.circular(20)),
+            padding: const EdgeInsets.all(20),
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              children: [
+                const Text('Obten los datos de la copia de seguridad'),
+                BlocBuilder<AnimeBloc, AnimeState>(
+                  builder: (context, state) {
+                    return ElevatedButton(
+                        style: const ButtonStyle(
+                            backgroundColor:
+                                WidgetStatePropertyAll(Colors.amberAccent)),
+                        onPressed: () => onLoadDataAnime(context),
+                        child: const Text("Cargar datos"));
+                  },
+                ),
+                IconButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Cargaras el último estado guarado de los datos de la copia de seguridad, si borras la cache no pasara nada, solamente si borras la aplicación por completo o los archivos internos'),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.info_rounded))
+              ],
+            )));
   }
 }

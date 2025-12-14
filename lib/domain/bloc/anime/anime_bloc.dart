@@ -22,7 +22,6 @@ import '../../../data/model/list_type_anime_page.dart';
 import '../../../presentation/pages/server_page.dart';
 
 part 'anime_event.dart';
-
 part 'anime_state.dart';
 
 class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
@@ -75,12 +74,43 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
     on<Reset>((event, emit) async {
       emit(state.copyWith(isObtainAllData: false, initLoad: false));
     });
-
+    on<LoadDataAnimeEvent>((event, emit) async {
+      emit(state.copyWith(
+          listEpisodesView: event.episodes, mapAnimesSave: event.mapAnimes));
+      state.mapAnimesLoad.forEach((key, value) => value.clear());
+      final listFuture = [];
+      for (TypeMyAnimes animes in TypeMyAnimes.values
+          .where((element) => element != TypeMyAnimes.NONE)) {
+        listFuture.add(Future.microtask(
+          () async {
+            for (String id in state.mapAnimesSave[animes]!) {
+              final addAnime = await animeRepository.obtainAnimeForId(id: id);
+              if (addAnime != null) {
+                state.mapAnimesLoad.update(
+                  animes,
+                  (value) {
+                    value.add(addAnime);
+                    return value;
+                  },
+                );
+              }
+            }
+          },
+        ));
+      }
+      final newMapAnimesLoad = state.mapAnimesLoad.map((key, value) {
+        final newList = List<CompleteAnime>.from(value);
+        return MapEntry(key, newList);
+      });
+      emit(state.copyWith(
+        mapAnimesLoad: newMapAnimesLoad
+      ));
+      print(state.mapAnimesSave);
+    });
     on<ObtainData>((event, emit) async {
       final List<Future<Null>> listFutures = List.empty(growable: true);
       emit(state.copyWith(isObtainAllData: false, initLoad: true));
       await Future.wait([
-        Future.microtask(() => state.listAnimes.clear()),
         Future.microtask(() => state.listAnimes.clear()),
         Future.microtask(() => state.lastEpisodes.clear()),
         Future.microtask(() => state.lastAnimesAdd.clear()),
@@ -107,7 +137,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
               listTypeAnimePage: state.mapPageAnimes[TypeVersionAnime.tv]!),
           animeRepository.searchByType(
               listTypeAnimePage:
-              animeState.mapPageAnimes[TypeVersionAnime.special]!),
+                  animeState.mapPageAnimes[TypeVersionAnime.special]!),
         ]);
         await Future.wait([
           Future.microtask(() => state.lastEpisodes
@@ -116,25 +146,29 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
               .addAll((results[0] as HomePageData).listAnime)),
           Future.microtask(() => state.listAringAnime
               .addAll((results[0] as HomePageData).listBasicAnime)),
-          Future.microtask(() => state
-              .mapPageAnimes[TypeVersionAnime.ova]?.listAnime
-              .addAll(Anime.listDynamicToListAnime(results[1] as List<dynamic>))),
-          Future.microtask(() => state
-              .mapPageAnimes[TypeVersionAnime.movie]?.listAnime
-              .addAll(Anime.listDynamicToListAnime(results[2] as List<dynamic>))),
-          Future.microtask(() => state
-              .mapPageAnimes[TypeVersionAnime.tv]?.listAnime
-              .addAll(Anime.listDynamicToListAnime(results[3] as List<dynamic>))),
-          Future.microtask(() => state
-              .mapPageAnimes[TypeVersionAnime.special]?.listAnime
-              .addAll(Anime.listDynamicToListAnime(results[4] as List<dynamic>))),
+          Future.microtask(() =>
+              state.mapPageAnimes[TypeVersionAnime.ova]?.listAnime.addAll(
+                  Anime.listDynamicToListAnime(results[1] as List<dynamic>))),
+          Future.microtask(() =>
+              state.mapPageAnimes[TypeVersionAnime.movie]?.listAnime.addAll(
+                  Anime.listDynamicToListAnime(results[2] as List<dynamic>))),
+          Future.microtask(() =>
+              state.mapPageAnimes[TypeVersionAnime.tv]?.listAnime.addAll(
+                  Anime.listDynamicToListAnime(results[3] as List<dynamic>))),
+          Future.microtask(() =>
+              state.mapPageAnimes[TypeVersionAnime.special]?.listAnime.addAll(
+                  Anime.listDynamicToListAnime(results[4] as List<dynamic>))),
           Future.microtask(() {
             state.mapPageAnimes.updateAll((key, value) {
               return value.copyWith(page: value.page + 1);
             });
           })
         ]);
-        emit(state.copyWith(isObtainAllData: true, initLoad: false,lastAnimesAdd: state.listAnimes,listAringAnime: state.listAringAnime));
+        emit(state.copyWith(
+            isObtainAllData: true,
+            initLoad: false,
+            lastAnimesAdd: state.listAnimes,
+            listAringAnime: state.listAringAnime));
         await Future.wait(listFutures);
       } catch (e) {
         if (kDebugMode) {
