@@ -457,9 +457,9 @@ class BannerBlur extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(alignment: Alignment.center, children: [
       ClipRRect(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(20),
           child: ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+              imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
               child: Image.asset(image,
                   width: double.infinity,
                   height: double.infinity,
@@ -473,7 +473,7 @@ class BannerBlur extends StatelessWidget {
               .textTheme
               .titleMedium
               ?.copyWith(fontWeight: FontWeight.bold,shadows: [
-                Shadow(color: Colors.black,blurRadius: 10)
+                const Shadow(color: Colors.black,blurRadius: 10)
           ]),)
     ]);
   }

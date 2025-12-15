@@ -2,7 +2,6 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 part 'configuration_event.dart';
-
 part 'configuration_state.dart';
 
 class ConfigurationBloc
@@ -19,11 +18,14 @@ class ConfigurationBloc
             .then((value) => emit(state.copyWith(version: value.version))));
     on<ChangeIndexHomePage>((event, emit) async =>
         emit(state.copyWith(pageHomeIndex: event.index)));
+    on<ChangeGenderList>((event, emit) async =>
+        emit(state.copyWith(genderActiveList: !state.genderActiveList)));
   }
 
   @override
   ConfigurationState? fromJson(Map<String, dynamic> json) => ConfigurationState(
       imagePerson: json['imagePerson'],
+      genderActiveList: json['genderActiveList'],
       pageHomeIndex: json['pageHomeIndex'],
       version: json['version'],
       isUpwardList: json['isUpwardList'] as bool,
@@ -35,6 +37,7 @@ class ConfigurationBloc
         'imagePerson': state.imagePerson,
         'isUpwardList': state.isUpwardList,
         'imageBackGround': state.imageBackGround,
-        'pageHomeIndex': state.pageHomeIndex
+        'pageHomeIndex': state.pageHomeIndex,
+        'genderActiveList': state.genderActiveList
       };
 }

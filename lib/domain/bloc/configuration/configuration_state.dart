@@ -3,6 +3,7 @@ part of 'configuration_bloc.dart';
 class ConfigurationState {
   final String version;
   final bool isUpwardList;
+  final bool genderActiveList;
   final String imagePerson;
   final String imageBackGround;
   final int pageHomeIndex;
@@ -11,10 +12,12 @@ class ConfigurationState {
       {required this.version,
       required this.isUpwardList,
       required this.imageBackGround,
+      required this.genderActiveList,
       required this.pageHomeIndex,
       required this.imagePerson});
 
   factory ConfigurationState.init() => const ConfigurationState(
+      genderActiveList: true,
       version: '',
       isUpwardList: false,
       imageBackGround: 'assets/backgroundImage/wallpaper1.jpg',
@@ -26,8 +29,10 @@ class ConfigurationState {
       String? imagePerson,
       int? pageHomeIndex,
       bool? isUpwardList,
+      bool? genderActiveList,
       String? imageBackGround}) {
     return ConfigurationState(
+        genderActiveList: genderActiveList ?? this.genderActiveList,
         version: version ?? this.version,
         isUpwardList: isUpwardList ?? this.isUpwardList,
         imagePerson: imagePerson ?? this.imagePerson,

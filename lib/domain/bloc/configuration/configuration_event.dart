@@ -16,3 +16,6 @@ class ChangeIndexHomePage extends ConfigurationEvent{
   final int index;
   ChangeIndexHomePage({required this.index});
 }
+class ChangeGenderList extends ConfigurationEvent{
+  ChangeGenderList();
+}

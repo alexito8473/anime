@@ -20,6 +20,8 @@
                 android:exported="true"
                 android:launchMode="singleTop"
                 android:taskAffinity=""
+                android:supportsPictureInPicture="true"
+                android:resizeableActivity="true"
                 android:theme="@style/LaunchTheme"
                 android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
                 android:windowSoftInputMode="adjustResize" tools:targetApi="honeycomb">
@@ -33,9 +35,6 @@
             </intent-filter>
         </activity>
         <!-- Forzar OpenGLES en lugar de Vulkan -->
-        <meta-data
-                android:name="io.flutter.embedding.android.EnableImpeller"
-                android:value="true"/>
         <meta-data
                 android:name="flutterEmbedding"
                 android:value="2"/>

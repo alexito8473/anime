@@ -9,7 +9,6 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import '../screens/server_screen.dart';
 import '../widgets/load/load_widget.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ServerListPage extends StatefulWidget {
   final String idAnime;
@@ -32,6 +31,7 @@ class _ServerListPageState extends State<ServerListPage> {
       ['hlsflast.com', 'streamwish', 'yourupload', 'ok.ru', 'rapidplayers']);
   final InAppWebViewSettings inAppWebViewSettings = InAppWebViewSettings(
       allowFileAccess: true,
+      allowsPictureInPictureMediaPlayback: true,
       useHybridComposition: true,
       // Optimiza la renderización en Android (recomendado para dispositivos modernos).
       allowsInlineMediaPlayback: true,
@@ -39,6 +39,9 @@ class _ServerListPageState extends State<ServerListPage> {
       mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
       // Permite cargar contenido mixto (http y https).
       javaScriptEnabled: true,
+      mediaPlaybackRequiresUserGesture: false, // permite autoplay
+      useShouldOverrideUrlLoading: true,
+      useOnLoadResource: true,
       // Asegura que JavaScript esté habilitado para mejorar la funcionalidad.
       cacheEnabled: true,
       // Habilita el uso de caché para mejorar tiempos de carga.
@@ -53,13 +56,13 @@ class _ServerListPageState extends State<ServerListPage> {
       verticalScrollBarEnabled: false,
       // Desactiva la barra de desplazamiento vertical para una apariencia más limpia.
       horizontalScrollBarEnabled:
-          false // Desactiva la barra de desplazamiento horizontal.
+          false ,
+    // Desactiva la barra de desplazamiento horizontal.
+    minimumFontSize: 1, // mejora renderizado de texto
       );
 
   @override
   void initState() {
-
-     WakelockPlus.enable();
      anime = context
         .read<AnimeBloc>()
         .state
@@ -77,6 +80,7 @@ class _ServerListPageState extends State<ServerListPage> {
     });
     await webViewController?.loadUrl(
         urlRequest: URLRequest(
+
             allowsExpensiveNetworkAccess: true,
             assumesHTTP3Capable: true,
             url: WebUri(episode.servers[_currentPage].code!)));
@@ -93,7 +97,6 @@ class _ServerListPageState extends State<ServerListPage> {
   @override
   void dispose() {
     super.dispose();
-    WakelockPlus.disable();
   }
 
   void onWebViewCreated(InAppWebViewController controller) {
