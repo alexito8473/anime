@@ -22,9 +22,9 @@ class TitleBannerWidget extends StatelessWidget {
         tag: tag,
         maxLines: 1,
         title: title,
-        isAutoSize: false,
+        isAutoSize: true,
         textStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
-            fontSize: 18,
+            fontSize: 20,
             shadows: shadows,
             fontWeight: FontWeight.bold,
             color: color));
@@ -52,7 +52,14 @@ class TitleWidget extends StatelessWidget {
         heroTag: title,
         tag: tag,
         child: isAutoSize
-            ? AutoSizeText(title, style: textStyle, maxLines: maxLines)
+            ? Container(
+                constraints: const BoxConstraints(maxHeight: 100),
+                child: AutoSizeText(
+                  title,
+                  style: textStyle,
+                  maxLines: maxLines,
+                ),
+              )
             : Text(title,
                 style: textStyle,
                 maxLines: maxLines,
@@ -91,8 +98,8 @@ class SubTilesAnime extends StatelessWidget {
   }
 }
 
-class SliverTitle extends StatelessWidget {
-  const SliverTitle({super.key});
+class SliverTitleAnimeEmissionWidget extends StatelessWidget {
+  const SliverTitleAnimeEmissionWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

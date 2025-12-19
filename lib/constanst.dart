@@ -40,6 +40,7 @@ class Constants {
     iconTheme: const IconThemeData(color: Color(0xFFD4AC0D)), // Íconos dorados
   );
 
+  static const gender = "Géneros";
   static const fileNameSaveAnime = "guardadoDeDatosAnime";
   static const corsFilter = 'https://api.allorigins.win/get?url=';
   static const corsFilter2 = 'https://corsproxy.io/?url=';

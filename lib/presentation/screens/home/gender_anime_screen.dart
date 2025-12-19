@@ -3,6 +3,7 @@ import 'package:anime/domain/bloc/configuration/configuration_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../constansT.dart';
 import '../../../domain/bloc/anime/anime_bloc.dart';
 import '../../widgets/banner/banner_widget.dart';
 
@@ -21,7 +22,7 @@ class GenderAnimeScreen extends StatelessWidget {
     return SafeArea(
         child: CustomScrollView(slivers: [
       SliverAppBar(
-        title: const Text('Géneros'),
+        title: const Text(Constants.gender),
         floating: true,
         actions: [
           BlocSelector<ConfigurationBloc, ConfigurationState, bool>(
@@ -47,55 +48,78 @@ class GenderAnimeScreen extends StatelessWidget {
             selector: (state) => state.genderActiveList,
             builder: (context, state) {
               if (state) {
-                return SliverList.separated(
-                    separatorBuilder: (context, index) =>
-                        Container(height: size.height * 0.01),
-                    addRepaintBoundaries: true,
-                    addSemanticIndexes: false,
-                    addAutomaticKeepAlives: false,
-                    itemCount: Gender.values.length,
-                    itemBuilder: (context, index) {
-                      final gender = Gender.values[index];
-                      return SizedBox(
-                        width: size.width,
-                        height: size.height * .1,
-                        child: GestureDetector(
-                            onTap: () =>
-                                navigatePage(context: context, gender: gender),
-                            child: Hero(
-                                tag: gender.name,
-                                child: BannerBlur(
-                                    image: gender.getImage(),
-                                    text: gender.name))),
-                      );
-                    });
+                return SliverListGenderWidget(clickGender: navigatePage);
               }
-              return SliverGrid.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10),
-                  addRepaintBoundaries: true,
-                  addSemanticIndexes: false,
-                  addAutomaticKeepAlives: false,
-                  itemCount: Gender.values.length,
-                  itemBuilder: (context, index) {
-                    final gender = Gender.values[index];
-                    return SizedBox(
-                      width: size.width,
-                      height: size.height * .1,
-                      child: GestureDetector(
-                          onTap: () =>
-                              navigatePage(context: context, gender: gender),
-                          child: Hero(
-                              tag: gender.name,
-                              child: BannerBlur(
-                                  image: gender.getImage(),
-                                  text: gender.name))),
-                    );
-                  });
+              return SliverGridGenderWidget(clickGender: navigatePage);
             }),
       )
     ]));
+  }
+}
+
+class BoxGenderBlurAndGestureWidget extends StatelessWidget {
+  final Gender gender;
+  final Function({required Gender gender, required BuildContext context}) click;
+
+  const BoxGenderBlurAndGestureWidget(
+      {super.key, required this.click, required this.gender});
+
+  @override
+  Widget build(BuildContext context) {
+    final Size size = MediaQuery.sizeOf(context);
+    return GestureDetector(
+      onTap: () => click(context: context, gender: gender),
+      child: SizedBox(
+          width: size.width,
+          height: size.height * .15,
+          child: Hero(
+              tag: gender.name,
+              child: BannerBlur(image: gender.getImage(), text: gender.name))),
+    );
+  }
+}
+
+class SliverListGenderWidget extends StatelessWidget {
+  final Function({required Gender gender, required BuildContext context})
+      clickGender;
+
+  const SliverListGenderWidget({super.key, required this.clickGender});
+
+  @override
+  Widget build(BuildContext context) {
+    final Size size = MediaQuery.sizeOf(context);
+    return SliverList.separated(
+        separatorBuilder: (context, index) =>
+            Container(height: size.height * 0.02),
+        addRepaintBoundaries: true,
+        addSemanticIndexes: false,
+        addAutomaticKeepAlives: false,
+        itemCount: Gender.values.length,
+        itemBuilder: (context, index) {
+          return BoxGenderBlurAndGestureWidget(
+              click: clickGender, gender: Gender.values[index]);
+        });
+  }
+}
+
+class SliverGridGenderWidget extends StatelessWidget {
+  final Function({required Gender gender, required BuildContext context})
+      clickGender;
+
+  const SliverGridGenderWidget({super.key, required this.clickGender});
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverGrid.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, mainAxisSpacing: 10, crossAxisSpacing: 10),
+        addRepaintBoundaries: true,
+        addSemanticIndexes: false,
+        addAutomaticKeepAlives: false,
+        itemCount: Gender.values.length,
+        itemBuilder: (context, index) {
+          return BoxGenderBlurAndGestureWidget(
+              click: clickGender, gender: Gender.values[index]);
+        });
   }
 }

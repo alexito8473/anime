@@ -1,15 +1,17 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:anime/domain/bloc/update/update_bloc.dart';
 import 'package:anime/presentation/pages/explore_page.dart';
-import 'package:anime/presentation/screens/home/types_anime_screen.dart';
-import 'package:anime/presentation/screens/home/save_screen.dart';
 import 'package:anime/presentation/screens/home/home_screen.dart';
+import 'package:anime/presentation/screens/home/save_screen.dart';
+import 'package:anime/presentation/screens/home/types_anime_screen.dart';
 import 'package:anime/presentation/screens/zoom_drawer_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
+
 import '../../data/enums/type_my_animes.dart';
 import '../../data/enums/type_version_anime.dart';
 import '../../domain/bloc/anime/anime_bloc.dart';
@@ -51,6 +53,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   final List<ScrollController> _scrollControllers =
       List.generate(TypeVersionAnime.values.length, (_) => ScrollController());
+
+  final PageStorageBucket _pageStorageBucket = PageStorageBucket();
 
   @override
   void initState() {
@@ -98,10 +102,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       Scrollable.ensureVisible(globalKey.currentContext!,
           duration: const Duration(milliseconds: 500), curve: Curves.linear);
 
-  void changeIndexTypeAnimePage({required int index}) =>
-      _currentIndexTypeAnimePage == index
-          ? moveScroll(_targetKeyList[index])
-          : setState(() => _currentIndexTypeAnimePage = index);
+  void changeIndexTypeAnimePage({required int index}) {
+    log(index);
+    _currentIndexTypeAnimePage == index
+        ? moveScroll(_targetKeyList[index])
+        : setState(() => _currentIndexTypeAnimePage = index);
+  }
 
   void navigateToSearch() => Navigator.push(
       context,
@@ -117,6 +123,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           }));
 
   void changeIndex(int index) {
+    log(index);
     context.read<ConfigurationBloc>().add(ChangeIndexHomePage(index: index));
     zoomDrawerController.toggle?.call();
   }
@@ -133,6 +140,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return BlocListener<UpdateBloc, UpdateState>(
+        listenWhen: (previous, current) =>
+            current.canUpdate != previous.canUpdate,
         listener: (context, state) {
           if (state.canUpdate) {
             showModelUpdate();
@@ -177,6 +186,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         TypesAnimePage(
                             currentIndex: _currentIndexTypeAnimePage,
                             listScreenTypePage: listScreenTypePage,
+                            pageMemory: _pageStorageBucket,
                             changeIndex: changeIndexTypeAnimePage,
                             canUpdate: _canUpdate,
                             scrollControllers: _scrollControllers,

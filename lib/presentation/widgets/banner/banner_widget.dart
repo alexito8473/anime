@@ -1,4 +1,6 @@
+import 'dart:math';
 import 'dart:ui';
+
 import 'package:anime/data/enums/type_data.dart';
 import 'package:anime/data/model/complete_anime.dart';
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
@@ -37,100 +39,131 @@ class SliverMainImage extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           Positioned.fill(
-              child: ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [Colors.black, Colors.transparent])
-                      .createShader(bounds),
-                  blendMode: BlendMode.srcOver,
-                  child: Padding(
-                      padding:
-                          EdgeInsetsGeometry.only(bottom: size.height * 0.05),
-                      child: ImageFiltered(
-                          imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                          child: CachedNetworkImage(
-                              imageUrl: anime.getImage(),
-                              fit: BoxFit.cover,
-                              color: Colors.black45,
-                              colorBlendMode: BlendMode.darken,
-                              filterQuality: FilterQuality.high))))),
+            child: ImageBackgroundWidget(image: anime.getImage()),
+          ),
           SafeArea(
-              child: Container(
-                  margin: EdgeInsets.only(
-                    bottom: size.height * 0.05,
-                    left: size.width * 0.1,
-                    right: size.width * 0.1,
-                  ),
-                  width: size.width,
-                  height: size.height * 0.6,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: const [
-                        BoxShadow(color: Colors.white, blurRadius: 10)
-                      ]),
-                  child: ClipRRect(
-                    borderRadius: BorderRadiusGeometry.circular(20),
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                            child: CachedNetworkImage(
-                                imageUrl: anime.getImage(),
-                                fit: BoxFit.cover,
-                                filterQuality: FilterQuality.high)),
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            spacing: 20,
-                            children: [
-                              ElevatedButton(
-                                style: const ButtonStyle(
-                                  backgroundColor:
-                                      WidgetStatePropertyAll(Colors.white70),
-                                ),
-                                onPressed: () => onTapElement(
-                                  title: anime.getTitle(),
-                                  id: anime.idAnime(),
-                                  tag: null,
-                                ),
-                                child: const AutoSizeText('Ver ultimo anime'),
-                              ),
-                              Container(
-                                margin: EdgeInsets.only(
-                                  bottom: size.height * 0.02,
-                                ),
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: size.width * 0.1,
-                                    vertical: size.height * 0.02),
-                                child: AutoSizeText(
-                                  anime.getTitle(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
-                                      ?.copyWith(shadows: [
-                                    const Shadow(
-                                        color: Colors.black,
-                                        blurRadius: 5,
-                                        offset: Offset(2, 2))
-                                  ]),
-                                  maxLines: 3,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  )))
-
-          /// Imagen principal sin blur
-          ,
+              child: ImageFrontedWidget(
+                  image: anime.getImage(),
+                  onTapElement: onTapElement,
+                  title: anime.getTitle(),
+                  idAnime: anime.idAnime()))
         ],
       ),
     ));
+  }
+}
+
+class ImageFrontedWidget extends StatelessWidget {
+  final String image;
+  final String idAnime;
+  final String title;
+  final void Function({required String id, String? tag, required String title})
+      onTapElement;
+
+  const ImageFrontedWidget(
+      {super.key,
+      required this.image,
+      required this.onTapElement,
+      required this.idAnime,
+      required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final Size size = MediaQuery.sizeOf(context);
+    return RepaintBoundary(
+        child: Container(
+            margin: EdgeInsets.only(
+                bottom: size.height * 0.05,
+                left: size.width * 0.1,
+                right: size.width * 0.1),
+            width: size.width,
+            height: size.height * 0.6,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(color: Colors.white, blurRadius: 10)
+                ]),
+            child: ClipRRect(
+              borderRadius: BorderRadiusGeometry.circular(20),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                      child: CachedNetworkImage(
+                          imageUrl: image,
+                          fit: BoxFit.cover,
+                          filterQuality: FilterQuality.high)),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      spacing: 20,
+                      children: [
+                        ElevatedButton(
+                            style: const ButtonStyle(
+                                elevation: WidgetStatePropertyAll(5),
+                                shadowColor:
+                                    WidgetStatePropertyAll(Colors.black),
+                                backgroundColor:
+                                    WidgetStatePropertyAll(Colors.white70)),
+                            onPressed: () => onTapElement(
+                                  title: title,
+                                  id: idAnime,
+                                  tag: null,
+                                ),
+                            child: const AutoSizeText('Ver ultimo anime')),
+                        Container(
+                          margin: EdgeInsets.only(
+                            bottom: size.height * 0.02,
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: size.width * 0.1,
+                              vertical: size.height * 0.02),
+                          child: AutoSizeText(title,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(shadows: [
+                                const Shadow(
+                                    color: Colors.black,
+                                    blurRadius: 5,
+                                    offset: Offset(2, 2))
+                              ]),
+                              maxLines: 3),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            )));
+  }
+}
+
+class ImageBackgroundWidget extends StatelessWidget {
+  final String image;
+
+  const ImageBackgroundWidget({super.key, required this.image});
+
+  @override
+  Widget build(BuildContext context) {
+    final Size size = MediaQuery.sizeOf(context);
+    return RepaintBoundary(
+        child: ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [Colors.black, Colors.black45]).createShader(bounds),
+            blendMode: BlendMode.darken,
+            child: Padding(
+                padding: EdgeInsetsGeometry.only(bottom: size.height * 0.05),
+                child: CachedNetworkImage(
+                    imageUrl: image,
+                    fit: BoxFit.cover,
+                    memCacheWidth: 30,
+                    memCacheHeight: 30,
+                    filterQuality: FilterQuality.low))));
   }
 }
 
@@ -339,18 +372,20 @@ class ListBannerAnime extends StatelessWidget {
             spacing: 20,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-          Padding(
+          Container(
+              width: size.width,
               padding: EdgeInsets.only(
                   right: size.width * 0.05,
                   left: size.width * 0.05,
                   top: size.height * 0.01),
-              child: Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  direction: Axis.horizontal,
-                  crossAxisAlignment: WrapCrossAlignment.center,
+              child: Row(
+                  spacing: 5,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TitleBannerWidget(
-                        tag: tag, title: title, color: colorTitle),
+                    Container(
+                        constraints: BoxConstraints(maxWidth: size.width * 0.5),
+                        child: TitleBannerWidget(
+                            tag: tag, title: title, color: colorTitle)),
                     ButtonNavigateListAnimeWidget(
                         color: colorTitle,
                         animes: listAnime,
@@ -360,72 +395,7 @@ class ListBannerAnime extends StatelessWidget {
                         colorTitle: colorTitle)
                   ])),
           listAnime.isEmpty
-              ? SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                      vertical: size.height * 0.05,
-                      horizontal: size.width * 0.05),
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                      spacing: size.width * 0.05,
-                      children: Gender.values.sublist(9, 12).map(
-                        (gender) {
-                          return ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: ImageFiltered(
-                                  imageFilter: ImageFilter.blur(
-                                      tileMode: TileMode.decal,
-                                      sigmaX: 6,
-                                      sigmaY: 6),
-                                  child: Container(
-                                      constraints:
-                                          const BoxConstraints(minWidth: 150),
-                                      width: size.width * 0.45,
-                                      child: Column(
-                                          spacing: size.height * 0.005,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            SizedBox(
-                                                height: 180,
-                                                child: Stack(children: [
-                                                  Positioned(
-                                                      top: 0,
-                                                      left: 0,
-                                                      right: 0,
-                                                      bottom: 0,
-                                                      child: Image.asset(
-                                                          gender.getImage(),
-                                                          fit: BoxFit.cover,
-                                                          filterQuality:
-                                                              FilterQuality
-                                                                  .high)),
-                                                  Positioned(
-                                                      top: 15,
-                                                      left: 8,
-                                                      child: Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(3),
-                                                        decoration: BoxDecoration(
-                                                            color: Colors.black,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        20)),
-                                                        child: Text('5.0',
-                                                            style: theme
-                                                                .textTheme
-                                                                .labelLarge
-                                                                ?.copyWith(
-                                                                    color: Colors
-                                                                        .yellow)),
-                                                      ))
-                                                ]))
-                                          ]))));
-                        },
-                      ).toList()))
+              ? const ListAnimeEmptyWidget()
               : SingleChildScrollView(
                   padding: EdgeInsets.symmetric(
                       vertical: size.height * 0.01,
@@ -435,6 +405,7 @@ class ListBannerAnime extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: size.width * 0.05,
                       children: listAnime
+                          .getRange(0, max(listAnime.length - 5, 1))
                           .map((lastAnime) => BannerAnime(
                               anime: lastAnime,
                               theme: theme,
@@ -447,6 +418,71 @@ class ListBannerAnime extends StatelessWidget {
   }
 }
 
+class ListAnimeEmptyWidget extends StatelessWidget {
+  const ListAnimeEmptyWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final Size size = MediaQuery.sizeOf(context);
+    final ThemeData theme = Theme.of(context);
+    final List<Gender> genders = Gender.values.sublist(9, 12);
+    return SizedBox(
+      width: size.width,
+      height: 180,
+      child: ListView.separated(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          separatorBuilder: (context, index) {
+            return const SizedBox(
+              width: 10,
+            );
+          },
+          itemCount: genders.length,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, index) {
+            final gender = genders[index];
+            return ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                    constraints: const BoxConstraints(minWidth: 150),
+                    width: size.width * 0.45,
+                    child: Column(
+                        spacing: size.height * 0.005,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                              height: 180,
+                              child: Stack(children: [
+                                Positioned(
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    child: Image.asset(gender.getImage(),
+                                        fit: BoxFit.cover,
+                                        cacheWidth: 20,
+                                        cacheHeight: 20,
+                                        filterQuality: FilterQuality.none)),
+                                Positioned(
+                                    top: 15,
+                                    left: 8,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(3),
+                                      decoration: BoxDecoration(
+                                          color: Colors.black,
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      child: Text('5.0',
+                                          style: theme.textTheme.labelLarge
+                                              ?.copyWith(color: Colors.yellow)),
+                                    ))
+                              ]))
+                        ])));
+          }),
+    );
+  }
+}
+
 class BannerBlur extends StatelessWidget {
   final String text;
   final String image;
@@ -455,27 +491,34 @@ class BannerBlur extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(alignment: Alignment.center, children: [
-      ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-              child: Image.asset(image,
-                  width: double.infinity,
-                  height: double.infinity,
-                  filterQuality: FilterQuality.none,
-                  isAntiAlias: false,
-                  color: Colors.black.withAlpha(120),
-                  colorBlendMode: BlendMode.darken,
-                  fit: BoxFit.cover))),
-      Text(text,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(fontWeight: FontWeight.bold,shadows: [
-                const Shadow(color: Colors.black,blurRadius: 10)
-          ]),)
-    ]);
+    return RepaintBoundary(
+        child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned.fill(
+                    child: Image.asset(image,
+                        width: double.infinity,
+                        height: double.infinity,
+                        filterQuality: FilterQuality.none,
+                        // Al usar la cache, la imagen se ve pixelada y difuminada
+                        cacheHeight: 60,
+                        cacheWidth: 60,
+                        isAntiAlias: false,
+                        color: Colors.black.withAlpha(150),
+                        colorBlendMode: BlendMode.darken,
+                        fit: BoxFit.cover)),
+                Text(
+                  text,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        const Shadow(color: Colors.black, blurRadius: 10)
+                      ]),
+                )
+              ],
+            )));
   }
 }
 
@@ -501,63 +544,66 @@ class BannerAnime extends StatelessWidget {
   Widget build(BuildContext context) {
     final Orientation orientation = MediaQuery.orientationOf(context);
     final BorderRadius borderRadius = BorderRadius.circular(20);
-    return GestureDetector(
-        onTap: () => onTapElement(
-            id: anime.idAnime(), tag: tag, title: anime.getTitle()),
-        child: Container(
-            constraints: const BoxConstraints(minWidth: 150),
-            width: orientation == Orientation.portrait
-                ? size.width * 0.4
-                : size.width * 0.15,
-            child: Column(
-                spacing: size.height * 0.005,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                      height: 180,
-                      child: Stack(children: [
-                        Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            child: HeroAnimationWidget(
-                                tag: tag,
-                                heroTag: anime.getImage(),
-                                child: ClipRRect(
-                                    borderRadius: borderRadius,
-                                    child: CachedNetworkImage(
-                                        imageUrl: anime.getImage(),
-                                        fit: BoxFit.cover,
-                                        progressIndicatorBuilder:
-                                            (context, url, progress) {
-                                          return const LoadWidget();
-                                        },
-                                        filterQuality: FilterQuality.high)))),
-                        if (!(anime.getRating() == '0'))
+    return RepaintBoundary(
+      child: GestureDetector(
+          onTap: () => onTapElement(
+              id: anime.idAnime(), tag: tag, title: anime.getTitle()),
+          child: Container(
+              constraints: const BoxConstraints(minWidth: 150),
+              width: orientation == Orientation.portrait
+                  ? size.width * 0.4
+                  : size.width * 0.15,
+              child: Column(
+                  spacing: size.height * 0.005,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                        height: 180,
+                        child: Stack(children: [
                           Positioned(
-                              top: 15,
-                              left: 8,
-                              child: Container(
-                                padding: const EdgeInsets.all(3),
-                                decoration: BoxDecoration(
-                                    color: Colors.black,
-                                    borderRadius: borderRadius),
-                                child: AutoSizeText(anime.getRating(),
-                                    maxLines: 3,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelLarge
-                                        ?.copyWith(color: Colors.yellow)),
-                              ))
-                      ])),
-                  TitleWidget(
-                      title: anime.getTitle(),
-                      maxLines: 3,
-                      textStyle: theme.textTheme.titleSmall!,
-                      tag: tag)
-                ])));
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              child: HeroAnimationWidget(
+                                  tag: tag,
+                                  heroTag: anime.getImage(),
+                                  child: ClipRRect(
+                                      borderRadius: borderRadius,
+                                      child: CachedNetworkImage(
+                                          imageUrl: anime.getImage(),
+                                          fit: BoxFit.cover,
+                                          progressIndicatorBuilder:
+                                              (context, url, progress) {
+                                            return const LoadWidget();
+                                          },
+                                          filterQuality: FilterQuality.none)))),
+                          if (!(anime.getRating() == '0'))
+                            Positioned(
+                                top: 15,
+                                left: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: borderRadius),
+                                  child: AutoSizeText(anime.getRating(),
+                                      maxLines: 3,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge
+                                          ?.copyWith(color: Colors.yellow)),
+                                ))
+                        ])),
+                    TitleWidget(
+                        title: anime.getTitle(),
+                        maxLines: 3,
+                        isAutoSize: true,
+                        textStyle: theme.textTheme.titleSmall!,
+                        tag: tag)
+                  ]))),
+    );
   }
 }
 

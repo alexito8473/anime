@@ -11,6 +11,7 @@ class TypesAnimePage extends StatelessWidget {
   final List<Widget> listScreenTypePage;
   final List<bool> canUpdate;
   final List<ScrollController> scrollControllers;
+  final PageStorageBucket pageMemory;
   final void Function({required TypeVersionAnime key}) loadMore;
 
   const TypesAnimePage(
@@ -20,11 +21,10 @@ class TypesAnimePage extends StatelessWidget {
       required this.listScreenTypePage,
       required this.canUpdate,
       required this.scrollControllers,
-      required this.loadMore});
+      required this.loadMore, required this.pageMemory});
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
     return BlocListener<AnimeBloc, AnimeState>(
         listener: (context, state) {
           for (var key in state.mapPageAnimes.keys) {
@@ -36,36 +36,49 @@ class TypesAnimePage extends StatelessWidget {
           }
         },
         child: Scaffold(
-            extendBody: true,
-            body:
-                IndexedStack(index: currentIndex, children: listScreenTypePage),
-            bottomNavigationBar: SnakeNavigationBar.color(
-                currentIndex: currentIndex,
-                backgroundColor: Colors.grey.shade900,
-                snakeShape: SnakeShape.rectangle,
-                shape: RoundedRectangleBorder(
-                    side:
-                        BorderSide(color: Colors.white.withAlpha(20), width: 1),
-                    borderRadius: BorderRadius.circular(40)),
-                onTap: (value) => changeIndex(index: value),
-                padding: EdgeInsets.symmetric(
-                    horizontal: size.width * 0.02,
-                    vertical: size.height * 0.003),
-                items: const [
-                  BottomNavigationBarItem(
-                      activeIcon: Icon(Icons.movie, color: Colors.white),
-                      icon: Icon(Icons.movie)),
-                  BottomNavigationBarItem(
-                      activeIcon: Icon(Icons.star, color: Colors.white),
-                      icon: Icon(Icons.star)),
-                  BottomNavigationBarItem(
-                      activeIcon: Icon(Icons.album, color: Colors.white),
-                      icon: Icon(Icons.album)),
-                  BottomNavigationBarItem(
-                      activeIcon: Icon(Icons.tv, color: Colors.white),
-                      icon: Icon(Icons.tv))
-                ],
-                selectedLabelStyle: const TextStyle(fontSize: 14),
-                unselectedLabelStyle: const TextStyle(fontSize: 10))));
+            body: listScreenTypePage[currentIndex],
+            bottomNavigationBar: SnackNavigationWidget(
+              changeIndex: changeIndex,
+              currentIndex: currentIndex
+            )));
+  }
+}
+
+class SnackNavigationWidget extends StatelessWidget {
+  final int currentIndex;
+  final void Function({required int index}) changeIndex;
+
+  const SnackNavigationWidget(
+      {super.key, required this.currentIndex, required this.changeIndex});
+
+  @override
+  Widget build(BuildContext context) {
+    final Size size = MediaQuery.sizeOf(context);
+    return SnakeNavigationBar.color(
+        currentIndex: currentIndex,
+        backgroundColor: Colors.grey.shade900,
+        snakeShape: SnakeShape.rectangle,
+        shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.white.withAlpha(20), width: 1),
+            borderRadius: BorderRadius.circular(40)),
+        onTap: (value) => changeIndex(index: value),
+        padding: EdgeInsets.symmetric(
+            horizontal: size.width * 0.02, vertical: size.height * 0.003),
+        items: const [
+          BottomNavigationBarItem(
+              activeIcon: Icon(Icons.movie, color: Colors.white),
+              icon: Icon(Icons.movie)),
+          BottomNavigationBarItem(
+              activeIcon: Icon(Icons.star, color: Colors.white),
+              icon: Icon(Icons.star)),
+          BottomNavigationBarItem(
+              activeIcon: Icon(Icons.album, color: Colors.white),
+              icon: Icon(Icons.album)),
+          BottomNavigationBarItem(
+              activeIcon: Icon(Icons.tv, color: Colors.white),
+              icon: Icon(Icons.tv))
+        ],
+        selectedLabelStyle: const TextStyle(fontSize: 14),
+        unselectedLabelStyle: const TextStyle(fontSize: 10));
   }
 }
