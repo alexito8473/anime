@@ -72,17 +72,18 @@ class SubTilesAnime extends StatelessWidget {
   final String title;
   final String subtitle;
   final Size size;
-
+  final double minHeight;
   const SubTilesAnime(
       {super.key,
       required this.title,
       required this.subtitle,
-      required this.size});
+      required this.size,
+      this.minHeight=90});
 
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 90),
+        constraints: BoxConstraints(maxHeight: minHeight),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,

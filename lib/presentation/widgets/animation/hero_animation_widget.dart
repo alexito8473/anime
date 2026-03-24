@@ -9,7 +9,7 @@ class HeroAnimationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return tag == null
+    return tag == null||heroTag==null
         ? child
         : Hero(tag: '$tag$heroTag', child: child);
   }

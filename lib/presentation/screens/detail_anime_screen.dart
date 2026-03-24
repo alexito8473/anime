@@ -73,85 +73,36 @@ class DetailAnimeScreen extends StatelessWidget {
         MediaQuery.orientationOf(context) == Orientation.portrait;
     final double padding08 = size.width * 0.08;
     return NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-              AppBarDetailAnime(
-                  anime: anime,
-                  tag: tag,
-                  safeAnime: Row(children: [
-                    if (isSave)
-                      Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 3),
-                          decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.circular(20)),
-                          child: Text(miAnime.name,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.bold))),
-                    IconButton(
-                        onPressed: () => openDialog(anime: anime),
-                        isSelected: isSave,
-                        style: const ButtonStyle(
-                            elevation: WidgetStatePropertyAll(200)),
-                        selectedIcon:
-                            const Icon(Icons.autorenew, color: Colors.orange),
-                        icon: const Icon(CupertinoIcons.heart,
-                            color: Colors.white)),
-                    IconButton(
-                        onPressed: shareAnime, icon: const Icon(Icons.share))
-                  ])),
-              SliverToBoxAdapter(
-                  child: Material(
-                child: Container(
-                    decoration: BoxDecoration(
-                        color: Colors.grey.shade900,
-                        borderRadius: BorderRadius.circular(20)),
-                    margin: EdgeInsets.only(right: padding08, left: padding08),
-                    padding: EdgeInsets.only(right: padding08, left: padding08),
-                    child: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        runAlignment: WrapAlignment.center,
-                        alignment: WrapAlignment.spaceBetween,
-                        direction: Axis.horizontal,
-                        spacing: 10,
-                        children: [
-                          SubTilesAnime(
-                              title: 'Estado',
-                              subtitle: anime.debut,
-                              size: size),
-                          SubTilesAnime(
-                              title: 'Tipo', subtitle: anime.type, size: size),
-                          HeroAnimationWidget(
-                              tag: tag,
-                              heroTag: anime.rating + anime.title,
-                              child: SubTilesAnime(
-                                  title: 'Valoración',
-                                  subtitle: anime.rating,
-                                  size: size)),
-                          if (anime.genres.isNotEmpty)
-                            SubTilesAnime(
-                                title: 'Géneros',
-                                subtitle: anime.genres.join(', ').toUpperCase(),
-                                size: size)
-                        ])),
-              ))
-            ],
+        headerSliverBuilder: (context, innerBoxIsScrolled) => isPortrait
+            ? HeaderDetailAnimePortraitWidget.build(
+                anime: anime,
+                isSave: isSave,
+                changeTypeVision: changeTypeVision,
+                shareAnime: shareAnime,
+                openDialog: openDialog,
+                miAnime: miAnime,
+                tag: tag,
+              )
+            : HeaderDetailAnimeLandscapeWidget.build(
+                anime: anime,
+                isSave: isSave,
+                changeTypeVision: changeTypeVision,
+                shareAnime: shareAnime,
+                openDialog: openDialog,
+                miAnime: miAnime,
+                tag: tag,
+              ),
         body: Material(
           child: SafeArea(
-              minimum: EdgeInsets.only(top: size.height * 0.1),
               child: DefaultTabController(
                   length: countTabBar(),
                   initialIndex: currentPage,
                   child: Column(children: [
-                    Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: size.width * 0.05),
-                        child: TabBar(
+                    TabBar(
                             onTap: (value) => onTap(value),
                             dividerColor: Colors.transparent,
                             labelColor: Colors.white,
-                            // Color del texto seleccionado
+    
                             unselectedLabelColor: Colors.grey.withAlpha(80),
                             // Color del texto no seleccionado
                             tabs: [
@@ -166,7 +117,7 @@ class DetailAnimeScreen extends StatelessWidget {
                                 const Tab(
                                     icon: Icon(Icons.movie),
                                     text: 'Relacionados')
-                            ])),
+                            ]),
                     Expanded(
                         child: TabBarView(children: [
                       BlocSelector<ConfigurationBloc, ConfigurationState, bool>(

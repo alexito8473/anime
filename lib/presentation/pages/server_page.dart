@@ -33,8 +33,7 @@ class _ServerListPageState extends State<ServerListPage> {
       allowFileAccess: true,
       allowsPictureInPictureMediaPlayback: true,
       useHybridComposition: true,
-      // Optimiza la renderización en Android (recomendado para dispositivos modernos).
-      allowsInlineMediaPlayback: true,
+
       // Permite la reproducción de medios en línea sin abrir una ventana separada.
       mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
       // Permite cargar contenido mixto (http y https).
