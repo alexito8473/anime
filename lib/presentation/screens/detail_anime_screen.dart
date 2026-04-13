@@ -8,10 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/enums/type_my_animes.dart';
 import '../../data/enums/types_vision.dart';
-import '../widgets/animation/hero_animation_widget.dart';
 import '../widgets/banner/episode_widget.dart';
 import '../widgets/detail/deatil_widget.dart';
-import '../widgets/title/title_widget.dart';
 
 class DetailAnimeScreen extends StatelessWidget {
   final CompleteAnime anime;

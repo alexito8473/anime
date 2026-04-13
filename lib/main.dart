@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:anime/constanst.dart';
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
 import 'package:anime/domain/bloc/update/update_bloc.dart';
@@ -43,6 +45,13 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
             theme: Constants.theme,
             title: 'Anime',
+            scrollBehavior: const MaterialScrollBehavior().copyWith(
+              dragDevices: {
+                PointerDeviceKind.touch,
+                PointerDeviceKind.mouse,
+                PointerDeviceKind.trackpad,
+              },
+            ),
             home: const HomePage()));
   }
 }

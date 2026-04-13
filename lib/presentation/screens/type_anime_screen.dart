@@ -60,17 +60,23 @@ class SliverGridTypeAnimeWidget extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final bool isPortrait =
         MediaQuery.orientationOf(context) == Orientation.portrait;
+    final bool isLowerDisplay =
+        size.width<600;
     return SliverPadding(
         padding: EdgeInsets.symmetric(
             horizontal: size.width * 0.05, vertical: size.height * 0.05),
         sliver: SliverGrid.builder(
             addRepaintBoundaries: true,
             itemCount: listAnime.length,
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            gridDelegate:
+
+             SliverGridDelegateWithFixedCrossAxisCount(
                 mainAxisExtent: 250,
+                crossAxisCount: isLowerDisplay?3:5,
+                
+                childAspectRatio: 1,
                 mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                maxCrossAxisExtent: 130),
+                crossAxisSpacing: 10),
             itemBuilder: (context, index) {
               return BannerAnime(
                   size: size,

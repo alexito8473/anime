@@ -396,7 +396,8 @@ class ListBannerAnime extends StatelessWidget {
                   ])),
           listAnime.isEmpty
               ? const ListAnimeEmptyWidget()
-              : SingleChildScrollView(
+              :
+              SingleChildScrollView(
                   padding: EdgeInsets.symmetric(
                       vertical: size.height * 0.01,
                       horizontal: size.width * 0.05),
@@ -552,7 +553,7 @@ class BannerAnime extends StatelessWidget {
               constraints: const BoxConstraints(minWidth: 150),
               width: orientation == Orientation.portrait
                   ? size.width * 0.4
-                  : size.width * 0.15,
+                  : size.width * 0.2,
               child: Column(
                   spacing: size.height * 0.005,
                   mainAxisAlignment: MainAxisAlignment.start,

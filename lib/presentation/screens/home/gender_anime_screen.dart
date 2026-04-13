@@ -110,9 +110,12 @@ class SliverGridGenderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Size size=MediaQuery.sizeOf(context);
+   final bool isMobile=size.width<600.0;
     return SliverGrid.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, mainAxisSpacing: 10, crossAxisSpacing: 10),
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent:isMobile?size.width*0.5:size.width*.25,
+             mainAxisSpacing: 10,
+            crossAxisSpacing: 10),
         addRepaintBoundaries: true,
         addSemanticIndexes: false,
         addAutomaticKeepAlives: false,

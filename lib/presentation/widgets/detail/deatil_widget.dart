@@ -199,7 +199,6 @@ class _AppBarDetailAnime extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final orientation = MediaQuery.orientationOf(context);
     final imageUrl = anime.isNotBannerCorrect ? anime.poster : anime.banner;
     final EdgeInsets paddingTop = MediaQuery.paddingOf(context);
     return SliverAppBar.large(
@@ -232,42 +231,44 @@ class _AppBarDetailAnime extends StatelessWidget {
                           imageUrl: imageUrl,
                           filterQuality: FilterQuality.high,
                           fit: BoxFit.cover))),
-              Positioned.fill(
-                  child: Container(
-                      padding: EdgeInsets.only(
-                        top: size.height * 0.1,
-                        bottom: size.height * 0.02,
-                        right: size.width * .05,
-                        left: size.width * .05,
-                      ),
+              SafeArea(
+                  child: Padding(
+                      padding: EdgeInsetsGeometry.symmetric(
+                          horizontal: size.width * 0.02,
+                          vertical: size.height * 0.07),
                       child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            HeroAnimationWidget(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 8, // Takes 40% of the available width
+                            child: HeroAnimationWidget(
                               tag: tag,
                               heroTag: anime.poster,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
                                 child: CachedNetworkImage(
                                   imageUrl: anime.poster,
-                                  filterQuality: FilterQuality.high,
-                                  fit: BoxFit.contain,
-                                  height: orientation == Orientation.portrait
-                                      ? size.height * 0.27
-                                      : size.height * 0.5,
+                                  fit: BoxFit.cover,
+                                  // Changed to cover to ensure it fills the box
+                                  height: size.height * 0.5,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                                child: TitleWidget(
-                                    title: anime.title,
-                                    maxLines: 8,
-                                    textStyle:
-                                        Theme.of(context).textTheme.titleLarge!,
-                                    tag: tag))
-                          ])))
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            flex: 6, // Takes 60% of the available width
+                            child: TitleWidget(
+                              title: anime.title,
+                              maxLines: 8,
+                              textStyle:
+                                  Theme.of(context).textTheme.titleLarge!,
+                              tag: tag,
+                            ),
+                          ),
+                        ],
+                      )))
             ])));
   }
 }
@@ -364,8 +365,6 @@ class _AppBarDetailAnimeLandscapeWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-
-                  /// 🔥 RIGHT: INFO
                   Expanded(
                     child: Padding(
                       padding: EdgeInsets.only(

@@ -1,5 +1,6 @@
 import 'package:anime/data/interface/anime_interface.dart';
 import 'package:flutter/material.dart';
+
 import '../widgets/banner/banner_widget.dart';
 import '../widgets/sliver/sliver_widget.dart';
 import '../widgets/title/title_widget.dart';

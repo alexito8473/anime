@@ -32,7 +32,7 @@ class GenderListAnimeScreen extends StatelessWidget {
       SliverAppBar.large(
           centerTitle: true,
           pinned: true,
-          expandedHeight: 250,
+          expandedHeight: size.height*.4,
           actions: [
             if (isCollapsed)
               IconButton(onPressed: () => goUp(), icon: const Icon(Icons.move_up))
@@ -67,8 +67,8 @@ class GenderListAnimeScreen extends StatelessWidget {
             vertical: size.height * 0.05,
           ),
           sliver: SliverGrid.builder(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 150,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
                   mainAxisExtent: 300,
                   crossAxisSpacing: 10),
               itemCount: genderAnimeForPage.listAnime.length,

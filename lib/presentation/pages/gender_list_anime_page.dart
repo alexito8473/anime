@@ -37,6 +37,7 @@ class _GenderListAnimePageState extends State<GenderListAnimePage> {
     _controller.dispose();
     super.dispose();
   }
+
   void _onScroll() {
     if (_controller.offset >= 250 != isCollapsed) {
       setState(() {

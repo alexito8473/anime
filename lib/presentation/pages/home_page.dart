@@ -159,6 +159,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               menuScreen:
                   ZoomDrawerScreen(changeIndex: (index) => changeIndex(index)),
               mainScreen: Scaffold(
+                  extendBody: true,
                   extendBodyBehindAppBar: true,
                   appBar: AppBar(
                       backgroundColor: Colors.transparent,

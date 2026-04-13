@@ -36,6 +36,7 @@ class TypesAnimePage extends StatelessWidget {
           }
         },
         child: Scaffold(
+
             body: listScreenTypePage[currentIndex],
             bottomNavigationBar: SnackNavigationWidget(
               changeIndex: changeIndex,
@@ -56,14 +57,15 @@ class SnackNavigationWidget extends StatelessWidget {
     final Size size = MediaQuery.sizeOf(context);
     return SnakeNavigationBar.color(
         currentIndex: currentIndex,
-        backgroundColor: Colors.grey.shade900,
+        backgroundColor: Colors.black,
         snakeShape: SnakeShape.rectangle,
         shape: RoundedRectangleBorder(
-            side: BorderSide(color: Colors.white.withAlpha(20), width: 1),
-            borderRadius: BorderRadius.circular(40)),
+            side: BorderSide(color: Colors.grey.shade900, width: 3),
+            borderRadius: BorderRadius.circular(30)),
         onTap: (value) => changeIndex(index: value),
+
         padding: EdgeInsets.symmetric(
-            horizontal: size.width * 0.02, vertical: size.height * 0.003),
+            horizontal: size.width * 0.05, vertical: size.height * 0.003),
         items: const [
           BottomNavigationBarItem(
               activeIcon: Icon(Icons.movie, color: Colors.white),
@@ -78,7 +80,8 @@ class SnackNavigationWidget extends StatelessWidget {
               activeIcon: Icon(Icons.tv, color: Colors.white),
               icon: Icon(Icons.tv))
         ],
-        selectedLabelStyle: const TextStyle(fontSize: 14),
+        selectedItemColor: Colors.yellow,
+        selectedLabelStyle: const TextStyle(fontSize: 10),
         unselectedLabelStyle: const TextStyle(fontSize: 10));
   }
 }
