@@ -18,16 +18,34 @@ class TitleBannerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TitleWidget(
-        tag: tag,
-        maxLines: 1,
-        title: title,
-        isAutoSize: true,
-        textStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
-            fontSize: 20,
-            shadows: shadows,
-            fontWeight: FontWeight.bold,
-            color: color));
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 4,
+          height: 22,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [color, color.withAlpha(100)],
+            ),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 10),
+        TitleWidget(
+            tag: tag,
+            maxLines: 1,
+            title: title,
+            isAutoSize: true,
+            textStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
+                fontSize: 20,
+                shadows: shadows,
+                fontWeight: FontWeight.bold,
+                color: color)),
+      ],
+    );
   }
 }
 
@@ -83,19 +101,38 @@ class SubTilesAnime extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: minHeight),
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AutoSizeText(title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(color: Colors.blue)),
-              AutoSizeText(subtitle,
-                  style: Theme.of(context).textTheme.bodySmall, maxLines: 2)
-            ]));
+        constraints: BoxConstraints(maxHeight: minHeight, maxWidth: 160),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: const Color(0xFF7C4DFF), fontWeight: FontWeight.w600)),
+                ),
+                const SizedBox(height: 2),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: const Color(0xFFCBD5E1),
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+                )]),
+        ));
   }
 }
 
@@ -108,8 +145,8 @@ class SliverTitleAnimeEmissionWidget extends StatelessWidget {
     return SliverToBoxAdapter(
         child: Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: size.width * 0.05, vertical: size.height * 0.05),
+                horizontal: size.width * 0.05, vertical: size.height * 0.04),
             child: const TitleBannerWidget(
-                title: 'Animes en emisión', color: Colors.green)));
+                title: 'Animes en emisión', color: Color(0xFF00BFA5))));
   }
 }

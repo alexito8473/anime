@@ -1,5 +1,6 @@
 import 'package:anime/data/enums/type_data.dart';
 import 'package:anime/domain/bloc/anime/anime_bloc.dart';
+import 'package:anime/utils/responsive_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,6 +19,20 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ResponsiveBuilder(
+      builder: (context, deviceType, isLandscape) {
+        if (deviceType == DeviceType.desktop) {
+          return _buildDesktopLayout(context);
+        } else if (deviceType == DeviceType.tablet) {
+          return _buildTabletLayout(context);
+        } else {
+          return _buildMobileLayout(context, isLandscape);
+        }
+      },
+    );
+  }
+
+  Widget _buildMobileLayout(BuildContext context, bool isLandscape) {
     return CustomScrollView(slivers: [
       SliverBigBannerHomeWidget(onTapElement: onTapElement, targetKey: targetKey),
       SliverListEpisodesHomeWidget(onTapElement: onTapElement),
@@ -25,6 +40,58 @@ class HomeScreen extends StatelessWidget {
       const SliverTitleAnimeEmissionWidget(),
       SliverListAiringAnimeWidget(onTapElement: onTapElement)
     ]);
+  }
+
+  Widget _buildTabletLayout(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        SliverBigBannerHomeWidget(onTapElement: onTapElement, targetKey: targetKey),
+        SliverPadding(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveUtils.getPaddingHorizontal(context),
+          ),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              SliverListEpisodesHomeWidget(onTapElement: onTapElement),
+              SliverListAnimeHomeWidget(onTapElement: onTapElement),
+              const SliverTitleAnimeEmissionWidget(),
+              SliverListAiringAnimeWidget(onTapElement: onTapElement),
+            ]),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDesktopLayout(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 2,
+          child: CustomScrollView(
+            slivers: [
+              SliverBigBannerHomeWidget(onTapElement: onTapElement, targetKey: targetKey),
+              SliverListEpisodesHomeWidget(onTapElement: onTapElement),
+              SliverListAnimeHomeWidget(onTapElement: onTapElement),
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(ResponsiveUtils.getPaddingHorizontal(context)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SliverTitleAnimeEmissionWidget(),
+                SliverListAiringAnimeWidget(onTapElement: onTapElement),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -77,7 +144,7 @@ class SliverListEpisodesHomeWidget extends StatelessWidget {
           builder: (context, state) => ListBannerAnime(
               listAnime: state.sublist(1),
               tag: 'episodeos',
-              title: 'Últimos episodeos',
+              title: 'Últimos episodios',
               typeAnime: TypeAnime.episode,
               colorTitle: Colors.orange,
               onTapElement: onTapElement));
@@ -98,7 +165,12 @@ class SliverBigBannerHomeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocSelector<AnimeBloc, AnimeState, List<LastEpisode>>(
         selector: (state) => state.lastEpisodes,
-        builder: (context, state) => SliverMainImage(
-            anime: state.first, key: targetKey, onTapElement: onTapElement));
+        builder: (context, state) {
+          if (state.isEmpty) {
+            return const SliverToBoxAdapter(child: SizedBox.shrink());
+          }
+          return SliverMainImage(
+              anime: state.first, key: targetKey, onTapElement: onTapElement);
+        });
   }
 }

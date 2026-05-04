@@ -2,42 +2,162 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Constants {
+  static final ColorScheme _darkColorScheme = const ColorScheme(
+    brightness: Brightness.dark,
+    primary: Color(0xFF7C4DFF),
+    onPrimary: Colors.white,
+    primaryContainer: Color(0xFF311B92),
+    onPrimaryContainer: Color(0xFFE8D5FF),
+    secondary: Color(0xFFFF6B35),
+    onSecondary: Colors.white,
+    secondaryContainer: Color(0xFFBF360C),
+    onSecondaryContainer: Color(0xFFFFE0D0),
+    tertiary: Color(0xFF00BFA5),
+    onTertiary: Colors.black,
+    tertiaryContainer: Color(0xFF00796B),
+    onTertiaryContainer: Color(0xFFB2F5EA),
+    error: Color(0xFFCF6679),
+    onError: Colors.black,
+    background: Color(0xFF0A0E17),
+    onBackground: Color(0xFFE2E8F0),
+    surface: Color(0xFF111827),
+    onSurface: Color(0xFFCBD5E1),
+    surfaceVariant: Color(0xFF1E293B),
+    onSurfaceVariant: Color(0xFF94A3B8),
+    outline: Color(0xFF334155),
+    outlineVariant: Color(0xFF475569),
+    surfaceContainerHighest: Color(0xFF1E293B),
+    surfaceContainerHigh: Color(0xFF1A2234),
+    surfaceContainer: Color(0xFF151D2E),
+    surfaceContainerLow: Color(0xFF111827),
+    surfaceContainerLowest: Color(0xFF0D1117),
+  );
+
   static var theme = ThemeData.from(
     useMaterial3: true,
-    textTheme: GoogleFonts.notoSerifTextTheme(Typography.whiteRedwoodCity),
-    colorScheme: const ColorScheme(
-      brightness: Brightness.dark,
-      primary: Color(0xFF1C2833),
-      onPrimary: Colors.white,
-      secondary: Color(0xFFD4AC0D),
-      onSecondary: Colors.black,
-      error: Color(0xFFCF6679),
-      onError: Colors.black,
-      background: Color(0xFF121212),
-      onBackground: Color(0xFFEAECEE),
-      surface: Colors.black,
-      onSurface: Color(0xFFBDC3C7),
-    ),
+    textTheme: GoogleFonts.interTextTheme(Typography.whiteRedwoodCity),
+    colorScheme: _darkColorScheme,
   ).copyWith(
-    scaffoldBackgroundColor: Colors.black,
-    appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        elevation: 0),
-    bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: const Color(0xFF1C2833),
-      selectedItemColor: const Color(0xFFD4AC0D),
-      unselectedItemColor: const Color(0xFF7F8C8D),
-      selectedLabelStyle:
-          GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold),
-      unselectedLabelStyle: GoogleFonts.poppins(fontSize: 12),
-      elevation: 10,
+    scaffoldBackgroundColor: _darkColorScheme.background,
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.transparent,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      centerTitle: false,
+      titleTextStyle: GoogleFonts.inter(
+        color: Colors.white,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+      ),
+      iconTheme: const IconThemeData(color: Color(0xFF7C4DFF)),
     ),
-    cardColor: const Color(0xFF212F3D),
-    // Azul oscuro para tarjetas
-    dialogBackgroundColor: const Color(0xFF1B2631),
-    // Fondo para diálogos
-    iconTheme: const IconThemeData(color: Color(0xFFD4AC0D)), // Íconos dorados
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: const Color(0xFF111827),
+      selectedItemColor: const Color(0xFF7C4DFF),
+      unselectedItemColor: const Color(0xFF64748B),
+      selectedLabelStyle: GoogleFonts.inter(
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+      ),
+      unselectedLabelStyle: GoogleFonts.inter(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+      ),
+      elevation: 8,
+      type: BottomNavigationBarType.fixed,
+    ),
+    cardTheme: CardThemeData(
+      color: const Color(0xFF1E293B),
+      elevation: 2,
+      shadowColor: Colors.black.withAlpha(80),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side:const  BorderSide(color: Color(0xFF334155), width: 0.5),
+      ),
+    ),
+    cardColor: const Color(0xFF1E293B),
+    dialogBackgroundColor: const Color(0xFF1A2234),
+    dialogTheme: DialogThemeData(
+      backgroundColor: const Color(0xFF1A2234),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: const BorderSide(color: Color(0xFF334155), width: 0.5),
+      ),
+    ),
+    iconTheme: const IconThemeData(color: Color(0xFF7C4DFF)),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xFF1E293B),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF334155)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF334155)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF7C4DFF), width: 2),
+      ),
+      hintStyle: const TextStyle(color: Color(0xFF64748B)),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF7C4DFF),
+        foregroundColor: Colors.white,
+        elevation: 2,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        textStyle: GoogleFonts.inter(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Color(0xFF7C4DFF),
+      foregroundColor: Colors.white,
+      elevation: 4,
+    ),
+    tabBarTheme: TabBarThemeData(
+      labelColor: const Color(0xFF7C4DFF),
+      unselectedLabelColor: const Color(0xFF64748B),
+      indicatorColor: const Color(0xFF7C4DFF),
+      indicatorSize: TabBarIndicatorSize.tab,
+      labelStyle: GoogleFonts.inter(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
+      unselectedLabelStyle: GoogleFonts.inter(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+      ),
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: const Color(0xFF1E293B),
+      selectedColor: const Color(0xFF7C4DFF).withAlpha(60),
+      side: const BorderSide(color: Color(0xFF334155)),
+      labelStyle: GoogleFonts.inter(fontSize: 13, color: const Color(0xFFCBD5E1)),
+      secondaryLabelStyle: GoogleFonts.inter(fontSize: 13, color: const Color(0xFF7C4DFF)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+    ),
+    dividerTheme: const DividerThemeData(
+      color: Color(0xFF1E293B),
+      thickness: 1,
+      space: 1,
+    ),
+    listTileTheme: ListTileThemeData(
+      tileColor: Colors.transparent,
+      selectedTileColor: const Color(0xFF7C4DFF).withAlpha(40),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
   );
 
   static const gender = "Géneros";

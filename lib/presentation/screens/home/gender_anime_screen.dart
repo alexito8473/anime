@@ -1,11 +1,12 @@
 import 'package:anime/data/enums/gender.dart';
 import 'package:anime/domain/bloc/configuration/configuration_bloc.dart';
+import 'package:anime/presentation/widgets/banner/banner_widget.dart';
+import 'package:anime/utils/responsive_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../constansT.dart';
 import '../../../domain/bloc/anime/anime_bloc.dart';
-import '../../widgets/banner/banner_widget.dart';
 
 class GenderAnimeScreen extends StatelessWidget {
   const GenderAnimeScreen({super.key});
@@ -110,19 +111,34 @@ class SliverGridGenderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Size size=MediaQuery.sizeOf(context);
-   final bool isMobile=size.width<600.0;
+    final size = MediaQuery.sizeOf(context);
+    final deviceType = ResponsiveUtils.getDeviceType(context);
+
+    double maxCrossAxisExtent;
+    if (deviceType == DeviceType.desktop) {
+      maxCrossAxisExtent = size.width * 0.2;
+    } else if (deviceType == DeviceType.tablet) {
+      maxCrossAxisExtent = size.width * 0.33;
+    } else {
+      maxCrossAxisExtent = size.width * 0.5;
+    }
+
     return SliverGrid.builder(
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent:isMobile?size.width*0.5:size.width*.25,
-             mainAxisSpacing: 10,
-            crossAxisSpacing: 10),
-        addRepaintBoundaries: true,
-        addSemanticIndexes: false,
-        addAutomaticKeepAlives: false,
-        itemCount: Gender.values.length,
-        itemBuilder: (context, index) {
-          return BoxGenderBlurAndGestureWidget(
-              click: clickGender, gender: Gender.values[index]);
-        });
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: maxCrossAxisExtent,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+      ),
+      addRepaintBoundaries: true,
+      addSemanticIndexes: false,
+      addAutomaticKeepAlives: false,
+      itemCount: Gender.values.length,
+      itemBuilder: (context, index) {
+        return BoxGenderBlurAndGestureWidget(
+          click: clickGender,
+          gender: Gender.values[index],
+        );
+      },
+    );
   }
 }

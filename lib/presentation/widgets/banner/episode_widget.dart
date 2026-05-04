@@ -37,93 +37,180 @@ class BannerEpisode extends StatelessWidget {
               context: context,
               isNavigationReplacement: false));
         },
-        child: Card(
-            margin: EdgeInsets.symmetric(
-                horizontal: size.width * 0.05, vertical: size.height * 0.01),
-            color: Colors.grey.shade900.withAlpha(100),
-            child: Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: size.width * 0.05,
-                    vertical: size.height * 0.01),
-                child: Row(spacing: size.width * 0.05, children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                        constraints:
-                            const BoxConstraints(minWidth: 100, maxHeight: 100),
-                        width: size.width * 0.1,
-                        height: size.height * 0.2,
-                        child: CachedNetworkImage(
-                            imageUrl: episode.imagePreview,
-                            fit: BoxFit.cover,
-                            filterQuality: FilterQuality.none,
-                            progressIndicatorBuilder:
-                                (context, url, progress) => Container(
-                                    width: size.width * 0.1,
-                                    height: size.width * 0.1,
-                                    color: Colors.grey.withAlpha(10),
-                                    child: Center(
-                                        child: CircularProgressIndicator(
-                                            value: progress.progress,
-                                            color: Colors.orange))),
-                            errorWidget: (context, url, error) =>
-                                CachedNetworkImage(
-                                    imageUrl: anime.poster,
-                                    fit: BoxFit.cover,
-                                    colorBlendMode: BlendMode.darken,
-                                    color: Colors.black12,
-                                    filterQuality: FilterQuality.none,
-                                    progressIndicatorBuilder:
-                                        (context, url, progress) => Container(
-                                            width: size.width * 0.1,
-                                            height: size.width * 0.1,
-                                            color: Colors.grey.withAlpha(10),
-                                            child: Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                        value:
-                                                            progress.progress,
-                                                        color: Colors.orange))),
-                                    errorWidget: (context, url, error) =>
-                                        Container(
-                                          color: Colors.red,
-                                        )))),
-                  ),
-                  Expanded(
-                      child: Column(
-                          spacing: size.height * 0.01,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                        TitleWidget(
-                            title: anime.title,
-                            maxLines: 2,
-                            tag: episode.id,
-                            textStyle:
-                                Theme.of(context).textTheme.titleMedium!),
-                        Row(
-                          children: [
-                            AutoSizeText('Episodio : ${episode.episode}'),
-                            if (episode.part != null)
-                              AutoSizeText('Parte : ${episode.part}')
-                          ],
+        child: Container(
+          margin: EdgeInsets.symmetric(
+              horizontal: size.width * 0.04, vertical: size.height * 0.008),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [
+                const Color(0xFF1E293B).withAlpha(230),
+                const Color(0xFF1E293B).withAlpha(180),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: const Color(0xFF334155).withAlpha(120),
+              width: 0.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(40),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: size.width * 0.03,
+                  vertical: size.height * 0.01),
+              child: Row(spacing: size.width * 0.03, children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                      constraints:
+                          const BoxConstraints(minWidth: 80, maxHeight: 80),
+                      width: size.width * 0.12,
+                      height: size.height * 0.12,
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF7C4DFF).withAlpha(40),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          CachedNetworkImage(
+                              imageUrl: episode.imagePreview,
+                              fit: BoxFit.cover,
+                              filterQuality: FilterQuality.medium,
+                              progressIndicatorBuilder:
+                                  (context, url, progress) => Container(
+                                      color: const Color(0xFF1E293B),
+                                      child: Center(
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              value: progress.progress,
+                                              color: const Color(0xFF7C4DFF)))),
+                              errorWidget: (context, url, error) =>
+                                  CachedNetworkImage(
+                                      imageUrl: anime.poster,
+                                      fit: BoxFit.cover,
+                                      colorBlendMode: BlendMode.darken,
+                                      color: Colors.black26,
+                                      filterQuality: FilterQuality.medium,
+                                      progressIndicatorBuilder:
+                                          (context, url, progress) => Container(
+                                              color: const Color(0xFF1E293B),
+                                              child: Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                          value:
+                                                              progress.progress,
+                                                          color: const Color(
+                                                              0xFF7C4DFF)))),
+                                      errorWidget: (context, url, error) =>
+                                          Container(
+                                            color: const Color(0xFF1E293B),
+                                            child: const Center(
+                                                child: Icon(
+                                                    Icons.broken_image_rounded,
+                                                    color: Color(0xFF64748B))),
+                                          ))),
+                          Positioned(
+                            bottom: 4,
+                            right: 4,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withAlpha(180),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                'Ep. ${episode.episode}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )),
+                ),
+                Expanded(
+                    child: Column(
+                        spacing: 4,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                      TitleWidget(
+                          title: anime.title,
+                          maxLines: 2,
+                          tag: episode.id,
+                          textStyle: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(fontWeight: FontWeight.w600)),
+                      if (episode.part != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF7C4DFF).withAlpha(50),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: AutoSizeText(
+                            'Parte: ${episode.part}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFFB388FF),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
-                      ])),
-                  IconButton(
-                      onPressed: () => onTapSaveEpisode(isSave, episode),
-                      style: ButtonStyle(foregroundColor:
-                          WidgetStateProperty.resolveWith<Color>(
-                              (Set<WidgetState> states) {
-                        if (states.contains(WidgetState.selected)) {
-                          return Colors
-                              .white; // Color blanco cuando está seleccionado
-                        }
-                        return Colors.white.withOpacity(
-                            0.5); // Blanco transparente cuando no está seleccionado
-                      })),
-                      isSelected: isSave,
-                      icon: const Icon(CupertinoIcons.eye_slash_fill),
-                      selectedIcon: const Icon(CupertinoIcons.eye_solid))
-                ]))));
+                    ])),
+                _buildSaveButton(context, isSave),
+              ])),
+        ));
+  }
+
+  Widget _buildSaveButton(BuildContext context, bool isSave) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isSave
+            ? const Color(0xFF7C4DFF).withAlpha(60)
+            : Colors.white.withAlpha(20),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isSave
+              ? const Color(0xFF7C4DFF).withAlpha(100)
+              : Colors.white.withAlpha(30),
+          width: 1,
+        ),
+      ),
+      child: IconButton(
+          onPressed: () => onTapSaveEpisode(isSave, episode),
+          isSelected: isSave,
+          icon: Icon(
+            CupertinoIcons.eye_slash_fill,
+            color: Colors.white.withAlpha(130),
+            size: 18,
+          ),
+          selectedIcon: const Icon(
+            CupertinoIcons.eye_solid,
+            color: Color(0xFFB388FF),
+            size: 18,
+          )),
+    );
   }
 }
 
@@ -159,7 +246,7 @@ class ListEpisodesWidget extends StatelessWidget {
                   child: action!)
             ]),
         SliverPadding(
-            padding: const EdgeInsets.only(top: 20),
+            padding: const EdgeInsets.only(top: 12),
             sliver: SliverList.builder(
                 itemCount: episodes.length,
                 itemBuilder: (context, index) {

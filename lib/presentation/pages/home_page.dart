@@ -7,6 +7,7 @@ import 'package:anime/presentation/screens/home/home_screen.dart';
 import 'package:anime/presentation/screens/home/save_screen.dart';
 import 'package:anime/presentation/screens/home/types_anime_screen.dart';
 import 'package:anime/presentation/screens/zoom_drawer_screen.dart';
+import 'package:anime/utils/responsive_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +21,7 @@ import '../screens/home/configuration_screen.dart';
 import '../screens/home/gender_anime_screen.dart';
 import '../screens/type_anime_screen.dart';
 import '../widgets/dialog/alert_dialog_update_app_widget.dart';
-import '../widgets/image/image_backgorund_widget.dart';
+import '../widgets/image/image_background_widget.dart';
 import '../widgets/load/load_widget.dart';
 import '../widgets/title/title_download_home_page_widget.dart';
 
@@ -148,55 +149,226 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           }
         },
         child: AnimationLoadPage(
-            child: Stack(children: [
-          const Positioned.fill(child: ImageBackgroundWidget()),
-          ZoomDrawer(
-              controller: zoomDrawerController,
-              drawerShadowsBackgroundColor: Colors.grey.shade500,
-              angle: 0.0,
-              disableDragGesture: false,
-              showShadow: true,
-              menuScreen:
-                  ZoomDrawerScreen(changeIndex: (index) => changeIndex(index)),
-              mainScreen: Scaffold(
-                  extendBody: true,
-                  extendBodyBehindAppBar: true,
-                  appBar: AppBar(
-                      backgroundColor: Colors.transparent,
-                      toolbarHeight: 50,
-                      title: const TitleDownloadHomePageWidget(),
-                      surfaceTintColor: Colors.transparent,
-                      leading: IconButton(
-                          onPressed: () => zoomDrawerController.toggle?.call(),
-                          icon: const Icon(Icons.menu)),
-                      actions: [
-                        IconButton(
-                            onPressed: () => navigateToSearch(),
-                            icon: const Icon(Icons.search))
-                      ]),
-                  body:
-                      BlocSelector<ConfigurationBloc, ConfigurationState, int>(
-                    selector: (state) => state.pageHomeIndex,
-                    builder: (context, state) {
-                      return [
-                        HomeScreen(onTapElement: navigation),
-                        SaveScreen(
-                            onTapElement: navigation,
-                            animeTypes: animeTypes,
-                            tabController: tabController),
-                        TypesAnimePage(
-                            currentIndex: _currentIndexTypeAnimePage,
-                            listScreenTypePage: listScreenTypePage,
-                            pageMemory: _pageStorageBucket,
-                            changeIndex: changeIndexTypeAnimePage,
-                            canUpdate: _canUpdate,
-                            scrollControllers: _scrollControllers,
-                            loadMore: loadMore),
-                        const GenderAnimeScreen(),
-                        const ConfigurationScreen()
-                      ][state];
-                    },
-                  )))
-        ])));
+            child: ResponsiveBuilder(
+              builder: (context, deviceType, isLandscape) {
+                return Stack(children: [
+                  const Positioned.fill(child: ImageBackgroundWidget()),
+                  if (deviceType == DeviceType.desktop)
+                    _buildDesktopLayout(context)
+                  else
+                    _buildMobileLayout(context, deviceType, isLandscape)
+                ]);
+              },
+            )));
+  }
+
+  Widget _buildDesktopLayout(BuildContext context) {
+    return Row(children: [
+      _buildDesktopDrawer(context),
+      Expanded(
+        child: Scaffold(
+          extendBody: true,
+          extendBodyBehindAppBar: true,
+          backgroundColor: Colors.transparent,
+          appBar: _buildAppBar(context, DeviceType.desktop),
+          body: _buildBody(context),
+        ),
+      ),
+    ]);
+  }
+
+  Widget _buildMobileLayout(BuildContext context, DeviceType deviceType, bool isLandscape) {
+    return ZoomDrawer(
+      controller: zoomDrawerController,
+      drawerShadowsBackgroundColor: Colors.grey.shade500,
+      angle: 0.0,
+      disableDragGesture: false,
+      showShadow: true,
+      menuScreen: ZoomDrawerScreen(changeIndex: (index) => changeIndex(index)),
+      mainScreen: Scaffold(
+        extendBody: true,
+        extendBodyBehindAppBar: true,
+        backgroundColor: Colors.black,
+        appBar: _buildAppBar(context, deviceType),
+        body: _buildBody(context),
+      ),
+    );
+  }
+
+  Widget _buildDesktopDrawer(BuildContext context) {
+    return Container(
+      width: 260,
+
+      decoration: const  BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+             Color(0xFF111827),
+             Color(0xFF0A0E17),
+          ],
+        ),
+        border: Border(
+          right: BorderSide(
+            color: const Color(0xFF1E293B),
+            width: 1,
+          ),
+        ),
+      ),
+      child: Column(children: [
+        const SizedBox(height: 32),
+        const TitleDownloadHomePageWidget(),
+        const SizedBox(height: 24),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            itemCount: 5,
+            itemBuilder: (context, index) {
+              return BlocBuilder<ConfigurationBloc, ConfigurationState>(
+                builder: (context, state) {
+                  final isSelected = state.pageHomeIndex == index;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.only(bottom: 4),
+                    decoration: BoxDecoration(
+                      gradient: isSelected
+                          ? const LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: [
+                                Color(0xFF7C4DFF),
+                                Color(0xFFB388FF),
+                              ],
+                            )
+                          : null,
+                      color: isSelected ? null : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: const Color(0xFF7C4DFF).withAlpha(60),
+                                blurRadius: 10,
+                                offset: const Offset(0, 3),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {
+                          context.read<ConfigurationBloc>().add(ChangeIndexHomePage(index: index));
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? Colors.white.withAlpha(50)
+                                      : const Color(0xFF1E293B),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  _getIconForIndex(index),
+                                  color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                _getTitleForIndex(index),
+                                style: TextStyle(
+                                  color: isSelected ? Colors.white : const Color(0xFFCBD5E1),
+                                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ]),
+    );
+  }
+
+  IconData _getIconForIndex(int index) {
+    switch (index) {
+      case 0: return Icons.home;
+      case 1: return Icons.bookmark;
+      case 2: return Icons.category;
+      case 3: return Icons.male;
+      case 4: return Icons.settings;
+      default: return Icons.home;
+    }
+  }
+
+  String _getTitleForIndex(int index) {
+    switch (index) {
+      case 0: return 'Inicio';
+      case 1: return 'Mi Lista';
+      case 2: return 'Tipos';
+      case 3: return 'Géneros';
+      case 4: return 'Ajustes';
+      default: return '';
+    }
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context, DeviceType deviceType) {
+    final double toolbarHeight = deviceType == DeviceType.desktop ? 70 : 50;
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      toolbarHeight: toolbarHeight,
+      title: deviceType != DeviceType.desktop
+          ? const TitleDownloadHomePageWidget()
+          : null,
+      surfaceTintColor: Colors.transparent,
+      leading: deviceType != DeviceType.desktop
+          ? IconButton(
+              onPressed: () => zoomDrawerController.toggle?.call(),
+              icon: const Icon(Icons.menu))
+          : null,
+      actions: [
+        IconButton(
+          onPressed: () => navigateToSearch(),
+          icon: Icon(Icons.search, size: ResponsiveUtils.getIconSize(context))
+        )
+      ],
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    return BlocSelector<ConfigurationBloc, ConfigurationState, int>(
+      selector: (state) => state.pageHomeIndex,
+      builder: (context, state) {
+        return [
+          HomeScreen(onTapElement: navigation),
+          SaveScreen(
+              onTapElement: navigation,
+              animeTypes: animeTypes,
+              tabController: tabController),
+          TypesAnimePage(
+              currentIndex: _currentIndexTypeAnimePage,
+              listScreenTypePage: listScreenTypePage,
+              pageMemory: _pageStorageBucket,
+              changeIndex: changeIndexTypeAnimePage,
+              canUpdate: _canUpdate,
+              scrollControllers: _scrollControllers,
+              loadMore: loadMore),
+          const GenderAnimeScreen(),
+          const ConfigurationScreen()
+        ][state];
+      },
+    );
   }
 }

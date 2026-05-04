@@ -28,20 +28,24 @@ class SliverAppBarSearch extends StatelessWidget {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.grey[850],
-                borderRadius: BorderRadius.circular(20),
+                color: const Color(0xFF1E293B),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFF334155),
+                  width: 1,
+                ),
               ),
               child: TextField(
                 controller: controller,
                 onSubmitted: (_) => onSubmit?.call(),
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white, fontSize: 15),
                 decoration: InputDecoration(
-                  hintText: 'Buscar...',
-                  hintStyle: TextStyle(color: Colors.grey[400]),
-                  icon: canIcon
+                  hintText: 'Buscar episodio...',
+                  hintStyle: const TextStyle(color: Color(0xFF64748B)),
+                  prefixIcon: canIcon
                       ? IconButton(
                           onPressed: onSubmit,
-                          icon: const Icon(Icons.search, color: Colors.orange),
+                          icon: const Icon(Icons.search_rounded, color: Color(0xFF7C4DFF)),
                         )
                       : null,
                   border: InputBorder.none,
@@ -53,7 +57,7 @@ class SliverAppBarSearch extends StatelessWidget {
               ),
             ),
           ),
-          if (action != null) ...[const SizedBox(width: 10), action!],
+          if (action != null) ...[const SizedBox(width: 8), action!],
         ],
       ),
     );
@@ -68,7 +72,8 @@ class SliverAppBarSearch extends StatelessWidget {
         pinned: snapFloatingPinned,
         automaticallyImplyLeading: false,
         expandedHeight: size.height * 0.02,
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xFF0A0E17),
+        surfaceTintColor: Colors.transparent,
         flexibleSpace: isFlexibleSpaceBar
             ? FlexibleSpaceBar(
                 stretchModes: StretchMode.values,

@@ -5,8 +5,8 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.22"
-        classpath 'com.android.tools.build:gradle:8.6.0'  // O la versión que estés usando
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.20"
+        classpath 'com.android.tools.build:gradle:8.6.0'
     }
 }
 
@@ -14,6 +14,12 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
+        options.compilerArgs.add("-Xlint:-options")
     }
 }
 
@@ -23,7 +29,6 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(":app")
-
 }
 
 tasks.register("clean", Delete) {

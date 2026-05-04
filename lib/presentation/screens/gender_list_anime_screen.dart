@@ -28,6 +28,7 @@ class GenderListAnimeScreen extends StatelessWidget {
     final bool isPortrait =
         MediaQuery.orientationOf(context) == Orientation.portrait;
     return Scaffold(
+      backgroundColor: Colors.black,
         body: CustomScrollView(controller: scrollController, slivers: [
       SliverAppBar.large(
           centerTitle: true,

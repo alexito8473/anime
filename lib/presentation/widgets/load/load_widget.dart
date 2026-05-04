@@ -12,14 +12,19 @@ class LoadWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
         height: height,
-        child: const ColoredBox(
-            color: Colors.black54,
-            child: Center(
-                child: CircularProgressIndicator(
-                    backgroundColor: Colors.red,
-                    strokeWidth: 10,
-                    strokeAlign: 3,
-                    color: Colors.orange))));
+        child: Container(
+          color: Colors.black54,
+          child: Center(
+            child: SizedBox(
+              width: 40,
+              height: 40,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                color: Colors.orange.shade400,
+              ),
+            ),
+          ),
+        ));
   }
 }
 

@@ -82,13 +82,13 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
       for (TypeMyAnimes animes in TypeMyAnimes.values
           .where((element) => element != TypeMyAnimes.NONE)) {
         listFuture.add(Future.microtask(
-          () async {
+              () async {
             for (String id in state.mapAnimesSave[animes]!) {
               final addAnime = await animeRepository.obtainAnimeForId(id: id);
               if (addAnime != null) {
                 state.mapAnimesLoad.update(
                   animes,
-                  (value) {
+                      (value) {
                     value.add(addAnime);
                     return value;
                   },
@@ -103,7 +103,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
         return MapEntry(key, newList);
       });
       emit(state.copyWith(
-        mapAnimesLoad: newMapAnimesLoad
+          mapAnimesLoad: newMapAnimesLoad
       ));
       print(state.mapAnimesSave);
     });
@@ -116,7 +116,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
         Future.microtask(() => state.lastAnimesAdd.clear()),
         Future.microtask(() => state.listAringAnime.clear()),
         Future.microtask(
-            () => state.mapAnimesLoad.forEach((key, value) => value.clear())),
+                () => state.mapAnimesLoad.forEach((key, value) => value.clear())),
         Future.microtask(() {
           for (TypeMyAnimes animes in TypeMyAnimes.values
               .where((element) => element != TypeMyAnimes.NONE)) {
@@ -137,7 +137,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
               listTypeAnimePage: state.mapPageAnimes[TypeVersionAnime.tv]!),
           animeRepository.searchByType(
               listTypeAnimePage:
-                  animeState.mapPageAnimes[TypeVersionAnime.special]!),
+              animeState.mapPageAnimes[TypeVersionAnime.special]!),
         ]);
         await Future.wait([
           Future.microtask(() => state.lastEpisodes
@@ -184,7 +184,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
         emit(state.copyWith(initLoad: true));
         await animeRepository
             .obtainAnimeForTitleAndId(
-                state: state, id: event.id, title: event.title)
+            state: state, id: event.id, title: event.title)
             .then((value) async {
           if (!animeRepository.checkExitAnimeForAnime(
               title: value!.title, listAnimes: state.listAnimes)) {
@@ -215,7 +215,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
                   context: event.context,
                   isReplacement: false,
                   navigateWidget:
-                      DetailAnimePage(idAnime: event.id, tag: event.tag)))
+                  DetailAnimePage(idAnime: event.id, tag: event.tag)))
           ]);
         });
       } catch (e) {}
@@ -230,9 +230,9 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
       emit(state.copyWith(initLoad: true));
       await animeRepository
           .searchByType(
-              listTypeAnimePage: state.mapPageAnimes[event.typeVersionAnime]!)
+          listTypeAnimePage: state.mapPageAnimes[event.typeVersionAnime]!)
           .then(
-        (data) {
+            (data) {
           state.mapPageAnimes.update(event.typeVersionAnime, (value) {
             if (data.isEmpty) {
               value.isObtainAllData = true;
@@ -275,10 +275,10 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
       await animeRepository
           .searchByGender(gender: state.mapGeneresAnimes[event.gender]!)
           .then(
-        (value) {
+            (value) {
           state.mapGeneresAnimes.update(
             event.gender,
-            (page) {
+                (page) {
               if (value.isEmpty) {
                 return page.copyWith(isObtainAllData: true);
               }
@@ -303,10 +303,10 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
       await animeRepository
           .searchByGender(gender: state.mapGeneresAnimes[event.gender]!)
           .then(
-        (value) {
+            (value) {
           state.mapGeneresAnimes.update(
             event.gender,
-            (page) {
+                (page) {
               if (value.isEmpty) {
                 return page.copyWith(isObtainAllData: true);
               }
@@ -340,7 +340,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
 
   List<Future<Null>> transformListStringToListFuture(
       {required List<String> listAnime,
-      required List<CompleteAnime> listAnimeState}) {
+        required List<CompleteAnime> listAnimeState}) {
     return listAnime.map((id) async {
       try {
         final anime = await animeRepository.obtainAnimeForId(id: id);
@@ -358,8 +358,8 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
 
   void navigationAnimated(
       {required BuildContext context,
-      required Widget navigateWidget,
-      bool isReplacement = false}) {
+        required Widget navigateWidget,
+        bool isReplacement = false}) {
     if (isReplacement) {
       Navigator.pushReplacement(
           context,
@@ -371,7 +371,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
               reverseTransitionDuration: const Duration(milliseconds: 700),
               transitionDuration: const Duration(seconds: 1),
               pageBuilder: (context, animation, secondaryAnimation) =>
-                  navigateWidget,
+              navigateWidget,
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 return FadeTransition(
@@ -393,7 +393,7 @@ class AnimeBloc extends HydratedBloc<AnimeEvent, AnimeState> {
             reverseTransitionDuration: const Duration(milliseconds: 600),
             transitionDuration: const Duration(milliseconds: 600),
             pageBuilder: (context, animation, secondaryAnimation) =>
-                navigateWidget,
+            navigateWidget,
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               return FadeTransition(

@@ -36,7 +36,7 @@ class TypesAnimePage extends StatelessWidget {
           }
         },
         child: Scaffold(
-
+backgroundColor: Colors.black,
             body: listScreenTypePage[currentIndex],
             bottomNavigationBar: SnackNavigationWidget(
               changeIndex: changeIndex,

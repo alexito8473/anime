@@ -150,6 +150,9 @@ class _DetailAnimePageState extends State<DetailAnimePage> {
 
       final share = ShareParams(
           files: [XFile(file.path)],
+          title:
+              'Hey mira este es el anime que te quiero compartir: "${anime.title}" '
+              'tiene un total de ${anime.episodes.length} episodios en estos momentos',
           text:
               'Hey mira este es el anime que te quiero compartir: "${anime.title}" '
               'tiene un total de ${anime.episodes.length} episodios en estos momentos',

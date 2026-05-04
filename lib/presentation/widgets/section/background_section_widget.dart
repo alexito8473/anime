@@ -14,7 +14,6 @@ class BackgroundSectionWidget extends StatelessWidget {
         .listAssets()
         .where((key) => key.startsWith('assets/backgroundImage/'))
         .toList();
-    final Size size = MediaQuery.sizeOf(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
